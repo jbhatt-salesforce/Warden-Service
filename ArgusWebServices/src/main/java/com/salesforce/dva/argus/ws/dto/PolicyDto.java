@@ -19,8 +19,9 @@ import com.salesforce.dva.argus.entity.Trigger.TriggerType;
  *
  * @author  Ruofan Zhang (rzhang@salesforce.com)
  */
+
 @SuppressWarnings("serial")
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class PolicyDto extends EntityDTO {
 	//~ Instance fields ******************************************************************************************************************************
 

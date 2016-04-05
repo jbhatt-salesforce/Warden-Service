@@ -16,7 +16,7 @@ import com.salesforce.dva.argus.entity.SuspensionLevel;
  * @author  Ruofan Zhang (rzhang@salesforce.com)
  */
 @SuppressWarnings("serial")
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class SuspensionLevelDto extends EntityDTO {
 	//~ Instance fields ******************************************************************************************************************************
     
