@@ -1,0 +1,269 @@
+package com.salesforce.dva.argus.entity;
+
+import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
+
+import java.util.List;
+
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.NoResultException;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.TypedQuery;
+import javax.persistence.UniqueConstraint;
+
+import com.salesforce.dva.argus.entity.Trigger.TriggerType;
+
+/**
+ * The entity encapsulates information about the policy.
+ *
+ * <p>Fields that determine uniqueness are:</p>
+ *
+ * <ul>
+ *   <li>NAME</li>
+ * </ul>
+ *
+ * <p>Fields that cannot be null are:</p>
+ *
+ * <ul>
+ *   <li>SERVICE</li>
+ *   <li>NAME</li>
+ *   <li>OWNER</li>
+ *   <li>USER</li>
+ *   <li>SUB_SYSTEM</li>
+ *   <li>METRIC_NAME</li>
+ *   <li>TRIGGER_TYPE</li>
+ *   <li>AGGREGATOR</li>
+ *   <li>THRESHOLD</li>
+ *   <li>TIME_UNIT</li>
+ *   <li>DEFAULT_VALUE</li>
+ *   <li>CRON_ENTRY</li>
+ * </ul>
+ *
+ * @author  Ruofan Zhang (rzhang@salesforce.com)
+ */
+@SuppressWarnings("serial")
+@Entity
+@Table(name = "POLICY", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
+@NamedQueries(
+	    {
+	        @NamedQuery(
+	            name = "Policy.findByName", query = "SELECT r FROM Policy r WHERE r.name = :name"
+	        )
+	    }
+	)
+public class Policy extends JPAEntity {
+	//~ Instance fields ******************************************************************************************************************************
+
+	@Basic(optional = false)
+	@Column(nullable = false)
+    private String servcie;
+	
+	@Basic(optional = false)
+	@Column(nullable = false)
+    private String name;
+	
+	@Basic(optional = false)
+	@Column(nullable = false)
+    @ElementCollection
+    private List<String> owner;
+	
+	@Basic(optional = false)
+	@Column(nullable = false)
+    @ElementCollection
+    private List<String> user;
+	
+	@Basic(optional = false)
+	@Column(name = "sub_system", nullable = false)
+    private String subSystem;
+	
+	@Basic(optional = false)
+    @Column(name = "metric_name", nullable = false)
+    private String metricName;
+	
+	@Basic(optional = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trigger_type",nullable = false)
+    private TriggerType triggerType;
+	
+	@Basic(optional = false)
+    @Column(nullable = false)
+    private String aggregator;
+    
+	@Basic(optional = false)
+    @Column(nullable = false)
+    private List<Double> threshold;
+    
+	@Basic(optional = false)
+    @Column(name = "time_unit", nullable = false)
+    private String timeUnit;
+    
+	@Basic(optional = false)
+    @Column(name = "default_value",nullable = false)
+    private double defaultValue;
+    
+	@Basic(optional = false)
+    @Column(name = "cron_entry", nullable = false)
+    private String cronEntry;
+    
+    @OneToMany(mappedBy="policy_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Transient
+    private List<SuspensionLevel> suspensionLevelList;
+    
+  //~ Constructors *********************************************************************************************************************************
+
+	/**
+     * Creates a new Policy object.
+     *
+     * @param  creator      The creator of this policy.
+     * @param  service      The service for this policy. Cannot be null.
+     * @param  name     	The name for this policy. Cannot be null.
+     * @param  owner 		The owner for this policy. Cannot be null.
+     * @param  user  		The user for this policy. Cannot be null.
+     * @param  subSystem  	The subSystem for this policy. Cannot be null.
+     * @param  metricName  	The metric name for this policy. Cannot be null.
+     * @param  triggerType  The trigger type for this policy. Cannot be null.
+     * @param  aggregator  	The aggregator for this policy. Cannot be null.
+     * @param  threshold  	The threshold for this policy. Cannot be null.
+     * @param  timeUnit  	The time unit for this policy. Cannot be null.
+     * @param  defaultValue The default value for this policy. Cannot be null.
+     * @param  cronEntry  	The cron entry for this policy. Cannot be null.
+     */
+    public Policy(PrincipalUser creator, String service, String name, List<String> owner, List<String> user, String subSystem,
+			String metricName, TriggerType triggerType, String aggregator, List<Double> threshold, String timeUnit,
+			double defaultValue, String cronEntry) {
+		super(creator);
+		setService(service);
+		setName(name);
+		setOwner(owner);
+		setUser(user);
+		setSubSystem(subSystem);
+		setMetricName(metricName);
+		setTriggerType(triggerType);
+		setAggregator(aggregator);
+		setThreshold(threshold);
+		setTimeUnit(timeUnit);
+		setDefaultValue(defaultValue);
+		setCronEntry(cronEntry);
+	}
+    
+    /** Creates a new Policy object. */
+    protected Policy() {
+        super(null);
+    }
+  //~ Methods **************************************************************************************************************************************
+    /**
+     * Finds a policy given its name.
+     *
+     * @param   em      The entity manager to use. Cannot be null.
+     * @param   name  	The name of the policy. Cannot be null or empty.
+     *
+     * @return  The corresponding policy or null if no policy having the specified name exists for this name.
+     */
+    public static Policy findByName(EntityManager em, String name) {
+        requireArgument(em != null, "Entity manager can not be null.");
+        requireArgument(name != null, "Policy name cannot be null or empty.");
+
+        TypedQuery<Policy> query = em.createNamedQuery("Polciy.findByName", Policy.class);
+        
+        try {
+            query.setParameter("name", name);
+            query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+            return query.getSingleResult();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+    
+	public String getServcie() {
+		return servcie;
+	}
+	public void setService(String servcie) {
+		this.servcie = servcie;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public List<String> getOwner() {
+		return owner;
+	}
+	public void setOwner(List<String> owner) {
+		this.owner = owner;
+	}
+	public List<String> getUser() {
+		return user;
+	}
+	public void setUser(List<String> user) {
+		this.user = user;
+	}
+	public String getSubSystem() {
+		return subSystem;
+	}
+	public void setSubSystem(String subSystem) {
+		this.subSystem = subSystem;
+	}
+	public String getMetricName() {
+		return metricName;
+	}
+	public void setMetricName(String metricName) {
+		this.metricName = metricName;
+	}
+	public TriggerType getTriggerType() {
+		return triggerType;
+	}
+	public void setTriggerType(TriggerType triggerType) {
+		this.triggerType = triggerType;
+	}
+	public String getAggregator() {
+		return aggregator;
+	}
+	public void setAggregator(String aggregator) {
+		this.aggregator = aggregator;
+	}
+	public List<Double> getThreshold() {
+		return threshold;
+	}
+	public void setThreshold(List<Double> threshold) {
+		this.threshold = threshold;
+	}
+	public String getTimeUnit() {
+		return timeUnit;
+	}
+	public void setTimeUnit(String timeUnit) {
+		this.timeUnit = timeUnit;
+	}
+	public double getDefaultValue() {
+		return defaultValue;
+	}
+	public void setDefaultValue(double defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+	public String getCronEntry() {
+		return cronEntry;
+	}
+	public void setCronEntry(String cronEntry) {
+		this.cronEntry = cronEntry;
+	}
+
+	public List<SuspensionLevel> getSuspensionLevelList() {
+		return suspensionLevelList;
+	}
+
+	public void setSuspensionLevelList(List<SuspensionLevel> suspensionLevelList) {
+		this.suspensionLevelList = suspensionLevelList;
+	}
+    
+    
+}
