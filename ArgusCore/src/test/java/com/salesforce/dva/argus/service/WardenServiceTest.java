@@ -51,7 +51,7 @@ import com.salesforce.dva.argus.entity.PrincipalUser;
 import com.salesforce.dva.argus.entity.Trigger;
 import com.salesforce.dva.argus.service.WardenService.PolicyCounter;
 import com.salesforce.dva.argus.service.WardenService.SubSystem;
-import com.salesforce.dva.argus.service.warden.DummyWardenService;
+import com.salesforce.dva.argus.service.warden.DefaultWardenService;
 import com.salesforce.dva.argus.system.SystemException;
 
 public class WardenServiceTest extends AbstractTest {
@@ -184,7 +184,7 @@ public class WardenServiceTest extends AbstractTest {
         String alertName = "";
 
         try {
-            Method method = DummyWardenService.class.getDeclaredMethod("_constructWardenAlertName", PrincipalUser.class, PolicyCounter.class);
+            Method method = DefaultWardenService.class.getDeclaredMethod("_constructWardenAlertName", PrincipalUser.class, PolicyCounter.class);
 
             method.setAccessible(true);
             alertName = (String) method.invoke(_wardenService, _userService.findAdminUser(), PolicyCounter.METRICS_PER_HOUR);
@@ -205,7 +205,7 @@ public class WardenServiceTest extends AbstractTest {
         String alertName = "";
 
         try {
-            Method method = DummyWardenService.class.getDeclaredMethod("_constructWardenAlertName", PrincipalUser.class, PolicyCounter.class);
+            Method method = DefaultWardenService.class.getDeclaredMethod("_constructWardenAlertName", PrincipalUser.class, PolicyCounter.class);
 
             method.setAccessible(true);
             alertName = (String) method.invoke(_wardenService, _userService.findAdminUser(), PolicyCounter.METRICS_PER_HOUR);
@@ -246,7 +246,7 @@ public class WardenServiceTest extends AbstractTest {
         String alertName = "";
 
         try {
-            Method method = DummyWardenService.class.getDeclaredMethod("_constructWardenAlertName", PrincipalUser.class, PolicyCounter.class);
+            Method method = DefaultWardenService.class.getDeclaredMethod("_constructWardenAlertName", PrincipalUser.class, PolicyCounter.class);
 
             method.setAccessible(true);
             alertName = (String) method.invoke(_wardenService, user, PolicyCounter.METRICS_PER_HOUR);
