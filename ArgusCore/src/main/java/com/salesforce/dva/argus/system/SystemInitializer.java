@@ -77,7 +77,7 @@ import com.salesforce.dva.argus.service.metric.DefaultMetricService;
 import com.salesforce.dva.argus.service.monitor.DefaultMonitorService;
 import com.salesforce.dva.argus.service.schema.DefaultDiscoveryService;
 import com.salesforce.dva.argus.service.tsdb.CachedTSDBService;
-import com.salesforce.dva.argus.service.warden.DefaultWardenService;
+import com.salesforce.dva.argus.service.warden.DummyWardenService;
 import com.salesforce.dva.argus.system.SystemConfiguration.Property;
 import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
@@ -242,7 +242,7 @@ final class SystemInitializer extends AbstractModule {
         bindConcreteClass(DefaultMetricService.class, MetricService.class);
         bindConcreteClass(DefaultGlobalInterlockService.class, GlobalInterlockService.class);
         bindConcreteClass(DefaultMonitorService.class, MonitorService.class);
-        bindConcreteClass(DefaultWardenService.class, WardenService.class);
+        bindConcreteClass(DummyWardenService.class, WardenService.class);
         bindConcreteClass(DefaultAnnotationService.class, AnnotationService.class);
         bindConcreteClass(DefaultManagementService.class, ManagementService.class);
         bindConcreteClass(DefaultServiceManagementService.class, ServiceManagementService.class);
