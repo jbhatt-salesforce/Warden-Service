@@ -85,6 +85,9 @@ public final class ServiceFactory {
     Provider<CacheService> _cacheServiceProvider;
     @Inject
     Provider<DiscoveryService> _discoveryServiceProvider;
+    //TODO
+    //@Inject
+    //Provider<WaaSService> _waaSServiceProvider;
 
     //~ Methods **************************************************************************************************************************************
 
@@ -276,5 +279,15 @@ public final class ServiceFactory {
     public synchronized DiscoveryService getDiscoveryService() {
         return _discoveryServiceProvider.get();
     }
+
+    /**
+     * Returns an instance of the WaaS service.
+     *
+     * @return  An instance of the WaaS service.
+     */
+    //TODO
+//	public synchronized WaaSService getWaaSService() {		
+//		return _waaSServiceProvider.get();
+//	}
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
