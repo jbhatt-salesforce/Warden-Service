@@ -13,6 +13,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.NoResultException;
 import javax.persistence.Table;
 import javax.persistence.TypedQuery;
+
 /**
  * The entity encapsulates information about the infraction history.
  *
@@ -27,7 +28,6 @@ import javax.persistence.TypedQuery;
  *
  * @author  Ruofan Zhang (rzhang@salesforce.com)
  */
-
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "INFRACTION_HISTORY")
