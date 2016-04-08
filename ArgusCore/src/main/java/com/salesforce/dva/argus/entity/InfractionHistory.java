@@ -1,7 +1,6 @@
 package com.salesforce.dva.argus.entity;
 
 import java.util.List;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +12,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.NoResultException;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.TypedQuery;
 /**
  * The entity encapsulates information about the infraction history.
@@ -37,44 +35,35 @@ import javax.persistence.TypedQuery;
 	    {
 	        @NamedQuery(
 	            name = "InfractionHistory.findByPolicyIdAndUserName", 
-	            query = "SELECT r FROM InfractionHistory r WHERE r.policyId = :policyId AND r.userId in (SELECT p.id from PrincipalUser p where p.userName = :userName)"
+	            query = "SELECT r FROM InfractionHistory r WHERE r.policy = :policy AND r.user in (SELECT p.id from PrincipalUser p where p.userName = :userName)"
 	        ),
 	        
-	        @NamedQuery(
+	        @NamedQuery(//need to use order by since result list will include both indefinite and temp suspension
 		            name = "InfractionHistory.findByPolicyNameAndUserName", 
-		            query = "SELECT r FROM InfractionHistory r WHERE r.policyId in (SELECT p.id from Policy p where p.name = :name)"
-		            		+ " AND r.userId in (SELECT u.id from PrincipalUser u where u.userName = :userName)"
-		        )
+		            query = "SELECT r FROM InfractionHistory r WHERE r.policy in (SELECT p.id from Policy p where p.name = :name)"
+		            		+ " AND r.user in (SELECT u.id from PrincipalUser u where u.userName = :userName) "
+		            		+ "ORDER BY r.infractionTimestamp DESC"
+		        ),
+
+	        
 	    }
 	)
  
 public class InfractionHistory extends JPAEntity {
 	 	@ManyToOne(targetEntity = Policy.class, fetch = FetchType.LAZY,optional = false)
 	    @JoinColumn(name = "policy_id", nullable = false)
-	 	@Transient
 	    private Policy policy;    
-	 	@Basic(optional = false)
-		@Column(name = "policy_id", insertable = false, updatable = false)
-	    private Long policyId;
 	 	
 	 	@ManyToOne(targetEntity = PrincipalUser.class, fetch = FetchType.LAZY,optional = false)
 	    @JoinColumn(name = "user_id", nullable = false)
-	 	@Transient
-	    private PrincipalUser user;
-	 	@Basic(optional = false)
-		@Column(name = "user_id", insertable = false, updatable = false)
-	    private Long userId;
-	 	@Basic(optional = false)
-		@Transient
-	    private String userName;
-	 	
+	    private PrincipalUser user;	 	
 	 	
 	 	@Basic(optional = false)
 		@Column(name = "infraction_timestamp", nullable=false)
 	    private Long infractionTimestamp;
 
 	 	@Basic(optional = false)
-		@Column(name = "expiration_timestamp", nullable=false)
+		@Column(name = "expiration_timestamp", nullable=false, columnDefinition="LONG default '0L'")
 	    private Long expirationTimestamp;
 
 	 	//~ Constructors *********************************************************************************************************************************
@@ -88,10 +77,10 @@ public class InfractionHistory extends JPAEntity {
 	     * @param  infractionTimestamp 	The infraction timestamp of this infraction history. Cannot be null.
 	     * @param  expirationTimestamp 	The expiration timestamp of this infraction history. Cannot be null.	    
 	     */
-	    public InfractionHistory(PrincipalUser creator, long policyId, String userName, long infractionTimestamp , long expirationTimestamp) {
+	    public InfractionHistory(PrincipalUser creator, Policy policy, PrincipalUser user, long infractionTimestamp , long expirationTimestamp) {
 			super(creator);
-			setPolicyId(policyId);
-			setUserName(userName);
+			setPolicy(policy);
+			setUser(user);
 			setInfractionTimestamp(infractionTimestamp);
 			setExpirationTimestamp(expirationTimestamp);
 		}
@@ -129,7 +118,28 @@ public class InfractionHistory extends JPAEntity {
 	        }
 	        return count;
 	    }
+	    /**
+	     * Find the infraction history for a given user-policy combination.
+	     *
+	     * @param   em         The EntityManager to use.
+	     * @param   userName   The userName for which to retrieve record.
+	     * @param   policyName   The policy name for which to retrieve record.
+	     *
+	     * @return  The infraction history for the given user-policy combination. Null if no such record exists.
+	     */
+	    public static List<InfractionHistory> findByPolicyNameAndUserName(EntityManager em, String userName, String policyName) {
+	        TypedQuery<InfractionHistory> query = em.createNamedQuery("InfractionHistory.findByPolicyNameAndUserName", InfractionHistory.class);
 
+	        try {	        	 
+	            query.setParameter("userName", userName);
+	            query.setParameter("policyName", policyName);
+	            query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+	            return query.getResultList();
+	        } catch (NoResultException ex) {
+	            return null;
+	        }
+	    }
+	    
 	    /**
 	     * Find the infraction history for a given user-policy combination.
 	     *
@@ -169,28 +179,22 @@ public class InfractionHistory extends JPAEntity {
 	        return expirationTimestamp == -1L;
 	    }
 	    
-		public Long getPolicyId() {
-			return policyId;
+		public Policy getPolicy() {
+			return policy;
 		}
 
-		public void setPolicyId(Long policyId) {
-			this.policyId = policyId;
+		public void setPolicy(Policy policy) {
+			this.policy = policy;
 		}
 		
-		public String getUserName() {
-			return user.getUserName();
+		
+
+		public PrincipalUser getUser() {
+			return user;
 		}
 
-		public void setUserName(String userName) {
-			user.setUserName(userName);
-		}
-
-		public Long getUserId() {
-			return userId;
-		}
-
-		public void setUserId(Long userId) {
-			this.userId = userId;
+		public void setUser(PrincipalUser user) {
+			this.user = user;
 		}
 
 		public Long getInfractionTimestamp() {
