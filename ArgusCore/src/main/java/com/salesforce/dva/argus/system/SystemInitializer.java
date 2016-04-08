@@ -62,6 +62,7 @@ import com.salesforce.dva.argus.service.SchemaService;
 import com.salesforce.dva.argus.service.ServiceManagementService;
 import com.salesforce.dva.argus.service.TSDBService;
 import com.salesforce.dva.argus.service.UserService;
+import com.salesforce.dva.argus.service.WaaSService;
 import com.salesforce.dva.argus.service.WardenService;
 import com.salesforce.dva.argus.service.annotation.DefaultAnnotationService;
 import com.salesforce.dva.argus.service.audit.DefaultAuditService;
@@ -77,6 +78,7 @@ import com.salesforce.dva.argus.service.metric.DefaultMetricService;
 import com.salesforce.dva.argus.service.monitor.DefaultMonitorService;
 import com.salesforce.dva.argus.service.schema.DefaultDiscoveryService;
 import com.salesforce.dva.argus.service.tsdb.CachedTSDBService;
+import com.salesforce.dva.argus.service.warden.DefaultWaaSService;
 import com.salesforce.dva.argus.service.warden.DummyWardenService;
 import com.salesforce.dva.argus.system.SystemConfiguration.Property;
 import org.slf4j.LoggerFactory;
@@ -90,6 +92,7 @@ import java.util.Properties;
  *
  * @author  Tom Valine (tvaline@salesforce.com), Bhinav Sura (bhinav.sura@salesforce.com)
  */
+
 final class SystemInitializer extends AbstractModule {
 
     //~ Instance fields ******************************************************************************************************************************
@@ -250,6 +253,8 @@ final class SystemInitializer extends AbstractModule {
         bindConcreteClass(DefaultHistoryService.class, HistoryService.class);
         bindConcreteClass(DefaultNamespaceService.class, NamespaceService.class);
         bindConcreteClass(DefaultDiscoveryService.class, DiscoveryService.class);
+        //////////
+        bindConcreteClass(DefaultWaaSService.class, WaaSService.class);
     }
 
     private <T> void bindConcreteClass(Property property, Class<T> type) {

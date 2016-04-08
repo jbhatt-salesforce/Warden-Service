@@ -62,6 +62,7 @@ import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
  * @author  Tom Valine (tvaline@salesforce.com)
  * @author  Bhinav Sura (bhinav.sura@salesforce.com)
  */
+
 @Singleton
 public class DummyWardenService extends DefaultJPAService implements WardenService {
 
