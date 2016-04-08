@@ -17,7 +17,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.NoResultException;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
 
@@ -115,8 +114,7 @@ public class Policy extends JPAEntity {
     @Column(name = "cron_entry", nullable = false)
     private String cronEntry;
     
-    @OneToMany(mappedBy="policy_id", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Transient
+    @OneToMany(mappedBy="policy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SuspensionLevel> suspensionLevelList;
     
   //~ Constructors *********************************************************************************************************************************
