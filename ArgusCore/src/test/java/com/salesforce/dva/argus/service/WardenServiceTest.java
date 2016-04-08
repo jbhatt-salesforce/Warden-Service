@@ -488,7 +488,7 @@ public class WardenServiceTest extends AbstractTest {
             bindConcreteClass(DefaultNamespaceService.class, NamespaceService.class);
             bindConcreteClass(DefaultDiscoveryService.class, DiscoveryService.class);
             //TODO
-            bindConcreteClass(DefaultWaaSService.class, WaaSService.class);
+            //bindConcreteClass(DefaultWaaSService.class, WaaSService.class);
         }
 
         private <T> void bindConcreteClass(Property property, Class<T> type) {
