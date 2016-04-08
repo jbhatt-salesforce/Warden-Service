@@ -17,7 +17,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.NoResultException;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
 
@@ -49,38 +48,32 @@ import javax.persistence.UniqueConstraint;
     {
         @NamedQuery(
             name = "SuspensionLevel.findAllByPolicy", 
-            query = "SELECT r FROM SuspensionLevel r WHERE r.policyId = :policyId"
+            query = "SELECT r FROM SuspensionLevel r WHERE r.policy = :policy"
         ),
         @NamedQuery(
                 name = "SuspensionLevel.findByPolicyAndLevel", 
-                query = "SELECT r FROM SuspensionLevel r WHERE r.policyId = :policyId and r.levelNumber = :levelNumber"
+                query = "SELECT r FROM SuspensionLevel r WHERE r.policy = :policy and r.levelNumber = :levelNumber"
         ),
         @NamedQuery(
                 name = "SuspensionLevel.findInfractionCountByPolicyAndLevel", 
-                query = "SELECT r.infractionCount FROM SuspensionLevel r WHERE r.policyId = :policyId and r.levelNumber = :levelNumber"
+                query = "SELECT r.infractionCount FROM SuspensionLevel r WHERE r.policy = :policy and r.levelNumber = :levelNumber"
         ),
         @NamedQuery(
                 name = "SuspensionLevel.findSuspensionTimeByPolicyAndLevel", 
-                query = "SELECT r.suspensionTime FROM SuspensionLevel r WHERE r.policyId = :policyId and r.levelNumber = :levelNumber"
+                query = "SELECT r.suspensionTime FROM SuspensionLevel r WHERE r.policy = :policy and r.levelNumber = :levelNumber"
         ),
         @NamedQuery(
                 name = "SuspensionLevel.findSuspensionTimeByPolicyAndInfractionCount", 
-                query = "SELECT r.suspensionTime FROM SuspensionLevel r WHERE r.policyId = :policyId and r.infractionCount = :infractionCount"
+                query = "SELECT r.suspensionTime FROM SuspensionLevel r WHERE r.policy = :policy and r.infractionCount = :infractionCount"
         )
     }
 )
 public class SuspensionLevel extends JPAEntity {
 	//~ Instance fields ******************************************************************************************************************************
 
-    //????????I only care about policy_id, not policy
     @ManyToOne(targetEntity = Policy.class, fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "policy_id", nullable = false)
-    @Transient
     private Policy policy;    
-
-    @Basic(optional = false)
-	@Column(name = "policy_id", insertable = false, updatable = false)
-    private BigInteger policyId;
     
     @Basic(optional = false)
     @Column(name = "level_number", nullable = false)
@@ -92,8 +85,7 @@ public class SuspensionLevel extends JPAEntity {
     
     @Column(name = "suspension_time", nullable = false)
     @Basic(optional = false)
-    private long suspensionTime;
-    
+    private long suspensionTime;   
     
     
     //~ Constructors *********************************************************************************************************************************
@@ -109,7 +101,7 @@ public class SuspensionLevel extends JPAEntity {
      */
     public SuspensionLevel(PrincipalUser creator, BigInteger policyId, int levelNumber, int infractionCount, Long suspensionTime) {
     	super(creator);
-    	setPolicyId(policyId);
+    	setPolicy(policy);
         setLevelNumber(levelNumber);
         setInfractionCount(infractionCount);
         setSuspensionTime(suspensionTime);
@@ -123,6 +115,33 @@ public class SuspensionLevel extends JPAEntity {
   //~ Methods **************************************************************************************************************************************
     /**
      * Finds an suspension time given its name and owner.
+     *
+     * @param   em        			The entity manager to use. Cannot be null.
+     * @param   policyId  			The policy id associated with this suspension level. Cannot be null.
+     * @param   infractionCount		The infraction count associated with this suspension level. Cannot be null.
+     *
+     * @return  The corresponding suspension time or null if no suspension level having the specified policy and infraction count exist.
+     */
+    public static SuspensionLevel findByPolicyAndLevel(EntityManager em, BigInteger policyId, int level) {
+        requireArgument(em != null, "Entity manager can not be null.");
+        requireArgument(policyId != null , "Policy id cannot be null");
+        requireArgument(level > 0, "Level must be greater than zero.");
+
+        TypedQuery<SuspensionLevel> query = em.createNamedQuery("SuspensionLevel.findByPolicyAndLevel", SuspensionLevel.class);
+
+        
+        try {
+            query.setParameter("policyId", policyId);
+            query.setParameter("level", level);
+            query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+            return query.getSingleResult();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+    
+    /**
+     * Finds an suspension time given its policy and infraction count.
      *
      * @param   em        			The entity manager to use. Cannot be null.
      * @param   policyId  			The policy id associated with this suspension level. Cannot be null.
@@ -170,12 +189,12 @@ public class SuspensionLevel extends JPAEntity {
             return new ArrayList<>(0);
         }
     }
-    public BigInteger getPolicyId() {
-		return policyId;
+    public Policy getPolicy() {
+		return policy;
 	}
     
-	public void setPolicyId(BigInteger policyId) {
-		this.policyId = policyId;
+	public void setPolicy(Policy policy) {
+		this.policy = policy;
 	}
 
 	public int getLevelNumber() {
