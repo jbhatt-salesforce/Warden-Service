@@ -21,7 +21,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
 
 import com.salesforce.dva.argus.entity.Trigger.TriggerType;
-import com.salesforce.dva.argus.util.Cron;
 
 /**
  * The entity encapsulates information about the policy.
@@ -30,7 +29,6 @@ import com.salesforce.dva.argus.util.Cron;
  *
  * <ul>
  *   <li>NAME</li>
- *   <li>SERVICE</li>
  * </ul>
  *
  * <p>Fields that cannot be null are:</p>
@@ -54,11 +52,11 @@ import com.salesforce.dva.argus.util.Cron;
  */
 @SuppressWarnings("serial")
 @Entity
-@Table(name = "POLICY", uniqueConstraints = @UniqueConstraint(columnNames = { "name","service" }))
+@Table(name = "POLICY", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
 @NamedQueries(
 	    {
 	        @NamedQuery(
-	            name = "Policy.findByName", query = "SELECT r FROM Policy r WHERE r.name = :name AND r.service = :service"
+	            name = "Policy.findByName", query = "SELECT r FROM Policy r WHERE r.name = :name"
 	        )
 	    }
 	)
@@ -67,7 +65,7 @@ public class Policy extends JPAEntity {
 
 	@Basic(optional = false)
 	@Column(nullable = false)
-    private String service;
+    private String servcie;
 	
 	@Basic(optional = false)
 	@Column(nullable = false)
@@ -83,7 +81,7 @@ public class Policy extends JPAEntity {
     @ElementCollection
     private List<String> user;
 	
-	@Basic(optional = true)
+	@Basic(optional = false)
 	@Column(name = "sub_system", nullable = false)
     private String subSystem;
 	
@@ -118,9 +116,6 @@ public class Policy extends JPAEntity {
     
     @OneToMany(mappedBy="policy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SuspensionLevel> suspensionLevelList;
-    
-    @OneToMany(mappedBy="policy", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Infraction> infractionList;
     
   //~ Constructors *********************************************************************************************************************************
 
@@ -176,7 +171,7 @@ public class Policy extends JPAEntity {
         requireArgument(em != null, "Entity manager can not be null.");
         requireArgument(name != null, "Policy name cannot be null or empty.");
 
-        TypedQuery<Policy> query = em.createNamedQuery("Policy.findByName", Policy.class);
+        TypedQuery<Policy> query = em.createNamedQuery("Polciy.findByName", Policy.class);
         
         try {
             query.setParameter("name", name);
@@ -187,11 +182,11 @@ public class Policy extends JPAEntity {
         }
     }
     
-	public String getService() {
-		return service;
+	public String getServcie() {
+		return servcie;
 	}
-	public void setService(String service) {
-		this.service = service;
+	public void setService(String servcie) {
+		this.servcie = servcie;
 	}
 	public String getName() {
 		return name;
@@ -257,11 +252,7 @@ public class Policy extends JPAEntity {
 		return cronEntry;
 	}
 	public void setCronEntry(String cronEntry) {
-		if(Cron.isValid(cronEntry)){
-			this.cronEntry = cronEntry;
-		}else{
-			throw new RuntimeException("Please provide a valid cron entry string.");
-		}		
+		this.cronEntry = cronEntry;
 	}
 
 	public List<SuspensionLevel> getSuspensionLevelList() {
