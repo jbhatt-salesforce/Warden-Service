@@ -78,7 +78,6 @@ import com.salesforce.dva.argus.service.metric.DefaultMetricService;
 import com.salesforce.dva.argus.service.monitor.DefaultMonitorService;
 import com.salesforce.dva.argus.service.schema.DefaultDiscoveryService;
 import com.salesforce.dva.argus.service.tsdb.CachedTSDBService;
-import com.salesforce.dva.argus.service.warden.DefaultWaaSService;
 import com.salesforce.dva.argus.service.warden.DefaultWardenService;
 import com.salesforce.dva.argus.system.SystemConfiguration;
 import com.salesforce.dva.argus.system.SystemException;
