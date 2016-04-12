@@ -83,8 +83,9 @@ public final class ServiceFactory {
     Provider<NamespaceService> _namespaceServiceProvider;
     @Inject
     Provider<CacheService> _cacheServiceProvider;
-    @Inject
+   
     Provider<DiscoveryService> _discoveryServiceProvider;
+   
     //TODO
     //@Inject
     //Provider<WaaSService> _waaSServiceProvider;
@@ -289,5 +290,6 @@ public final class ServiceFactory {
 //	public synchronized WaaSService getWaaSService() {		
 //		return _waaSServiceProvider.get();
 //	}
+
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */

@@ -58,6 +58,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+
+
 import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 
 /**
@@ -67,6 +73,8 @@ import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
  *
  * @author  Raj Sarkapally (rsarkapally@salesforce.com)
  */
+//@Path("/help")
+//@Api(value="help", description="Argus Help Endpoint")
 public abstract class AbstractResource {
 
 	//~ Instance fields ******************************************************************************************************************************
@@ -128,8 +136,11 @@ public abstract class AbstractResource {
      * @return  Help object describing the service in JSON format.
      */
     @GET
+    
     @Produces(MediaType.APPLICATION_JSON)
+    
     @Path("/help")
+    //@ApiOperation(value="just to test the sample api")
     public Map<String, List<? extends Object>> help() {
         Map<String, List<?>> result = new LinkedHashMap<>();
         List<EndpointHelpDto> endpoints = describeEndpoints(getEndpoints());
