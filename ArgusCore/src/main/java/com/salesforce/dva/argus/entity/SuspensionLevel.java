@@ -37,6 +37,7 @@ import javax.persistence.UniqueConstraint;
  *
  * @author  Ruofan Zhang(rzhang@salesforce.com)
  */
+
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "SUSPENSION_LEVEL", uniqueConstraints = @UniqueConstraint(columnNames = { "policy_id", "level_number" }))
@@ -48,6 +49,7 @@ import javax.persistence.UniqueConstraint;
         )
     }
 )
+
 public class SuspensionLevel extends JPAEntity {
 	//~ Instance fields ******************************************************************************************************************************
 
@@ -86,13 +88,16 @@ public class SuspensionLevel extends JPAEntity {
         setInfractionCount(infractionCount);
         setSuspensionTime(suspensionTime);
     }
+    
     /**
      * Creates a new SubsystemSuspensionLevel object.     
      */
     protected SuspensionLevel(){
     	super(null);
     }
-  //~ Methods **************************************************************************************************************************************
+    
+    //~ Methods **************************************************************************************************************************************
+   
     /**
      * Finds an suspension time given its name and owner.
      *
