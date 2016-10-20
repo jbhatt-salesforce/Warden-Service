@@ -43,6 +43,7 @@ import com.salesforce.dva.argus.service.AnnotationService;
 import com.salesforce.dva.argus.service.MetricService;
 import com.salesforce.dva.argus.service.TSDBService;
 import com.salesforce.dva.argus.service.WaaSService;
+import com.salesforce.dva.argus.service.MonitorService.Counter;
 import com.salesforce.dva.argus.service.alert.DefaultAlertService.NotificationContext;
 import com.salesforce.dva.argus.service.alert.notifier.DefaultNotifier;
 import com.salesforce.dva.argus.system.SystemConfiguration;
@@ -74,8 +75,8 @@ public  class WaaSNotifier extends DefaultNotifier {
 
     //~ Static fields/initializers *******************************************************************************************************************
 
-	private static final String ANNOTATION_SOURCE = "ARGUS-WAAS";
-    private static final String ANNOTATION_TYPE = "WAAS";
+	private static final String ANNOTATION_SOURCE = "ARGUS-WAAS";//"ARGUS-WARDEN";
+    private static final String ANNOTATION_TYPE = "WAAS";//"WARDEN";//
 
     //~ Instance fields ******************************************************************************************************************************
 
@@ -121,11 +122,8 @@ public  class WaaSNotifier extends DefaultNotifier {
     @Override
     protected void sendAdditionalNotification(NotificationContext context){
     	List<String> nameAndService = _parseMetricExpression(context);
-    	System.out.println("nameAndService name: " + nameAndService.get(0));
-    	System.out.println("nameAndService service:" + nameAndService.get(1));
     	//Policy policy = _waaSService.getPolicy(nameAndService.get(0),nameAndService.get(1));
     	Policy policy = _waaSService.getPolicy("policyName.descriptor.max","service");
-    	System.out.println("policy Found:" + policy.getName());
     	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUserName(), policy);
     	
     	//wrap warden event data
@@ -134,10 +132,9 @@ public  class WaaSNotifier extends DefaultNotifier {
     	
     	//send out warden event
     	try {
-    		System.out.println("I am here!!!!!!");
 			WaaSNotifierWorker.doStart(InetAddress.getByName("localhost"),9090, data);
     		//WaaSNotifierWorker.doStart(InetAddress.getByName("www.google.com"),80, data);
-			System.out.println("I want to jump here!!!!");
+			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -147,11 +144,11 @@ public  class WaaSNotifier extends DefaultNotifier {
     private List<String> _parseMetricExpression(NotificationContext context) {
 		
     	String metricExpression = context.getAlert().getExpression();
-    	System.out.println(metricExpression);
+    	
 		int policyNameBeginIndex = metricExpression.indexOf(":") + 1;
         int policyNameEndIndex = metricExpression.lastIndexOf("{");
         String name = metricExpression.substring(policyNameBeginIndex, policyNameEndIndex);
-        System.out.println("metricName:" + name);
+        
 		int scopeBeginIndex = metricExpression.indexOf(":") + 1;
 		int scopeEndIndex = metricExpression.lastIndexOf(":");
 		String scope = metricExpression.substring(scopeBeginIndex, scopeEndIndex);
@@ -175,20 +172,24 @@ public  class WaaSNotifier extends DefaultNotifier {
 
         String scope = policy.getSubSystem() == null ? policy.getService() : policy.getService() + "." + policy.getSubSystem();
         metric = new Metric(scope, policy.getName());
+        
+        
         metric.setTag("user", waaSUser.getUserName());
         datapoints.put(context.getTriggerFiredTime(), "1");
         metric.setDatapoints(datapoints);
         _tsdbService.putMetrics(Arrays.asList(new Metric[] { metric }));
 
-        Annotation annotation = new Annotation(ANNOTATION_SOURCE, waaSUser.getUserName(), ANNOTATION_TYPE, scope,
-            policy.getName(), context.getTriggerFiredTime());
-        System.out.println("=======" + annotation.toString());
+		Annotation annotation = new Annotation(ANNOTATION_SOURCE, waaSUser.getUserName(), ANNOTATION_TYPE, scope, policy.getName(), context.getTriggerFiredTime());
+        
         Map<String, String> fields = new TreeMap<>();
 
         fields.put("Suspended from service", policy.getService());
+
         fields.put("Alert Name", alert.getName());
+
         fields.put("Notification Name", context.getNotification().getName());
         fields.put("Trigger Name", context.getTrigger().getName());
+        
         annotation.setFields(fields);
         _annotationService.updateAnnotation(alert.getOwner(), annotation);
     }
