@@ -35,6 +35,7 @@ import com.salesforce.dva.argus.inject.SLF4JTypeListener;
 import com.salesforce.dva.argus.service.AlertService;
 import com.salesforce.dva.argus.service.AnnotationService;
 import com.salesforce.dva.argus.service.AuditService;
+import com.salesforce.dva.argus.service.CollectionService;
 import com.salesforce.dva.argus.service.DashboardService;
 import com.salesforce.dva.argus.service.MetricService;
 import com.salesforce.dva.argus.service.ServiceManagementService;
@@ -65,13 +66,14 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	@Inject
 	private Provider<EntityManager> emf;
 	private final AlertService _alertService;
-	private final WaaSMonitorService _waaSMonitorService;
+	private final CollectionService _collectionService;
 	private final UserService _userService;
 	private final MetricService _metricService;
 	private final ServiceManagementService _serviceManagementRecordService;
 	private final DashboardService _dashboardService;
 	private final AnnotationService _annotationService;
 	private final TSDBService _tsdbService;
+	
 	private final PrincipalUser _adminUser;
 
 	// ~ Constructors
@@ -104,13 +106,13 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	 *            Service properties
 	 */
 	@Inject
-	protected DefaultWaaSService(AlertService alertService, WaaSMonitorService waaSMonitorService,
+	protected DefaultWaaSService(AlertService alertService, CollectionService collectionService,
 			UserService userService, MetricService metricService, ServiceManagementService serviceManagementService,
 			DashboardService dashboardService, AuditService auditService, AnnotationService annotationService,
 			TSDBService tsdbService, SystemConfiguration _sysConfig) {
 		super(auditService, _sysConfig);
 		requireArgument(alertService != null, "Alert service cannot be null.");
-		requireArgument(waaSMonitorService != null, "Monitor service cannot be null.");
+		requireArgument(collectionService != null, "Monitor service cannot be null.");
 		requireArgument(userService != null, "User service cannot be null.");
 		requireArgument(metricService != null, "Metric service cannot be null.");
 		requireArgument(serviceManagementService != null, "Service management service cannot be null.");
@@ -118,7 +120,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		requireArgument(annotationService != null, "Annotation service cannot be null.");
 		requireArgument(tsdbService != null, "TSDB service cannot be null.");
 		_alertService = alertService;
-		_waaSMonitorService = waaSMonitorService;
+		_collectionService = collectionService;
 		_userService = userService;
 		_metricService = metricService;
 		_serviceManagementRecordService = serviceManagementService;
@@ -126,8 +128,8 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		_annotationService = annotationService;
 		_tsdbService = tsdbService;
 		_adminUser = _userService.findAdminUser();
-                /* todo: move this out of the constructor */
-//		_waaSMonitorService.startPushingMetrics();
+		//_waaSMonitorService.startPushingMetrics();
+		_collectionService.startPushingMetrics();
 	}
 
 	// ~ Methods
@@ -137,7 +139,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	public void dispose() {
 		super.dispose();
 		_alertService.dispose();
-		_waaSMonitorService.dispose();
+		_collectionService.dispose();
 		_userService.dispose();
 		_metricService.dispose();
 		_serviceManagementRecordService.dispose();
@@ -963,7 +965,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	 */
 	@Override
 	public void creatMetrics(PrincipalUser remoteUser, List<com.salesforce.dva.argus.entity.Metric> legalMetrics) {
-		_waaSMonitorService.submitMetrics(remoteUser, legalMetrics);
+		_collectionService.submitMetrics(remoteUser, legalMetrics);
 	}
 
 	/**

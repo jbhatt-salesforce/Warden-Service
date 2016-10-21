@@ -118,5 +118,9 @@ public interface CollectionService extends Service {
      * @return  The number of annotations committed.
      */
     int commitAnnotations(int annotationCount, int timeout);
+    /**
+     * waas metric collection
+     */
+    void startPushingMetrics();
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */

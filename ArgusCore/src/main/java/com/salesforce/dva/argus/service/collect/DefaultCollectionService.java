@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
 import com.salesforce.dva.argus.entity.Annotation;
 import com.salesforce.dva.argus.entity.Metric;
 import com.salesforce.dva.argus.entity.PrincipalUser;
@@ -51,6 +52,7 @@ import com.salesforce.dva.argus.service.WardenService;
 import com.salesforce.dva.argus.service.WardenService.PolicyCounter;
 import com.salesforce.dva.argus.service.WardenService.SubSystem;
 import com.salesforce.dva.argus.service.jpa.DefaultJPAService;
+//import com.salesforce.dva.argus.service.warden.DefaultWaaSMonitorService.WaaSMonitorThread;
 import com.salesforce.dva.argus.system.SystemConfiguration;
 import org.slf4j.Logger;
 import java.util.ArrayList;
@@ -74,9 +76,13 @@ import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 public class DefaultCollectionService extends DefaultJPAService implements CollectionService {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
+	
+	private static final String HOSTNAME;
     private static final int BATCH_METRICS = 50;
 
+    static {
+        HOSTNAME = SystemConfiguration.getHostname();
+    }
     //~ Instance fields ******************************************************************************************************************************
 
     @InjectLogger
@@ -89,6 +95,8 @@ public class DefaultCollectionService extends DefaultJPAService implements Colle
     private final WardenService _wardenService;
     private final MonitorService _monitorService;
     private final NamespaceService _namespaceService;
+    
+    private Thread _waaSThread;
 
     //~ Constructors *********************************************************************************************************************************
 
@@ -228,6 +236,7 @@ public class DefaultCollectionService extends DefaultJPAService implements Colle
 
     @Override
     public void dispose() {
+    	stopPushingMetrics();
         super.dispose();
     }
 
@@ -354,6 +363,90 @@ public class DefaultCollectionService extends DefaultJPAService implements Colle
          */
         public Long getMinResolutionDataPointsAcrossAllMetrics() {
             return minResolutionDataPointsAcrossAllMetrics;
+        }
+    }
+    
+    
+   
+    @Transactional
+    public synchronized void startPushingMetrics() {
+        requireNotDisposed();
+        if (_waaSThread != null && _waaSThread.isAlive()) {
+            _logger.info("Request to start warden monitoring aborted as it is already running.");
+        } else {
+            _logger.info("Starting warden monitor thread.");
+            _waaSThread = new WaaSCollectionThread("waas-collection");
+            _waaSThread.start();
+            _logger.info("Warden monitor thread started.");
+        }
+    }
+
+
+    @Transactional
+    public synchronized void stopPushingMetrics() {
+        requireNotDisposed();
+        if (_waaSThread != null && _waaSThread.isAlive()) {
+            _logger.info("Stopping system monitoring.");
+            _waaSThread.interrupt();
+            _logger.info("System monitor thread interrupted.");
+            try {
+                _logger.info("Waiting for system monitor thread to terminate.");
+                _waaSThread.join();
+            } catch (InterruptedException ex) {
+                _logger.warn("System monitoring was interrupted while shutting down.");
+            }
+            _logger.info("System monitoring stopped.");
+        } else {
+            _logger.info("Requested shutdown of warden monitoring aborted as it is not yet running.");
+        }
+    }
+    
+    //~ Inner Classes ********************************************************************************************************************************
+
+    /**
+     * WaaS Monitoring thread.
+     *
+     * @author  Ruofan Zhang (rzhang@salesforce.com)
+     */
+    private class WaaSCollectionThread extends Thread {
+    	
+    	//~ Static fields/initializers *******************************************************************************************************************
+
+        private static final int METRIC_MESSAGES_CHUNK_SIZE = 100;
+    	protected static final int TIMEOUT = 500;
+    	private static final long TIME_BETWEEN_PUSHINGS = 60 * 1000;
+        /**
+         * Creates a new SchedulingThread object.
+         *
+         * @param  name  The thread name.
+         */
+        public WaaSCollectionThread(String name) {
+            super(name);
+        }
+
+        @Override
+        public void run() {
+            while (!isInterrupted()) {
+                _sleepForPollPeriod();
+                if (!isInterrupted()) {
+                    try {
+                    	
+                        commitMetrics(METRIC_MESSAGES_CHUNK_SIZE, TIMEOUT);
+                    } catch (Exception t) {
+                        _logger.error("Error occured while pushing monitor counters for {}. Reason: {}", HOSTNAME, t.getMessage());
+                    }
+                }
+            }
+        }
+
+        private void _sleepForPollPeriod() {
+            try {
+                _logger.info("Sleeping for {}s before pushing metrics.", TIME_BETWEEN_PUSHINGS / 1000);
+                sleep(TIME_BETWEEN_PUSHINGS);
+            } catch (InterruptedException ex) {
+                _logger.warn("Warden monitoring was interrupted.");
+                interrupt();
+            }
         }
     }
 }
