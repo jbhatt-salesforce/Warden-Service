@@ -1870,7 +1870,7 @@ public class WaaSResources extends AbstractResource {
         List<Metric> illegalMetrics = new ArrayList<>();
         List<String> errorMessages = new ArrayList<>();
 
-        for (com.salesforce.dva.argus.entity.Metric metricDto : metricDtos) {
+        for (com.salesforce.dva.warden.dto.Metric metricDto : metricDtos) {
             try {
                com.salesforce.dva.argus.entity.Metric metric = new com.salesforce.dva.argus.entity.Metric(metricDto.getScope(), metricDto.getMetric());
                metric.setDatapoints(metricDto.getDatapoints());
