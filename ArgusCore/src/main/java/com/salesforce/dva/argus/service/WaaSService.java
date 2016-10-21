@@ -317,6 +317,10 @@ public interface WaaSService {
 	 * @return	list of infraction
 	 */
 	List<Infraction> getInfractionsByUser(PrincipalUser principalUser);
+
+	void startPushingMetrics();
+
+	void stopPushingMetrics();
 	
 	
 	
