@@ -1826,22 +1826,22 @@ public class WaaSResources extends AbstractResource {
      *
      * @return  The metric dtos.
      */
-    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uid}/metirc")
+    @Path("/policy/{pid}/user/{uname}/metirc")
     @Description("Submits externally collected metric data.")
     public Map<String, Object> createMetrics(@Context HttpServletRequest req,
             @PathParam("pid") final BigInteger policyId,
-            @PathParam("uid") final BigInteger userId,
+            @PathParam("uname") final String userName,
             List<Metric> metricDtos) {
     	if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
 			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.",
 					Status.BAD_REQUEST);
 		}
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.",
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User Name cannot be null or an empty string.",
 					Status.BAD_REQUEST);
 		}
 
@@ -1850,13 +1850,13 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser existingUser = userService.findUserByPrimaryKey(userId);
+		PrincipalUser existingUser = userService.findUserByUsername(userName);
 		if (existingUser == null) {
 			throw new WebApplicationException("User doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
 		PrincipalUser remoteUser = getRemoteUser(req);
-     	 if(!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)){
+     	 if(!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)){
      		 throw new WebApplicationException("Remote user doesn't have priveilege to query anything under this user!", Status.BAD_REQUEST);
      	 }else if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
 			throw new WebApplicationException("Remote user doesn't have privilege to query metrics for this policy!", Status.BAD_REQUEST);
@@ -1870,12 +1870,13 @@ public class WaaSResources extends AbstractResource {
         List<Metric> illegalMetrics = new ArrayList<>();
         List<String> errorMessages = new ArrayList<>();
 
-        for (Metric metricDto : metricDtos) {
+        for (com.salesforce.dva.argus.entity.Metric metricDto : metricDtos) {
             try {
                com.salesforce.dva.argus.entity.Metric metric = new com.salesforce.dva.argus.entity.Metric(metricDto.getScope(), metricDto.getMetric());
-
-                copyProperties(metric, metricDto);
-                legalMetrics.add(metric);
+               metric.setDatapoints(metricDto.getDatapoints());
+                
+               copyProperties(metric, metricDto);
+               legalMetrics.add(metric);
             } catch (Exception e) {
                 illegalMetrics.add(metricDto);
                 errorMessages.add(e.getMessage());
@@ -1892,12 +1893,12 @@ public class WaaSResources extends AbstractResource {
     }
   
     /**
-     * Returns all the metrics for a specific user with user id and policy.
+     * Returns all the metrics for a specific user with user name and policy.
      *
      * @param   req     The HTTP request.
      * 
      * @param 	pid		The policy ID to retrieve infractions
-     * @param   uid  	The user ID to retrieve infrations
+     * @param   uname  	The user name to retrieve infrations
      *
      * @return  The metric list.
      *
@@ -1905,19 +1906,19 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uid}/metric")
+    @Path("/policy/{pid}/user/{uname}/metric")
     @Description("Returns the metric for this user and policy.")
     public List<Metric> getMetricsForPolicyAndUser(@Context HttpServletRequest req,
         @PathParam("pid") final BigInteger policyId,
-        @PathParam("uid") final BigInteger userId) {
-    	return this.getMetricsForUserAndPolicy(req, userId, policyId);
+        @PathParam("uname") final String userName) {
+    	return this.getMetricsForUserAndPolicy(req, userName, policyId);
     }
     
     /**
-     * Returns all the metrics for a specific user with user id and policy.
+     * Returns all the metrics for a specific user with user name and policy.
      *
      * @param   req     The HTTP request.
-     * @param   uid  	The user ID to retrieve infrations
+     * @param   uname  	The user name to retrieve infrations
      * @param 	pid		The policy ID to retrieve infractions
      *
      * @return  The metric list.
@@ -1926,18 +1927,18 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}/policy/{pid}/metric")
+    @Path("/user/{uname}/policy/{pid}/metric")
     @Description("Returns the metric for this user and policy.")
     public List<Metric> getMetricsForUserAndPolicy(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId,
+        @PathParam("uname") final String userName,
         @PathParam("pid") final BigInteger policyId) {
     	if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
 			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.",
 					Status.BAD_REQUEST);
 		}
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.",
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User name cannot be null and must be a positive non-zero number.",
 					Status.BAD_REQUEST);
 		}
 
@@ -1946,13 +1947,13 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser existingUser = userService.findUserByPrimaryKey(userId);
+		PrincipalUser existingUser = userService.findUserByUsername(userName);
 		if (existingUser == null) {
 			throw new WebApplicationException("User doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
 		PrincipalUser remoteUser = getRemoteUser(req);
-     	 if(!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)){
+     	 if(!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)){
      		 throw new WebApplicationException("Remote user doesn't have priveilege to query anything under this user!", Status.BAD_REQUEST);
      	 }else if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
 			throw new WebApplicationException("Remote user doesn't have privilege to query metrics for this policy!", Status.BAD_REQUEST);
