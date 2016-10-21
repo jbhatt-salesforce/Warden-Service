@@ -1233,7 +1233,7 @@ public class WaaSResources extends AbstractResource {
     					Status.BAD_REQUEST);
     		}
 
-    		if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+    		if (userName == null || userName.isEmpty()) {
     			throw new WebApplicationException("User Id cannot be null or an empty string.",
     					Status.BAD_REQUEST);
     		}
@@ -1325,7 +1325,7 @@ public class WaaSResources extends AbstractResource {
               throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
           }
           
-  		if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+  		if (userName == null || userName.isEmpty()) {
               throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
           }
   		
@@ -1603,7 +1603,7 @@ public class WaaSResources extends AbstractResource {
     @Description("Returns the user having the given ID.")
     public WardenResource<WardenUser> getUserByName(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
-        if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+        if (userName == null || userName.isEmpty()) {
             throw new WebApplicationException("User name cannot be null or empty string.", Status.BAD_REQUEST);
         }
         PrincipalUser remoteUser = getRemoteUser(req);
@@ -1659,7 +1659,7 @@ public class WaaSResources extends AbstractResource {
     @Description("Returns the policies for this user.")
     public List<WardenResource<Policy>> getPoliciesForUser(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
-		if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
@@ -1697,7 +1697,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
 		}
 
-		if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 
@@ -1772,7 +1772,7 @@ public class WaaSResources extends AbstractResource {
     @Description("Returns the infractions for this user.")
     public List<WardenResource<Infraction>> getInfractionsForUser(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
-		if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User Id cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
@@ -1991,7 +1991,7 @@ public class WaaSResources extends AbstractResource {
     public List<WardenResource<Infraction>> getSuspensionsForUser(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
 
-		if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
@@ -2064,7 +2064,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Suspension Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
 		}
 
-		if (userName == null || userName.compareTo(Strings.EMPTY) < 1) {
+		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
