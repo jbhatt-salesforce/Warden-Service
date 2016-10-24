@@ -301,6 +301,12 @@ public class DefaultAlertService extends DefaultJPAService implements AlertServi
 				_logger.warn(logMessage);
 				continue;
 			}
+			
+			if(!alert.isEnabled()) {
+				logMessage = MessageFormat.format("Alert {0} has been disabled. Will not evaluate.", alertID);
+				_logger.warn(logMessage);
+				continue;
+			}
 
 			History history = _historyService.createHistory(addDateToMessage(JobStatus.STARTED.getDescription()), alert, JobStatus.STARTED, 0, 0);
 
@@ -530,6 +536,7 @@ public class DefaultAlertService extends DefaultJPAService implements AlertServi
 		message.append(MessageFormat.format("<br> Time stamp: {0}", DATE_FORMATTER.get().format(new Date(System.currentTimeMillis()))));
 		_mailService.sendMessage(to, subject, message.toString(), "text/html; charset=utf-8", MailService.Priority.HIGH);
 		if (alert != null && alert.getOwner() != null && alert.getOwner().getEmail() != null && !alert.getOwner().getEmail().isEmpty()) {
+			to.clear();
 			to.add(alert.getOwner().getEmail());
 			_mailService.sendMessage(to, subject, message.toString(), "text/html; charset=utf-8", MailService.Priority.HIGH);
 		}
@@ -590,7 +597,12 @@ public class DefaultAlertService extends DefaultJPAService implements AlertServi
 			metric.addDatapoints(datapoints);
 			metricsAlertScheduled.add(metric);
 		}
-		_tsdbService.putMetrics(metricsAlertScheduled);
+		
+		try {
+			_tsdbService.putMetrics(metricsAlertScheduled);
+		} catch (Exception ex) {
+			_logger.error("Error occured while pushing alert audit scheduling time series. Reason: {}", ex.getMessage());
+		}		
 	}
 
 
