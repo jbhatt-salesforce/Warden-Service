@@ -1,8 +1,8 @@
 package com.salesforce.dva.warden.client;
 
-import java.util.DoubleSummaryStatistics;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.*;
 import java.time.*;
 /**
  * Created by jbhatt on 10/12/16.
@@ -13,7 +13,6 @@ public class MetricUpdater implements Runnable{
     WardenService _wardenService;
 
     MetricUpdater(Map<String, Double> values, WardenService wardenService){
-        //add http client in the parameter list
         this._values = values;
         this._wardenService = wardenService;
     }
@@ -43,7 +42,17 @@ public class MetricUpdater implements Runnable{
 
             PolicyService policyService = _wardenService.getPolicyService();
 
-            //policyService.updateMetricsForUserAndPolicy(policyId, userId, copyOfValues);
+            copyOfValues.forEach((k, v) -> {
+                List<String> items = Arrays.asList(k.split(":"));
+
+                Map<Long, Double> metric = new HashMap<>();
+                metric.put(roundCeiling.atZone(ZoneId.systemDefault()).toEpochSecond(), v);
+                try {
+                    policyService.updateMetricsForUserAndPolicy(new BigInteger(items.get(0)), items.get(1), metric);
+                } catch (IOException ie){
+                    ie.printStackTrace();
+                }
+            });
         }
     };
 }

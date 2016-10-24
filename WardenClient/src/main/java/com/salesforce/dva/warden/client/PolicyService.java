@@ -235,14 +235,14 @@ public class PolicyService extends EndpointService {
     }
 
     //=========================== Suspensions given a PolicyId and a UserId CRUD ===========================
-    public WardenResponse<Infraction> getSuspensionsForUserAndPolicy(BigInteger policyId, BigInteger userId) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userId.toString() + "/suspension";
+    public WardenResponse<Infraction> getSuspensionsForUserAndPolicy(BigInteger policyId, String userName) throws IOException {
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
-    public WardenResponse<Infraction> deleteSuspensionsForUserAndPolicy(BigInteger policyId, BigInteger userId) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userId.toString() + "/suspension";
+    public WardenResponse<Infraction> deleteSuspensionsForUserAndPolicy(BigInteger policyId, String userName) throws IOException {
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.DELETE, requestUrl, null);
 
@@ -250,20 +250,18 @@ public class PolicyService extends EndpointService {
 
     //============================ Metrics given a PolicyId and a UserId CRUD=================================
 
-    public WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(BigInteger policyId, BigInteger userId, Long start, Long end) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userId.toString() + "/metric?start=" + start + "&end=" + end;
+    public WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(BigInteger policyId, String userName, Long start, Long end) throws IOException {
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/metric?start=" + start + "&end=" + end;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
-    public WardenResponse updateMetricsForUserAndPolicy(BigInteger policyId, BigInteger userId, Map<Long, Double> values) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userId.toString() + "/metric";
+    public WardenResponse updateMetricsForUserAndPolicy(BigInteger policyId, String userName, Map<Long, Double> values) throws IOException {
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/metric";
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, values);
 
     }
-
-
 
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
