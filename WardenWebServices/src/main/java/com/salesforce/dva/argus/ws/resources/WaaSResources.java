@@ -1213,183 +1213,183 @@ public class WaaSResources extends AbstractResource {
      //=============Suspension start from here=================
       
       /**
-       * Returns all infractions with given policy id and user id if suspension happens.
+       * Returns all infractions with given policy id and user name if suspension happens.
        *
        * @param   req      	The HttpServlet request object. Cannot be null.
        * @param   pid  		ID of a policy. Cannot be null and must be a positive non-zero number.
-       * @param   uid   	ID of an warden user. Cannot be null and must be a positive non-zero number.
+       * @param   uname   	user name of an warden user. Cannot be null or empty.
        * @return  Infraction list
        *
        */
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/policy/{pid}/user/{uid}/suspension")
-	@Description("Returns all infractions with policy id and user id if suspension happens.")
-	public List<WardenResource<Infraction>> getSuspensionForUserAndPolicy(@Context HttpServletRequest req, 
-			@PathParam("pid") BigInteger policyId,
-			@PathParam("uid") BigInteger userId) {
-		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.",
-					Status.BAD_REQUEST);
-		}
+      @GET
+    	@Produces(MediaType.APPLICATION_JSON)
+    	@Path("/policy/{pid}/user/{uname}/suspension")
+    	@Description("Returns all infractions with policy id and user name if suspension happens.")
+    	public List<WardenResource<Infraction>> getSuspensionForUserAndPolicy(@Context HttpServletRequest req, 
+    			@PathParam("pid") BigInteger policyId,
+    			@PathParam("uname") String userName) {
+    		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
+    			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.",
+    					Status.BAD_REQUEST);
+    		}
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.",
-					Status.BAD_REQUEST);
-		}
+    		if (userName == null || userName.isEmpty()) {
+    			throw new WebApplicationException("User Id cannot be null or an empty string.",
+    					Status.BAD_REQUEST);
+    		}
 
-		com.salesforce.dva.argus.entity.Policy existingPolicy = waaSService.getPolicy(policyId);
-		if (existingPolicy == null) {
-			throw new WebApplicationException("Policy doesn't exist for querying suspension!", Status.BAD_REQUEST);
-		}
+    		com.salesforce.dva.argus.entity.Policy existingPolicy = waaSService.getPolicy(policyId);
+    		if (existingPolicy == null) {
+    			throw new WebApplicationException("Policy doesn't exist for querying suspension!", Status.BAD_REQUEST);
+    		}
 
-		PrincipalUser existingUser = userService.findUserByPrimaryKey(userId);
-		
-		if (existingUser == null) {
-			throw new WebApplicationException("User doesn't exist for querying infractions!", Status.BAD_REQUEST);
-		}		
+    		PrincipalUser existingUser = userService.findUserByUsername(userName);
+    		
+    		if (existingUser == null) {
+    			throw new WebApplicationException("User doesn't exist for querying infractions!", Status.BAD_REQUEST);
+    		}		
 
-		PrincipalUser remoteUser = getRemoteUser(req);
-     	 if(!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)){
-     		 throw new WebApplicationException("Remote user doesn't have priveilege to query anything under this user!", Status.BAD_REQUEST);
-     	 }else if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
-			throw new WebApplicationException("Remote user doesn't have priveilege to query infraction for this policy!", Status.BAD_REQUEST);
-		}
-     	
-		
-		if (existingUser.getUserName() != null && !existingPolicy.getUsers().contains(existingUser.getUserName())) {
-			throw new WebApplicationException("Query user doesn't subject to this policy!", Status.BAD_REQUEST);
-		}
+    		PrincipalUser remoteUser = getRemoteUser(req);
+         	 if(!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)){
+         		 throw new WebApplicationException("Remote user doesn't have priveilege to query anything under this user!", Status.BAD_REQUEST);
+         	 }else if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
+    			throw new WebApplicationException("Remote user doesn't have priveilege to query infraction for this policy!", Status.BAD_REQUEST);
+    		}
+         	
+    		
+    		if (existingUser.getUserName() != null && !existingPolicy.getUsers().contains(existingUser.getUserName())) {
+    			throw new WebApplicationException("Query user doesn't subject to this policy!", Status.BAD_REQUEST);
+    		}
 
-		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
-		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractionsByPolicyAndUserName(existingPolicy, existingUser.getUserName());
+    		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+    		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractionsByPolicyAndUserName(existingPolicy, existingUser.getUserName());
 
-		if(infractions == null || infractions.isEmpty())
-            throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
+    		if(infractions == null || infractions.isEmpty())
+                throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
+                 
+    		List<com.salesforce.dva.argus.entity.Infraction> suspensions = infractions;
+    		if(suspensions != null && !suspensions.isEmpty()){
+            	suspensions = suspensions.stream().filter(i ->(i.getExpirationTimestamp() != null) && (!i.getExpirationTimestamp().equals(0L))).collect(Collectors.toList());
+            }
+    		if (suspensions == null || suspensions.isEmpty()) {
+    			throw new WebApplicationException("This user doesn't has suspension for this policy.", Status.BAD_REQUEST);
+    		}
+    		
+          for(com.salesforce.dva.argus.entity.Infraction s : suspensions){
+              EnumMap<MetaKey, String> meta = new EnumMap<MetaKey, String>(MetaKey.class);
+              
+              UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+              URI userUri = ub.path(s.getId().toString()).build();
+              
+              int statusCode = (s == null) ? Response.Status.NOT_FOUND.getStatusCode() : Response.Status.OK.getStatusCode();
+              String message = (s == null) ? Response.Status.NOT_FOUND.getReasonPhrase() : Response.Status.OK.getReasonPhrase();
              
-		List<com.salesforce.dva.argus.entity.Infraction> suspensions = infractions;
-		if(suspensions != null && !suspensions.isEmpty()){
-        	suspensions = suspensions.stream().filter(i ->(i.getExpirationTimestamp() != null) && (!i.getExpirationTimestamp().equals(0L))).collect(Collectors.toList());
-        }
-		if (suspensions == null || suspensions.isEmpty()) {
-			throw new WebApplicationException("This user doesn't has suspension for this policy.", Status.BAD_REQUEST);
-		}
-		
-      for(com.salesforce.dva.argus.entity.Infraction s : suspensions){
-          EnumMap<MetaKey, String> meta = new EnumMap<MetaKey, String>(MetaKey.class);
-          
-          UriBuilder ub = uriInfo.getAbsolutePathBuilder();
-          URI userUri = ub.path(s.getId().toString()).build();
-          
-          int statusCode = (s == null) ? Response.Status.NOT_FOUND.getStatusCode() : Response.Status.OK.getStatusCode();
-          String message = (s == null) ? Response.Status.NOT_FOUND.getReasonPhrase() : Response.Status.OK.getReasonPhrase();
-         
-          meta.put(MetaKey.HREF, userUri.toString());
-          meta.put(MetaKey.STATUS, Integer.toString(statusCode));
-          meta.put(MetaKey.VERB, req.getMethod());
-          meta.put(MetaKey.MESSAGE, message);
-          meta.put(MetaKey.UI_MESSAGE, message);
-          meta.put(MetaKey.DEV_MESSAGE, message);              
-                         
-         Infraction suspensionDto = (s == null) ? null : WaaSObjectConverter.convertToInfractionDto(s);
-         WardenResource<Infraction> res = new WardenResource<>();
-         res.setEntity(suspensionDto);
-         res.setMeta(meta);
-         result.add(res);
-      }
-		
-		return result;
-	}
+              meta.put(MetaKey.HREF, userUri.toString());
+              meta.put(MetaKey.STATUS, Integer.toString(statusCode));
+              meta.put(MetaKey.VERB, req.getMethod());
+              meta.put(MetaKey.MESSAGE, message);
+              meta.put(MetaKey.UI_MESSAGE, message);
+              meta.put(MetaKey.DEV_MESSAGE, message);              
+                             
+             Infraction suspensionDto = (s == null) ? null : WaaSObjectConverter.convertToInfractionDto(s);
+             WardenResource<Infraction> res = new WardenResource<>();
+             res.setEntity(suspensionDto);
+             res.setMeta(meta);
+             result.add(res);
+          }
+    		
+    		return result;
+    	}
 	
 	 /**
      * Deletes suspension for user.
      *
      * @param   req     The HttpServlet request object. Cannot be null.
      * @param   pid  	The policy Id. Cannot be null and must be a positive non-zero number.
-     * @param 	uid		The user Id. Cannot be null and must be a positive non-zero number.
+     * @param 	uname		The user name. Cannot be null or an empty string.
      *
      * @return  REST response indicating whether the suspension deletion was successful.
      *
      * @throws  WebApplicationException  The exception with 404 status will be thrown if an policy does not exist.
      */
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uid}/suspension")
-    @Description("Deletes all infractions with policy id and user id if suspension happens.")
-    public List<WardenResource<Infraction>> deleteSuspensionForUser(@Context HttpServletRequest req,
-   		 @PathParam("pid") BigInteger policyId,
-   		 @PathParam("uid") BigInteger userId,
-   		 @QueryParam("id") List<BigInteger> infractionIds) {
+      @DELETE
+      @Produces(MediaType.APPLICATION_JSON)
+      @Path("/policy/{pid}/user/{uname}/suspension")
+      @Description("Deletes all infractions with policy id and user id if suspension happens.")
+      public List<WardenResource<Infraction>> deleteSuspensionForUser(@Context HttpServletRequest req,
+     		 @PathParam("pid") BigInteger policyId,
+     		 @PathParam("uname") String userName,
+     		 @QueryParam("id") List<BigInteger> infractionIds) {
 
-		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
-            throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
-        }
-        
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-            throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
-        }
-		
-        com.salesforce.dva.argus.entity.Policy existingPolicy = waaSService.getPolicy(policyId);        
-        if(existingPolicy == null){
-            throw new WebApplicationException("Policy doesn't exist for deleting suspensions!", Status.BAD_REQUEST);
-        }
-  
-        PrincipalUser existingUser = userService.findUserByPrimaryKey(userId);
-        
-        if (existingUser == null) {
-            throw new WebApplicationException("User doesn't exist for querying infractions!", Status.BAD_REQUEST);
-        } 
-        
-        if(infractionIds == null || infractionIds.isEmpty()){
-            throw new WebApplicationException("Infraction ids are needed for deletion.", Status.BAD_REQUEST);
-        }
-        
-        List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
-        PrincipalUser remoteUser = getRemoteUser(req);
-        
-        boolean unauthorized = false;
-        
-        for (BigInteger id : infractionIds){        
-            int statusCode = Response.Status.NOT_FOUND.getStatusCode();
-            String message = Response.Status.NOT_FOUND.getReasonPhrase();
-            com.salesforce.dva.argus.entity.Infraction delInfraction = waaSService.getInfraction(existingPolicy, id);
-            
-            if(delInfraction != null){
-                if(remoteUser.isPrivileged() || existingPolicy.getOwners().contains(remoteUser.getUserName())){
-                    waaSService.deleteInfraction(delInfraction);
-                    
-                    statusCode = Response.Status.OK.getStatusCode();
-                    message = Response.Status.OK.getReasonPhrase();
-                }else{
-                    unauthorized = true;
-                    
-                    statusCode = Response.Status.UNAUTHORIZED.getStatusCode();
-                    message = Response.Status.UNAUTHORIZED.getReasonPhrase();
-                }               
-            }
-            
-            EnumMap<MetaKey, String> meta = new EnumMap<MetaKey, String>(MetaKey.class);
-            
-            UriBuilder ub = uriInfo.getAbsolutePathBuilder();
-            URI userUri = (delInfraction == null) ? ub.build() : ub.path(id.toString()).build();
-            
-            meta.put(MetaKey.HREF, userUri.toString());
-            meta.put(MetaKey.STATUS, Integer.toString(statusCode));
-            meta.put(MetaKey.VERB, req.getMethod());
-            meta.put(MetaKey.MESSAGE, message);
-            meta.put(MetaKey.UI_MESSAGE, message);
-            meta.put(MetaKey.DEV_MESSAGE, message);              
-                            
-            Infraction infractionDto = (delInfraction == null || unauthorized == true) ? null : WaaSObjectConverter.convertToInfractionDto(delInfraction);
-            
-            WardenResource<Infraction> res = new WardenResource<>();
-            res.setEntity(infractionDto);
-            res.setMeta(meta);
-            result.add(res);
-        } 
-        
-        return result;
-    }
+  		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
+              throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
+          }
+          
+  		if (userName == null || userName.isEmpty()) {
+              throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
+          }
+  		
+          com.salesforce.dva.argus.entity.Policy existingPolicy = waaSService.getPolicy(policyId);        
+          if(existingPolicy == null){
+              throw new WebApplicationException("Policy doesn't exist for deleting suspensions!", Status.BAD_REQUEST);
+          }
+    
+          PrincipalUser existingUser = userService.findUserByUsername(userName);
+          
+          if (existingUser == null) {
+              throw new WebApplicationException("User doesn't exist for querying infractions!", Status.BAD_REQUEST);
+          } 
+          
+          if(infractionIds == null || infractionIds.isEmpty()){
+              throw new WebApplicationException("Infraction ids are needed for deletion.", Status.BAD_REQUEST);
+          }
+          
+          List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+          PrincipalUser remoteUser = getRemoteUser(req);
+          
+          boolean unauthorized = false;
+          
+          for (BigInteger id : infractionIds){        
+              int statusCode = Response.Status.NOT_FOUND.getStatusCode();
+              String message = Response.Status.NOT_FOUND.getReasonPhrase();
+              com.salesforce.dva.argus.entity.Infraction delInfraction = waaSService.getInfraction(existingPolicy, id);
+              
+              if(delInfraction != null){
+                  if(remoteUser.isPrivileged() || existingPolicy.getOwners().contains(remoteUser.getUserName())){
+                      waaSService.deleteInfraction(delInfraction);
+                      
+                      statusCode = Response.Status.OK.getStatusCode();
+                      message = Response.Status.OK.getReasonPhrase();
+                  }else{
+                      unauthorized = true;
+                      
+                      statusCode = Response.Status.UNAUTHORIZED.getStatusCode();
+                      message = Response.Status.UNAUTHORIZED.getReasonPhrase();
+                  }               
+              }
+              
+              EnumMap<MetaKey, String> meta = new EnumMap<MetaKey, String>(MetaKey.class);
+              
+              UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+              URI userUri = (delInfraction == null) ? ub.build() : ub.path(id.toString()).build();
+              
+              meta.put(MetaKey.HREF, userUri.toString());
+              meta.put(MetaKey.STATUS, Integer.toString(statusCode));
+              meta.put(MetaKey.VERB, req.getMethod());
+              meta.put(MetaKey.MESSAGE, message);
+              meta.put(MetaKey.UI_MESSAGE, message);
+              meta.put(MetaKey.DEV_MESSAGE, message);              
+                              
+              Infraction infractionDto = (delInfraction == null || unauthorized == true) ? null : WaaSObjectConverter.convertToInfractionDto(delInfraction);
+              
+              WardenResource<Infraction> res = new WardenResource<>();
+              res.setEntity(infractionDto);
+              res.setMeta(meta);
+              result.add(res);
+          } 
+          
+          return result;
+      }
     
 	/**
      * Returns all infractions with given policy id if suspension happens.
@@ -1588,10 +1588,10 @@ public class WaaSResources extends AbstractResource {
         return result;
     }
     /**
-     * Returns the user having the given ID.
+     * Returns the user having the given user name.
      *
      * @param   req     The HTTP request.
-     * @param   userId  The user ID to retrieve
+     * @param   userName  The user name to retrieve
      *
      * @return  The corresponding warden user DTO.
      *
@@ -1599,20 +1599,22 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}")
+    @Path("/user/{uname}")
     @Description("Returns the user having the given ID.")
-    public WardenResource<WardenUser> getUserById(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId) {
-        if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-            throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
+    public WardenResource<WardenUser> getUserByName(@Context HttpServletRequest req,
+        @PathParam("uname") final String userName) {
+        if (userName == null || userName.isEmpty()) {
+            throw new WebApplicationException("User name cannot be null or empty string.", Status.BAD_REQUEST);
         }
         PrincipalUser remoteUser = getRemoteUser(req);
-      	if(!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)){
+        
+        
+      	if(!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)){
       		throw new WebApplicationException("Remote user doesn't have priveilege to query this user with id!", Status.BAD_REQUEST);
       	}
       	 
       	WardenResource<WardenUser> result = null;
-     	PrincipalUser user = userService.findUserByPrimaryKey(userId);
+     	PrincipalUser user = userService.findUserByUsername(userName);
      	if (user == null) {
      		throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);     	
         }
@@ -1642,10 +1644,10 @@ public class WaaSResources extends AbstractResource {
     
     
     /**
-     * Returns all the policies for a specific user based on user id.
+     * Returns all the policies for a specific user based on user name.
      *
      * @param   req     The HTTP request.
-     * @param   uid  	The user ID to retrieve policies
+     * @param   uname  	The user name to retrieve policies
      *
      * @return  The policy list.
      *
@@ -1653,19 +1655,19 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}/policy")
+    @Path("/user/{uname}/policy")
     @Description("Returns the policies for this user.")
     public List<WardenResource<Policy>> getPoliciesForUser(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId) {
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
+        @PathParam("uname") final String userName) {
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
-		if (!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)) {
+		if (!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)) {
 			throw new WebApplicationException("Remote user doesn't have priveilege to query policies with this user id!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser user = userService.findUserByPrimaryKey(userId);
+		PrincipalUser user = userService.findUserByUsername(userName);
 		if (user == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
 		}
@@ -1674,10 +1676,10 @@ public class WaaSResources extends AbstractResource {
     }
     
     /**
-     * Returns all the infractions for a specific user with user id and policy.
+     * Returns all the infractions for a specific user with user name and policy.
      *
      * @param   req     The HTTP request.
-     * @param   uid  	The user ID to retrieve infrations
+     * @param   uname  	The user name to retrieve infrations
      * @param 	pid		The policy ID to retrieve infractions
      *
      * @return  The infraction list.
@@ -1686,17 +1688,17 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}/policy/{pid}/infraction")
+    @Path("/user/{uname}/policy/{pid}/infraction")
     @Description("Returns the policies for this user.")
     public List<WardenResource<Infraction>> getInfractionsForUserAndPolicy(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId,
+        @PathParam("uanme") final String userName,
         @PathParam("pid") final BigInteger policyId) {
 		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
 			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
 		}
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 
 		com.salesforce.dva.argus.entity.Policy existingPolicy = waaSService.getPolicy(policyId);
@@ -1704,14 +1706,14 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy doesn't exist for querying suspension!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser existingUser = userService.findUserByPrimaryKey(userId);
+		PrincipalUser existingUser = userService.findUserByUsername(userName);
 
 		if (existingUser == null) {
 			throw new WebApplicationException("User doesn't exist for querying infractions!", Status.BAD_REQUEST);
 		}
 
 		PrincipalUser remoteUser = getRemoteUser(req);
-		if (!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)) {
+		if (!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)) {
 			throw new WebApplicationException("Remote user doesn't have priveilege to query anything under this user!", Status.BAD_REQUEST);
 		} else if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
 			throw new WebApplicationException("Remote user doesn't have priveilege to query infraction for this policy!", Status.BAD_REQUEST);
@@ -1755,10 +1757,10 @@ public class WaaSResources extends AbstractResource {
     }
     
     /**
-     * Returns all the infractions for a specific user based on user id.
+     * Returns all the infractions for a specific user based on user name.
      *
      * @param   req     The HTTP request.
-     * @param   uid  	The user ID to retrieve policies
+     * @param   uname  	The user name to retrieve policies
      *
      * @return  The policy list.
      *
@@ -1766,19 +1768,19 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}/infraction")
+    @Path("/user/{uname}/infraction")
     @Description("Returns the infractions for this user.")
     public List<WardenResource<Infraction>> getInfractionsForUser(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId) {
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
+        @PathParam("uname") final String userName) {
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User Id cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
-		if (!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)) {
+		if (!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)) {
 			throw new WebApplicationException("Remote user doesn't have priveilege to query policies with this user id!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser user = userService.findUserByPrimaryKey(userId);
+		PrincipalUser user = userService.findUserByUsername(userName);
 		if (user == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
 		}
@@ -1824,22 +1826,22 @@ public class WaaSResources extends AbstractResource {
      *
      * @return  The metric dtos.
      */
-    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uid}/metirc")
+    @Path("/policy/{pid}/user/{uname}/metirc")
     @Description("Submits externally collected metric data.")
     public Map<String, Object> createMetrics(@Context HttpServletRequest req,
             @PathParam("pid") final BigInteger policyId,
-            @PathParam("uid") final BigInteger userId,
+            @PathParam("uname") final String userName,
             List<Metric> metricDtos) {
     	if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
 			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.",
 					Status.BAD_REQUEST);
 		}
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.",
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User Name cannot be null or an empty string.",
 					Status.BAD_REQUEST);
 		}
 
@@ -1848,13 +1850,13 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser existingUser = userService.findUserByPrimaryKey(userId);
+		PrincipalUser existingUser = userService.findUserByUsername(userName);
 		if (existingUser == null) {
 			throw new WebApplicationException("User doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
 		PrincipalUser remoteUser = getRemoteUser(req);
-     	 if(!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)){
+     	 if(!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)){
      		 throw new WebApplicationException("Remote user doesn't have priveilege to query anything under this user!", Status.BAD_REQUEST);
      	 }else if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
 			throw new WebApplicationException("Remote user doesn't have privilege to query metrics for this policy!", Status.BAD_REQUEST);
@@ -1868,12 +1870,13 @@ public class WaaSResources extends AbstractResource {
         List<Metric> illegalMetrics = new ArrayList<>();
         List<String> errorMessages = new ArrayList<>();
 
-        for (Metric metricDto : metricDtos) {
+        for (com.salesforce.dva.warden.dto.Metric metricDto : metricDtos) {
             try {
                com.salesforce.dva.argus.entity.Metric metric = new com.salesforce.dva.argus.entity.Metric(metricDto.getScope(), metricDto.getMetric());
-
-                copyProperties(metric, metricDto);
-                legalMetrics.add(metric);
+               metric.setDatapoints(metricDto.getDatapoints());
+                
+               copyProperties(metric, metricDto);
+               legalMetrics.add(metric);
             } catch (Exception e) {
                 illegalMetrics.add(metricDto);
                 errorMessages.add(e.getMessage());
@@ -1890,12 +1893,12 @@ public class WaaSResources extends AbstractResource {
     }
   
     /**
-     * Returns all the metrics for a specific user with user id and policy.
+     * Returns all the metrics for a specific user with user name and policy.
      *
      * @param   req     The HTTP request.
      * 
      * @param 	pid		The policy ID to retrieve infractions
-     * @param   uid  	The user ID to retrieve infrations
+     * @param   uname  	The user name to retrieve infrations
      *
      * @return  The metric list.
      *
@@ -1903,19 +1906,19 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uid}/metric")
+    @Path("/policy/{pid}/user/{uname}/metric")
     @Description("Returns the metric for this user and policy.")
     public List<Metric> getMetricsForPolicyAndUser(@Context HttpServletRequest req,
         @PathParam("pid") final BigInteger policyId,
-        @PathParam("uid") final BigInteger userId) {
-    	return this.getMetricsForUserAndPolicy(req, userId, policyId);
+        @PathParam("uname") final String userName) {
+    	return this.getMetricsForUserAndPolicy(req, userName, policyId);
     }
     
     /**
-     * Returns all the metrics for a specific user with user id and policy.
+     * Returns all the metrics for a specific user with user name and policy.
      *
      * @param   req     The HTTP request.
-     * @param   uid  	The user ID to retrieve infrations
+     * @param   uname  	The user name to retrieve infrations
      * @param 	pid		The policy ID to retrieve infractions
      *
      * @return  The metric list.
@@ -1924,18 +1927,18 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}/policy/{pid}/metric")
+    @Path("/user/{uname}/policy/{pid}/metric")
     @Description("Returns the metric for this user and policy.")
     public List<Metric> getMetricsForUserAndPolicy(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId,
+        @PathParam("uname") final String userName,
         @PathParam("pid") final BigInteger policyId) {
     	if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
 			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.",
 					Status.BAD_REQUEST);
 		}
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.",
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User name cannot be null and must be a positive non-zero number.",
 					Status.BAD_REQUEST);
 		}
 
@@ -1944,13 +1947,13 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser existingUser = userService.findUserByPrimaryKey(userId);
+		PrincipalUser existingUser = userService.findUserByUsername(userName);
 		if (existingUser == null) {
 			throw new WebApplicationException("User doesn't exist for querying metrics!", Status.BAD_REQUEST);
 		}
 
 		PrincipalUser remoteUser = getRemoteUser(req);
-     	 if(!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)){
+     	 if(!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)){
      		 throw new WebApplicationException("Remote user doesn't have priveilege to query anything under this user!", Status.BAD_REQUEST);
      	 }else if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
 			throw new WebApplicationException("Remote user doesn't have privilege to query metrics for this policy!", Status.BAD_REQUEST);
@@ -1973,10 +1976,10 @@ public class WaaSResources extends AbstractResource {
     
     //===============suspensions starts here=============
     /**
-     * Returns all the suspensions for a specific user based on user id.
+     * Returns all the suspensions for a specific user based on user name.
      *
      * @param   req     The HTTP request.
-     * @param   uid  	The user ID to retrieve policies
+     * @param   uname  	The user name to retrieve policies
      *
      * @return  The suspension list.
      *
@@ -1984,20 +1987,20 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}/suspension")
+    @Path("/user/{uname}/suspension")
     @Description("Returns the infractions for this user.")
     public List<WardenResource<Infraction>> getSuspensionsForUser(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId) {
+        @PathParam("uname") final String userName) {
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
+		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
-		if (!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)) {
+		if (!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)) {
 			throw new WebApplicationException("Remote user doesn't have priveilege to query suspensions with this user id!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser user = userService.findUserByPrimaryKey(userId);
+		PrincipalUser user = userService.findUserByUsername(userName);
 		if (user == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
 		}
@@ -2040,10 +2043,10 @@ public class WaaSResources extends AbstractResource {
     }
     
     /**
-     * Returns one suspension for a specific user based on user id and suspension id.
+     * Returns one suspension for a specific user based on user name and suspension id.
      *
      * @param   req     The HTTP request.
-     * @param   uid  	The user ID to retrieve suspension 
+     * @param   uname  	The user name to retrieve suspension 
      * @param 	sid		The suspension ID to retrieve suspension
      *
      * @return  The suspension .
@@ -2052,25 +2055,25 @@ public class WaaSResources extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{uid}/suspension/{sid}")
+    @Path("/user/{uname}/suspension/{sid}")
     @Description("Returns the suspension for this user and suspension id.")
     public WardenResource<Infraction> getSuspensionForUser(@Context HttpServletRequest req,
-        @PathParam("uid") final BigInteger userId,
+        @PathParam("uname") final String userName,
         @PathParam("sid") final BigInteger suspensionId) {     
        
 		if (suspensionId == null || suspensionId.compareTo(BigInteger.ZERO) < 1) {
 			throw new WebApplicationException("Suspension Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
 		}
 
-		if (userId == null || userId.compareTo(BigInteger.ZERO) < 1) {
-			throw new WebApplicationException("User Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
+		if (userName == null || userName.isEmpty()) {
+			throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
 		}
 		PrincipalUser remoteUser = getRemoteUser(req);
-		if (!remoteUser.isPrivileged() && !remoteUser.getId().equals(userId)) {
+		if (!remoteUser.isPrivileged() && !remoteUser.getUserName().equals(userName)) {
 			throw new WebApplicationException("Remote user doesn't have priveilege to query policies with this user id!", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser user = userService.findUserByPrimaryKey(userId);
+		PrincipalUser user = userService.findUserByUsername(userName);
 		if (user == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
 		}

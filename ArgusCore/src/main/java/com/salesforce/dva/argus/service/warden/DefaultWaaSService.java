@@ -35,6 +35,7 @@ import com.salesforce.dva.argus.inject.SLF4JTypeListener;
 import com.salesforce.dva.argus.service.AlertService;
 import com.salesforce.dva.argus.service.AnnotationService;
 import com.salesforce.dva.argus.service.AuditService;
+import com.salesforce.dva.argus.service.CollectionService;
 import com.salesforce.dva.argus.service.DashboardService;
 import com.salesforce.dva.argus.service.MetricService;
 import com.salesforce.dva.argus.service.ServiceManagementService;
@@ -43,6 +44,7 @@ import com.salesforce.dva.argus.service.UserService;
 import com.salesforce.dva.argus.service.WaaSMonitorService;
 //import com.salesforce.dva.argus.service.WaaSMonitorService;
 import com.salesforce.dva.argus.service.WaaSService;
+//import com.salesforce.dva.argus.service.collect.DefaultCollectionService.WaaSCollectionThread;
 import com.salesforce.dva.argus.service.jpa.DefaultJPAService;
 import com.salesforce.dva.argus.system.SystemConfiguration;
 import com.salesforce.dva.argus.system.SystemException;
@@ -56,6 +58,13 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	private static final String WAAS_NOTIFICATION_NAME = "WaaS Notification";
 	private static final String WAAS_ANNOTATION_SOURCE = "ARGUS-WaaS";
 	private static final String WAAS_ANNOTATION_TYPE = "WaaS";
+	
+	
+	private static final String HOSTNAME;
+
+    static {
+        HOSTNAME = SystemConfiguration.getHostname();
+    }
 
 	// ~ Instance fields
 	// ******************************************************************************************************************************
@@ -65,15 +74,18 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	@Inject
 	private Provider<EntityManager> emf;
 	private final AlertService _alertService;
-	private final WaaSMonitorService _waaSMonitorService;
+	private final CollectionService _collectionService;
 	private final UserService _userService;
 	private final MetricService _metricService;
 	private final ServiceManagementService _serviceManagementRecordService;
 	private final DashboardService _dashboardService;
 	private final AnnotationService _annotationService;
 	private final TSDBService _tsdbService;
+	
 	private final PrincipalUser _adminUser;
 
+	
+	 private WaaSCollectionThread _waaSThread;
 	// ~ Constructors
 	// *********************************************************************************************************************************
 
@@ -104,13 +116,13 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	 *            Service properties
 	 */
 	@Inject
-	protected DefaultWaaSService(AlertService alertService, WaaSMonitorService waaSMonitorService,
+	protected DefaultWaaSService(AlertService alertService, CollectionService collectionService,
 			UserService userService, MetricService metricService, ServiceManagementService serviceManagementService,
 			DashboardService dashboardService, AuditService auditService, AnnotationService annotationService,
 			TSDBService tsdbService, SystemConfiguration _sysConfig) {
 		super(auditService, _sysConfig);
 		requireArgument(alertService != null, "Alert service cannot be null.");
-		requireArgument(waaSMonitorService != null, "Monitor service cannot be null.");
+		requireArgument(collectionService != null, "Monitor service cannot be null.");
 		requireArgument(userService != null, "User service cannot be null.");
 		requireArgument(metricService != null, "Metric service cannot be null.");
 		requireArgument(serviceManagementService != null, "Service management service cannot be null.");
@@ -118,7 +130,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		requireArgument(annotationService != null, "Annotation service cannot be null.");
 		requireArgument(tsdbService != null, "TSDB service cannot be null.");
 		_alertService = alertService;
-		_waaSMonitorService = waaSMonitorService;
+		_collectionService = collectionService;
 		_userService = userService;
 		_metricService = metricService;
 		_serviceManagementRecordService = serviceManagementService;
@@ -126,8 +138,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		_annotationService = annotationService;
 		_tsdbService = tsdbService;
 		_adminUser = _userService.findAdminUser();
-                /* todo: move this out of the constructor */
-//		_waaSMonitorService.startPushingMetrics();
+		//startPushingMetrics();====>put to servlet
 	}
 
 	// ~ Methods
@@ -135,13 +146,17 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 	@Override
 	public void dispose() {
-		super.dispose();
+		
+		stopPushingMetrics();
 		_alertService.dispose();
-		_waaSMonitorService.dispose();
+		//_collectionService.dispose();
 		_userService.dispose();
 		_metricService.dispose();
 		_serviceManagementRecordService.dispose();
 		_dashboardService.dispose();
+		
+		super.dispose();
+		
 	}
 
 	@Override
@@ -963,7 +978,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	 */
 	@Override
 	public void creatMetrics(PrincipalUser remoteUser, List<com.salesforce.dva.argus.entity.Metric> legalMetrics) {
-		_waaSMonitorService.submitMetrics(remoteUser, legalMetrics);
+		_collectionService.submitMetrics(remoteUser, legalMetrics);
 	}
 
 	/**
@@ -1002,4 +1017,86 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 		return result;
 	}
+	//~ Inner Classes ********************************************************************************************************************************
+
+    /**
+     * WaaS Monitoring thread.
+     *
+     * @author  Ruofan Zhang (rzhang@salesforce.com)
+     */
+    private class WaaSCollectionThread extends Thread {
+    	
+    	//~ Static fields/initializers *******************************************************************************************************************
+
+        private static final int METRIC_MESSAGES_CHUNK_SIZE = 100;
+    	protected static final int TIMEOUT = 500;
+    	private static final long TIME_BETWEEN_PUSHINGS = 60 * 1000;
+        /**
+         * Creates a new SchedulingThread object.
+         *
+         * @param  name  The thread name.
+         */
+        public WaaSCollectionThread(String name) {
+            super(name);
+        }
+
+        @Override
+        public void run() {
+            while (!isInterrupted()) {
+                _sleepForPollPeriod();
+                if (!isInterrupted()) {
+                    try {
+                    	
+                        _collectionService.commitMetrics(METRIC_MESSAGES_CHUNK_SIZE, TIMEOUT);
+                    } catch (Exception t) {
+                        _logger.error("Error occured while pushing monitor counters for {}. Reason: {}", HOSTNAME, t.getMessage());
+                    }
+                }
+            }
+            _collectionService.dispose();
+        }
+
+        private void _sleepForPollPeriod() {
+            try {
+                _logger.info("Sleeping for {}s before pushing metrics.", TIME_BETWEEN_PUSHINGS / 1000);
+                sleep(TIME_BETWEEN_PUSHINGS);
+            } catch (InterruptedException ex) {
+                _logger.warn("Warden monitoring was interrupted.");
+                interrupt();
+            }
+        }
+    }
+    @Override
+    @Transactional
+    public synchronized void startPushingMetrics() {
+        requireNotDisposed();
+        if (_waaSThread != null && _waaSThread.isAlive()) {
+            _logger.info("Request to start warden monitoring aborted as it is already running.");
+        } else {
+            _logger.info("Starting warden monitor thread.");
+            _waaSThread = new WaaSCollectionThread("waas-collection");
+            _waaSThread.start();
+            _logger.info("Warden monitor thread started.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public synchronized void stopPushingMetrics() {
+        requireNotDisposed();
+        if (_waaSThread != null && _waaSThread.isAlive()) {
+            _logger.info("Stopping system monitoring.");
+            _waaSThread.interrupt();
+            _logger.info("System monitor thread interrupted.");
+            try {
+                _logger.info("Waiting for system monitor thread to terminate.");
+                _waaSThread.join();
+            } catch (InterruptedException ex) {
+                _logger.warn("System monitoring was interrupted while shutting down.");
+            }
+            _logger.info("System monitoring stopped.");
+        } else {
+            _logger.info("Requested shutdown of warden monitoring aborted as it is not yet running.");
+        }
+    }
 }

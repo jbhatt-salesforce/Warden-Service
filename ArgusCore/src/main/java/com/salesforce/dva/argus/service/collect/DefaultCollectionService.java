@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
 import com.salesforce.dva.argus.entity.Annotation;
 import com.salesforce.dva.argus.entity.Metric;
 import com.salesforce.dva.argus.entity.PrincipalUser;
@@ -51,6 +52,7 @@ import com.salesforce.dva.argus.service.WardenService;
 import com.salesforce.dva.argus.service.WardenService.PolicyCounter;
 import com.salesforce.dva.argus.service.WardenService.SubSystem;
 import com.salesforce.dva.argus.service.jpa.DefaultJPAService;
+//import com.salesforce.dva.argus.service.warden.DefaultWaaSMonitorService.WaaSMonitorThread;
 import com.salesforce.dva.argus.system.SystemConfiguration;
 import org.slf4j.Logger;
 import java.util.ArrayList;
@@ -74,9 +76,13 @@ import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 public class DefaultCollectionService extends DefaultJPAService implements CollectionService {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
+	
+	private static final String HOSTNAME;
     private static final int BATCH_METRICS = 50;
 
+    static {
+        HOSTNAME = SystemConfiguration.getHostname();
+    }
     //~ Instance fields ******************************************************************************************************************************
 
     @InjectLogger
@@ -89,6 +95,8 @@ public class DefaultCollectionService extends DefaultJPAService implements Colle
     private final WardenService _wardenService;
     private final MonitorService _monitorService;
     private final NamespaceService _namespaceService;
+    
+    private Thread _waaSThread;
 
     //~ Constructors *********************************************************************************************************************************
 
