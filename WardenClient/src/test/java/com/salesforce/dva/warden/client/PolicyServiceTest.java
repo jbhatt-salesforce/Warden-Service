@@ -332,7 +332,7 @@ public class PolicyServiceTest extends AbstractTest {
     public void testGetSuspensionsForUserAndPolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
             PolicyService policyService = wardenService.getPolicyService();
-            WardenResponse<Infraction> actual = policyService.getSuspensionsForUserAndPolicy(BigInteger.ONE, BigInteger.ONE);
+            WardenResponse<Infraction> actual = policyService.getSuspensionsForUserAndPolicy(BigInteger.ONE, "hpotter");
 
             WardenResponse<Infraction> expected = _constructPersistedResponseInfraction("GET");
             assertEquals(expected, actual);
@@ -343,7 +343,7 @@ public class PolicyServiceTest extends AbstractTest {
     public void testDeleteSuspensionsForUserAndPolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
             PolicyService policyService = wardenService.getPolicyService();
-            WardenResponse<Infraction> actual = policyService.deleteSuspensionsForUserAndPolicy(BigInteger.ONE, BigInteger.ONE);
+            WardenResponse<Infraction> actual = policyService.deleteSuspensionsForUserAndPolicy(BigInteger.ONE, "hpotter");
 
             WardenResponse<Infraction> expected = _constructPersistedResponseInfraction("DELETE");
             assertEquals(expected, actual);
