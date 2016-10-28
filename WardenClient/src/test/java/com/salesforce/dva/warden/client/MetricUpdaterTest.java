@@ -31,18 +31,54 @@
 package com.salesforce.dva.warden.client;
 
 import com.salesforce.dva.warden.SuspendedException;
+import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
-import com.salesforce.dva.warden.dto.WardenUser;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 
 public class MetricUpdaterTest extends AbstractTest {
+    
+    private final List<HttpRequestResponse> interceptedRequests = Collections.synchronizedList(new ArrayList<>());
 
+    @Override
+    protected void processRequest(HttpRequestResponse step) {
+        interceptedRequests.add(step);
+    }
+    
+    @Before
+    public void beforeTest() {
+        interceptedRequests.clear();
+    }
+    
+    @Test
+    public void testPeriodicServerPush() throws IOException, InterruptedException, SuspendedException{
+       try(WardenService wardenService = new WardenService(getMockedClient("/MetricUpdaterTest.testPeriodicServerPush.json"))) {
+           DefaultWardenClient client = new DefaultWardenClient(wardenService);
+           Policy policy = new Policy();
+           policy.setId(BigInteger.ONE);
+           policy.setDefaultValue(0.0);
+           client.register(Arrays.asList(new Policy[]{policy}), 8080);
+           client.updateMetric(policy, "hpotter", 1.0);
+           Thread.currentThread().sleep(90000);
+           client.unregister();
+           assertTrue(interceptedRequests.size() == 1);
+           assertTrue(interceptedRequests.get(0).getJsonInput().contains("1.0"));
+           assertTrue(interceptedRequests.get(0).getEndpoint().equals("/policy/" + policy.getId() + "/user/hpotter/metric"));
+           assertTrue(interceptedRequests.get(0).getType().equals(RequestType.PUT));
+       }
+    }
+    
     //Check that cache is updated properly when update metric is called for an unsuspended user
     @Test
     public void testUpdateMetric() throws IOException, SuspendedException {
