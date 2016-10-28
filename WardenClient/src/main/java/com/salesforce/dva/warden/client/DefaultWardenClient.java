@@ -37,6 +37,7 @@ import com.salesforce.dva.warden.dto.Policy;
 
 import java.io.IOException;
 import java.util.*;
+import org.slf4j.LoggerFactory;
 
 /**
  * DOCUMENT ME!
@@ -48,6 +49,7 @@ public class DefaultWardenClient implements WardenClient {
     final Map<String, Infraction> _infractions;
     final Map<String, Double> _values;
     final WardenService _service;
+    final Thread _updater;
 
     //~ Constructors *********************************************************************************************************************************
     // This is how the client talks to the server.
@@ -66,6 +68,7 @@ public class DefaultWardenClient implements WardenClient {
         });
 
         _values = Collections.synchronizedMap(new HashMap<String, Double>());
+        _updater = new Thread(new MetricUpdater(_values, service));
     }
 
     //~ Methods **************************************************************************************************************************************
@@ -76,6 +79,7 @@ public class DefaultWardenClient implements WardenClient {
         //pull in data from the server to populate infraction cache
         //update the server with the policy information
         //register for events
+        _updater.start();
     }
 
     @Override
@@ -83,6 +87,12 @@ public class DefaultWardenClient implements WardenClient {
         //unregister for events
         //logout
         //shutdown
+        _updater.interrupt();
+        try {
+            _updater.join(10000);
+        } catch (InterruptedException ex) {
+            LoggerFactory.getLogger(getClass()).warn("Updater thread failed to stop.  Shutting down.");
+        }
     }
 
     @Override
@@ -123,5 +133,6 @@ public class DefaultWardenClient implements WardenClient {
         _values.put(key, cachedValue);
 
     }
+    
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */

@@ -33,11 +33,14 @@ package com.salesforce.dva.warden.client;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.StringEntity;
 
 import static org.mockito.Mockito.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public abstract class AbstractTest {
 
@@ -63,6 +66,16 @@ public abstract class AbstractTest {
                 when(mockedResponse.getEntity()).thenReturn(new StringEntity(step.jsonOutput));
                 when(mockedResponse.getStatusLine()).thenReturn(mockedStatusLine);
                 doReturn(mockedResponse).when(client).doHttpRequest(step.type, endpoint + step.endpoint, step.jsonInput);
+                if(step.getEndpoint().matches("/policy/\\d*/user/.*/metric")) {
+                    doAnswer(new Answer(){
+                        @Override
+                        public Object answer(InvocationOnMock invocation) throws Throwable {
+                            processRequest(step);
+                            return mockedResponse;
+                        }
+                        
+                    }).when(client).doHttpRequest(eq(RequestType.PUT), eq(endpoint + step.endpoint), any());
+                }
             }
             return client;
         } catch (Exception ex) {
@@ -70,7 +83,9 @@ public abstract class AbstractTest {
         }
     }
 
-    private static class HttpRequestResponse {
+    protected void processRequest(HttpRequestResponse step) {}
+
+    protected static class HttpRequestResponse {
 
         private WardenHttpClient.RequestType type;
         private String endpoint;

@@ -39,7 +39,6 @@ import java.util.Map;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
 
 /**
@@ -258,9 +257,7 @@ public class PolicyService extends EndpointService {
 
     public WardenResponse updateMetricsForUserAndPolicy(BigInteger policyId, String userName, Map<Long, Double> values) throws IOException {
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/metric";
-
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, values);
-
     }
 
 }

@@ -1,0 +1,22 @@
+[{
+  "type": "POST",
+  "endpoint": "/auth/login",
+  "jsonInput" :"{\"username\":\"aUsername\",\"password\":\"aPassword\"}",
+  "status": 200,
+  "message": "success",
+  "jsonOutput" : "[]"
+},{
+  "type": "PUT",
+  "endpoint": "/policy/1/user/hpotter/metric",
+  "jsonInput" :"{\"1477636500000\":1.0}",
+  "status": 200,
+  "message": "success",
+  "jsonOutput" : "[]"
+},{
+  "type": "GET",
+  "endpoint": "/auth/logout",
+  "jsonInput" :null,
+  "status": 200,
+  "message": "success",
+  "jsonOutput" : "[]"
+}]
