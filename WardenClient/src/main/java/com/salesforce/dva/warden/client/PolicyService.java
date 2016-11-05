@@ -131,6 +131,10 @@ public class PolicyService extends EndpointService {
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
+    public WardenResponse<Policy> getPolicy(String serviceName, String policyName){
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * DOCUMENT ME!
      *

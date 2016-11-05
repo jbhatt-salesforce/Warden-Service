@@ -1,7 +1,7 @@
 [{
   "type": "POST",
   "endpoint": "/auth/login",
-  "jsonInput" :"{\"username\":\"aUsername\",\"password\":\"aPassword\"}",
+  "jsonInput" :"{\"username\":\"hpotter\",\"password\":\"aZkaban\"}",
   "status": 200,
   "message": "success",
   "jsonOutput" : "[]"
