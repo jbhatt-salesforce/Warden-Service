@@ -59,7 +59,7 @@ public class UserServiceTest extends AbstractTest {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<WardenUser> expectedResponse = _constructPersistedResponse("GET");
-            WardenResponse<WardenUser> actualResponse = userService.getUserById(BigInteger.ONE);
+            WardenResponse<WardenUser> actualResponse = userService.getUserById("hpotter");
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -70,7 +70,7 @@ public class UserServiceTest extends AbstractTest {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<Policy> expectedResponse = _constructPersistedResponsePolicy("GET");
-            WardenResponse<Policy> actualResponse = userService.getPoliciesForUser(BigInteger.ONE);
+            WardenResponse<Policy> actualResponse = userService.getPoliciesForUser("hpotter");
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -81,7 +81,7 @@ public class UserServiceTest extends AbstractTest {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUserAndPolicy(BigInteger.ONE, BigInteger.ONE);
+            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUserAndPolicy("hpotter", BigInteger.ONE);
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -92,7 +92,7 @@ public class UserServiceTest extends AbstractTest {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUser(BigInteger.ONE);
+            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUser("hpotter");
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -103,7 +103,7 @@ public class UserServiceTest extends AbstractTest {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getSuspensionsForUser(BigInteger.ONE);
+            WardenResponse<Infraction> actualResponse = userService.getSuspensionsForUser("hpotter");
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -114,7 +114,7 @@ public class UserServiceTest extends AbstractTest {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getSuspensionForUser(BigInteger.ONE, BigInteger.ONE);
+            WardenResponse<Infraction> actualResponse = userService.getSuspensionForUser("hpotter", BigInteger.ONE);
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -125,6 +125,7 @@ public class UserServiceTest extends AbstractTest {
 
         result.setPolicyId(BigInteger.ONE);
         result.setUserId(BigInteger.ONE);
+        result.setUserName("hpotter");
         result.setInfractionTimestamp(100000L);
         result.setExpirationTimestamp(-1L);
         result.setValue(Double.valueOf(10.0));

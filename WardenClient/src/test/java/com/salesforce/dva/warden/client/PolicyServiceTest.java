@@ -382,6 +382,7 @@ public class PolicyServiceTest extends AbstractTest {
 
         result.setPolicyId(BigInteger.ONE);
         result.setUserId(BigInteger.ONE);
+        result.setUserName("hpotter");
         result.setInfractionTimestamp(100000L);
         result.setExpirationTimestamp(-1L);
         result.setValue(Double.valueOf(10.0));

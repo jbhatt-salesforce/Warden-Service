@@ -94,6 +94,7 @@ public class DefaultWardenClient implements WardenClient {
     }
 
     private void _subscribeToEvents(int port) {
+        //call the register endpoint with hostname, IP & port JSON payload
         throw new UnsupportedOperationException();
     }
 
@@ -122,7 +123,7 @@ public class DefaultWardenClient implements WardenClient {
 
             for (WardenResource<Infraction> wardenResponse : suspensionResponses){
                 Infraction suspension = wardenResponse.getEntity();
-                //_infractions.put(_createKey(suspension.getPolicyId(),suspension.getUserName()), suspension);
+                _infractions.put(_createKey(suspension.getPolicyId(),suspension.getUserName()), suspension);
 
             }
         }
@@ -158,6 +159,7 @@ public class DefaultWardenClient implements WardenClient {
     }
 
     private void _unsubscribeFromEvents() {
+        //call the unregister endpoint on the server
         throw new UnsupportedOperationException();
     }
 
