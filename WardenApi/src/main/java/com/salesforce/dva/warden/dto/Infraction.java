@@ -46,6 +46,7 @@ public class Infraction extends Entity {
 
     private BigInteger policy_id;
     private BigInteger user_id;
+    private String userName;
     private Long infraction_timestamp;
     private Long expiration_timestamp;
     private Double value;
@@ -86,6 +87,14 @@ public class Infraction extends Entity {
      */
     public void setUserId(BigInteger user_id) {
         this.user_id = user_id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     /**
@@ -130,6 +139,7 @@ public class Infraction extends Entity {
 
         result.setPolicyId(BigInteger.ONE);
         result.setUserId(BigInteger.ONE);
+        result.setUserName("hpotter");
         result.setInfractionTimestamp((long) 1);
         result.setExpirationTimestamp((long) 10);
         result.setValue(1.00);
@@ -153,6 +163,7 @@ public class Infraction extends Entity {
 
         if (!policy_id.equals(that.policy_id)) return false;
         if (!user_id.equals(that.user_id)) return false;
+        if (!getUserName().equals(that.getUserName())) return false;
         if (!infraction_timestamp.equals(that.infraction_timestamp)) return false;
         if (!expiration_timestamp.equals(that.expiration_timestamp)) return false;
         return getValue().equals(that.getValue());
@@ -163,6 +174,7 @@ public class Infraction extends Entity {
     public int hashCode() {
         int result = policy_id.hashCode();
         result = 31 * result + user_id.hashCode();
+        result = 31 * result + getUserName().hashCode();
         result = 31 * result + infraction_timestamp.hashCode();
         result = 31 * result + expiration_timestamp.hashCode();
         result = 31 * result + getValue().hashCode();

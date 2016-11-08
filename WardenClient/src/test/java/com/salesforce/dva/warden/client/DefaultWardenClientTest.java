@@ -53,7 +53,7 @@ public class DefaultWardenClientTest extends AbstractTest {
            policy.setDefaultValue(0.0);
            String user = "hpotter";
            client.updateMetric(policy, user, 10);
-           assertEquals(10.0, client._values.get(client._createKey(policy, user)).doubleValue(), 0.0);
+           assertEquals(10.0, client._values.get(client._createKey(policy.getId(), user)).doubleValue(), 0.0);
        }
     }
 
@@ -67,7 +67,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             policy.setDefaultValue(0.0);
             String user = "hpotter";
             client.modifyMetric(policy, user, 10);
-            assertEquals(10.0, client._values.get(client._createKey(policy, user)).doubleValue(), 0.0);
+            assertEquals(10.0, client._values.get(client._createKey(policy.getId(), user)).doubleValue(), 0.0);
         }
     }
 
@@ -87,7 +87,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             policy.setId(BigInteger.ONE);
 
 
-            client._infractions.put(client._createKey(policy, "hpotter"), infraction);
+            client._infractions.put(client._createKey(policy.getId(), "hpotter"), infraction);
             client.updateMetric(policy, "hpotter", 10);
 
         }
@@ -108,7 +108,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             policy.setId(BigInteger.ONE);
 
 
-            client._infractions.put(client._createKey(policy, "hpotter"), infraction);
+            client._infractions.put(client._createKey(policy.getId(), "hpotter"), infraction);
             client.modifyMetric(policy, "hpotter", 10);
 
         }

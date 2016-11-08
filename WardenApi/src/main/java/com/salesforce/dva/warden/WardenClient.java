@@ -31,6 +31,8 @@
 package com.salesforce.dva.warden;
 
 import com.salesforce.dva.warden.dto.Policy;
+
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -50,10 +52,10 @@ public interface WardenClient {
      * @param  policy  DOCUMENT ME!
      * @param  port    DOCUMENT ME!
      */
-    void register(List<Policy> policy, int port);
+    void register(List<Policy> policy, int port) throws IOException;
 
     /** DOCUMENT ME! */
-    void unregister();
+    void unregister() throws IOException;
 
     /**
      * DOCUMENT ME!

@@ -36,7 +36,10 @@ import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.*;
+
+import com.salesforce.dva.warden.dto.WardenResource;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -74,25 +77,90 @@ public class DefaultWardenClient implements WardenClient {
     //~ Methods **************************************************************************************************************************************
 
     @Override
-    public void register(List<Policy> policies, int port) {
+    public void register(List<Policy> policies, int port) throws IOException {
         //login
-        //pull in data from the server to populate infraction cache
-        //update the server with the policy information
+        String username = _getWardenUserName();
+        String password = _getWardenPassword();
+        AuthService authService = _service.getAuthService();
+        WardenResponse loginResult = authService.login(username, password);
+
+        //Reconcile the policies on the server
+        policies = _reconcilePolicies(policies);
+
         //register for events
+        _subscribeToEvents(port);
+
         _updater.start();
     }
 
+    private void _subscribeToEvents(int port) {
+        //call the register endpoint with hostname, IP & port JSON payload
+        throw new UnsupportedOperationException();
+    }
+
+
+    private List<Policy> _reconcilePolicies(List<Policy> policies) throws IOException {
+        PolicyService policyService = _service.getPolicyService();
+        List<Policy> result = new ArrayList<>(policies.size());
+
+        //for each policy in this list, obtain it from the server
+        for (Policy clientPolicy : policies){
+            Policy serverPolicy;
+            WardenResponse<Policy> response = policyService.getPolicy(clientPolicy.getService(), clientPolicy.getName());
+            if(response.getResources().isEmpty()) {
+                serverPolicy = policyService.createPolicies(Arrays.asList(new Policy[]{clientPolicy})).getResources().get(0).getEntity();
+            } else {
+                serverPolicy = response.getResources().get(0).getEntity();
+                if (!clientPolicy.equals(serverPolicy)){
+                    clientPolicy.setId(serverPolicy.getId());
+                    serverPolicy = policyService.updatePolicy(serverPolicy.getId(), clientPolicy).getResources().get(0).getEntity();
+                }
+            }
+
+            result.add(serverPolicy);
+
+            List<WardenResource<Infraction>> suspensionResponses = policyService.getSuspensions(serverPolicy.getId()).getResources();
+
+            for (WardenResource<Infraction> wardenResponse : suspensionResponses){
+                Infraction suspension = wardenResponse.getEntity();
+                _infractions.put(_createKey(suspension.getPolicyId(),suspension.getUserName()), suspension);
+
+            }
+        }
+        return result;
+    }
+
+    /*TODO
+    1. update userId to userName everywhere
+    2. Ask Ruofan to create a method for getPolicy with serviceName and policyName
+    3. Event processing
+    4. UnitTest for register method and unregister
+    5. Address suspension race condition*/
+
+    private String _getWardenPassword() {
+        return "aZkaban";
+    }
+
+
+    private String _getWardenUserName() {
+        return "hpotter";
+    }
+
     @Override
-    public void unregister() {
-        //unregister for events
-        //logout
-        //shutdown
+    public void unregister() throws IOException {
+        _unsubscribeFromEvents();
+        _service.getAuthService().logout();
         _updater.interrupt();
         try {
             _updater.join(10000);
         } catch (InterruptedException ex) {
             LoggerFactory.getLogger(getClass()).warn("Updater thread failed to stop.  Shutting down.");
         }
+    }
+
+    private void _unsubscribeFromEvents() {
+        //call the unregister endpoint on the server
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -108,7 +176,7 @@ public class DefaultWardenClient implements WardenClient {
     }
 
     private void _checkIsSuspended(Policy policy, String user ) throws SuspendedException {
-       Infraction infraction = _infractions.get(_createKey(policy, user));
+       Infraction infraction = _infractions.get(_createKey(policy.getId(), user));
         if (infraction != null && infraction.getExpirationTimestamp()>=System.currentTimeMillis()){
             throw new SuspendedException(policy, user, infraction.getExpirationTimestamp(), infraction.getValue());
         }
@@ -116,12 +184,12 @@ public class DefaultWardenClient implements WardenClient {
 
     }
 
-     String _createKey(Policy policy, String user) {
-        return policy.getId().toString() + ":" + user;
+     String _createKey(BigInteger policyId, String user) {
+        return policyId.toString() + ":" + user;
     }
 
     private void _updateLocalValue(Policy policy, String user, Double value, Boolean replace){
-        String key = _createKey(policy, user);
+        String key = _createKey(policy.getId(), user);
         Double cachedValue = _values.get(key);
 
         if (cachedValue == null){

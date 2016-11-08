@@ -60,8 +60,6 @@ import java.net.URL;
  */
 public class WardenHttpClient {
 
-    //~ ssssatic fields/initializers *******************************************************************************************************************
-
     // ~ Static fields/initializers
     // *******************************************************************************************************************
     private static final ObjectMapper MAPPER = new ObjectMapper();
