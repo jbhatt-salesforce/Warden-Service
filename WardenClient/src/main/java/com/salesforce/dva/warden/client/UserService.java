@@ -34,7 +34,6 @@ import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
-import com.salesforce.dva.warden.dto.SuspensionLevel;
 import com.salesforce.dva.warden.dto.WardenUser;
 
 import java.io.IOException;
@@ -46,7 +45,7 @@ import java.util.Map;
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
-public class UserService extends EndpointService {
+class UserService extends EndpointService {
 
     //~ Static fields/initializers *******************************************************************************************************************
 
@@ -72,7 +71,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<WardenUser> getUsers() throws IOException {
+    WardenResponse<WardenUser> getUsers() throws IOException {
         String requestUrl = REQUESTURL;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -85,7 +84,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<WardenUser> getUserById(String userName) throws IOException {
+    WardenResponse<WardenUser> getUserById(String userName) throws IOException {
         String requestUrl = REQUESTURL + "/" + userName;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -98,7 +97,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<Policy> getPoliciesForUser(String userName) throws IOException {
+    WardenResponse<Policy> getPoliciesForUser(String userName) throws IOException {
         String requestUrl = REQUESTURL + "/" + userName + "/policy";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -111,7 +110,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<Infraction> getInfractionsForUserAndPolicy(String userName, BigInteger policyId) throws IOException {
+    WardenResponse<Infraction> getInfractionsForUserAndPolicy(String userName, BigInteger policyId) throws IOException {
         String requestUrl = REQUESTURL + "/" + userName + "/policy/" + policyId.toString() + "/infraction";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -124,7 +123,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<Infraction> getInfractionsForUser(String userName) throws IOException {
+    WardenResponse<Infraction> getInfractionsForUser(String userName) throws IOException {
         String requestUrl = REQUESTURL + "/" + userName + "/infraction";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -137,7 +136,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(String userName, BigInteger policyId, Long start, Long end) throws IOException {
+    WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(String userName, BigInteger policyId, Long start, Long end) throws IOException {
         String requestUrl = REQUESTURL + "/" + userName + "/policy" + policyId.toString() + "/metric?start=" + start + "&end=" + end;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -150,7 +149,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<Infraction> getSuspensionsForUser(String userName) throws IOException {
+    WardenResponse<Infraction> getSuspensionsForUser(String userName) throws IOException {
         String requestUrl = REQUESTURL + "/" + userName + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -163,7 +162,7 @@ public class UserService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse<Infraction> getSuspensionForUser(String userName, BigInteger suspensionId) throws IOException {
+    WardenResponse<Infraction> getSuspensionForUser(String userName, BigInteger suspensionId) throws IOException {
         String requestUrl = REQUESTURL + "/" + userName + "/suspension/" + suspensionId.toString();
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);

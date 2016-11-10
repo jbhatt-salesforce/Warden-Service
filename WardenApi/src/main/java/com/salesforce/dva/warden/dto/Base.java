@@ -36,7 +36,7 @@ package com.salesforce.dva.warden.dto;
  *
  * @author  Jigna Bhatt (jbhatt@salesfoce.com)
  */
-public abstract class Base
+abstract class Base
 {
     /**
      * Implementations of this method are required to generate an instance of the DTO object containing sample data that can be serialized and

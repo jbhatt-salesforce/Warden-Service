@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by jbhatt on 10/12/16.
  */
-public class MetricUpdater implements Runnable {
+class MetricUpdater implements Runnable {
 
     Map<String, Double> _values;
     WardenService _wardenService;
@@ -24,17 +24,19 @@ public class MetricUpdater implements Runnable {
      * the values map do a bulk update to the server For testing: write the values to the client and read it back from the server to verify this
      * class. Mock it for now.
      */
+    @Override
     public void run() {
-
+        long delta = 0;
         while (!Thread.interrupted()) {
             try {
-                Thread.sleep(60000);
+                Thread.sleep(60000-delta);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 continue;
             }
 
-            Long time = (System.currentTimeMillis() / 60000) * 60000;
+            Long start = System.currentTimeMillis();
+            Long time = (start / 60000) * 60000;
 
             Map<String, Double> copyOfValues = new HashMap<>(_values);
 
@@ -51,7 +53,7 @@ public class MetricUpdater implements Runnable {
                     LoggerFactory.getLogger(getClass()).warn("Failed to update metric.", ex);
                 }
             });
+            delta = System.currentTimeMillis()-start;
         }
     }
-;
 }

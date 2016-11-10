@@ -30,9 +30,9 @@
  */
 package com.salesforce.dva.warden.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
-import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 import org.junit.Test;
 
@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 
@@ -64,11 +63,10 @@ public class MetricUpdaterTest extends AbstractTest {
     @Test
     public void testPeriodicServerPush() throws IOException, InterruptedException, SuspendedException{
        try(WardenService wardenService = new WardenService(getMockedClient("/MetricUpdaterTest.testPeriodicServerPush.json"))) {
-           DefaultWardenClient client = new DefaultWardenClient(wardenService);
-           Policy policy = new Policy();
-           policy.setId(BigInteger.ONE);
-           policy.setDefaultValue(0.0);
+           DefaultWardenClient client = new DefaultWardenClient(wardenService, "hpotter", "aZkaban");
+           Policy policy = _constructUnPersistedPolicy();
            client.register(Arrays.asList(new Policy[]{policy}), 8080);
+           policy.setId(BigInteger.ONE);
            client.updateMetric(policy, "hpotter", 1.0);
            Thread.currentThread().sleep(90000);
            client.unregister();
@@ -78,5 +76,25 @@ public class MetricUpdaterTest extends AbstractTest {
            assertTrue(interceptedRequests.get(0).getType().equals(RequestType.PUT));
        }
     }
+    
+    private Policy _constructUnPersistedPolicy() throws JsonProcessingException {
+        Policy result = new Policy();
+
+        result.setService("TestService");
+        result.setName("TestName");
+        result.setOwners(Arrays.asList("TestOwner"));
+        result.setUsers(Arrays.asList("TestUser"));
+        result.setSubSystem("TestSubSystem");
+        result.setMetricName("TestMetricName");
+        result.setTriggerType(Policy.TriggerType.BETWEEN);
+        result.setAggregator(Policy.Aggregator.AVG);
+        result.setThresholds(Arrays.asList(0.0));
+        result.setTimeUnit("5min");
+        result.setDefaultValue(0.0);
+        result.setCronEntry("0 */4 * * *");
+        return result;
+
+    }
+    
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */

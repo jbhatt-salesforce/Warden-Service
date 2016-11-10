@@ -58,7 +58,7 @@ import java.net.URL;
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
-public class WardenHttpClient {
+class WardenHttpClient {
 
     // ~ Static fields/initializers
     // *******************************************************************************************************************
@@ -97,7 +97,7 @@ public class WardenHttpClient {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenHttpClient(String endpoint, int maxConn, int timeout, int reqTimeout) throws IOException {
+    WardenHttpClient(String endpoint, int maxConn, int timeout, int reqTimeout) throws IOException {
         URL url = new URL(endpoint);
         int port = url.getPort();
 
@@ -114,7 +114,7 @@ public class WardenHttpClient {
         cookieStore = new BasicCookieStore();
         httpContext = new BasicHttpContext();
         httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
-        LOGGER.info("Argus HTTP Client initialized using " + endpoint);
+        LOGGER.debug("Argus HTTP Client initialized using " + endpoint);
         this.endpoint = endpoint;
     }
 
@@ -142,7 +142,7 @@ public class WardenHttpClient {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public void dispose() throws IOException {
+    void dispose() throws IOException {
         httpClient.close();
         cookieStore.clear();
         httpContext.clear();

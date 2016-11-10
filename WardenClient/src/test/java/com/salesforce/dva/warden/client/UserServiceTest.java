@@ -176,7 +176,6 @@ public class UserServiceTest extends AbstractTest {
         result.setTimeUnit("5min");
         result.setDefaultValue(0.0);
         result.setCronEntry("0 */4 * * *");
-        System.out.println("inside construct unpersisted policy");
         return result;
 
     }
