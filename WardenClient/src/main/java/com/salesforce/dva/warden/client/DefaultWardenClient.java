@@ -34,12 +34,14 @@ import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.WardenClient;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
+import com.salesforce.dva.warden.dto.Subscription;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
 import com.salesforce.dva.warden.dto.WardenResource;
+import java.net.InetAddress;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -47,29 +49,36 @@ import org.slf4j.LoggerFactory;
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
-public class DefaultWardenClient implements WardenClient {
+class DefaultWardenClient implements WardenClient {
 
     final Map<String, Infraction> _infractions;
     final Map<String, Double> _values;
     final WardenService _service;
+    final String _username;
+    final String _password;
     final Thread _updater;
+    private String _hostname;
+    private Subscription _subscription;
 
     //~ Constructors *********************************************************************************************************************************
     // This is how the client talks to the server.
-    public DefaultWardenClient(String endpoint) throws IOException{
-        this(WardenService.getInstance(endpoint, 10));
+    DefaultWardenClient(String endpoint, String username, String password) throws IOException{
+        this(WardenService.getInstance(endpoint, 10), username, password);
     }
 
     /** Creates a new DefaultWardenClient object. */
-     DefaultWardenClient(WardenService service) {
+    DefaultWardenClient(WardenService service, String username, String password) {
          _service = service;
         _infractions = Collections.synchronizedMap(new LinkedHashMap<String, Infraction>(){
             @Override
             protected boolean removeEldestEntry(Map.Entry <String, Infraction> eldest) {
-                return eldest.getValue().getExpirationTimestamp().compareTo(System.currentTimeMillis()) == -1;
+                Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
+                return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
             }
         });
-
+        _username = username;
+        _password = password;
+        _hostname = _getHostname();
         _values = Collections.synchronizedMap(new HashMap<String, Double>());
         _updater = new Thread(new MetricUpdater(_values, service));
     }
@@ -78,26 +87,38 @@ public class DefaultWardenClient implements WardenClient {
 
     @Override
     public void register(List<Policy> policies, int port) throws IOException {
-        //login
-        String username = _getWardenUserName();
-        String password = _getWardenPassword();
         AuthService authService = _service.getAuthService();
-        WardenResponse loginResult = authService.login(username, password);
-
-        //Reconcile the policies on the server
-        policies = _reconcilePolicies(policies);
-
-        //register for events
-        _subscribeToEvents(port);
-
+        authService.login(_username, _password);
+        _subscription = _subscribeToEvents(port);
         _updater.start();
+        _reconcilePolicies(policies);
     }
 
-    private void _subscribeToEvents(int port) {
-        //call the register endpoint with hostname, IP & port JSON payload
-        throw new UnsupportedOperationException();
-    }
+    private String _getHostname() {
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            return System.getenv("COMPUTERNAME");
+        } else {
+            String hostname = System.getenv("HOSTNAME");
 
+            if (hostname != null) {
+                return hostname;
+            }
+        }
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (Exception ex) {
+            return "unknown-host";
+        }
+    }
+    
+    private Subscription _subscribeToEvents(int port) throws IOException {
+        // @todo start listener thread
+        Subscription subscription = new Subscription();
+        subscription.setHostname(_hostname);
+        subscription.setPort(port);
+        subscription = _service.getSubscriptionService().subscribe(subscription).getResources().get(0).getEntity();
+        return subscription;
+    }
 
     private List<Policy> _reconcilePolicies(List<Policy> policies) throws IOException {
         PolicyService policyService = _service.getPolicyService();
@@ -130,27 +151,12 @@ public class DefaultWardenClient implements WardenClient {
         return result;
     }
 
-    /*TODO
-    1. update userId to userName everywhere
-    2. Ask Ruofan to create a method for getPolicy with serviceName and policyName
-    3. Event processing
-    4. UnitTest for register method and unregister
-    5. Address suspension race condition*/
-
-    private String _getWardenPassword() {
-        return "aZkaban";
-    }
-
-
-    private String _getWardenUserName() {
-        return "hpotter";
-    }
-
     @Override
     public void unregister() throws IOException {
         _unsubscribeFromEvents();
-        _service.getAuthService().logout();
         _updater.interrupt();
+        // @todo stop listening thread
+        _service.getAuthService().logout();
         try {
             _updater.join(10000);
         } catch (InterruptedException ex) {
@@ -158,9 +164,8 @@ public class DefaultWardenClient implements WardenClient {
         }
     }
 
-    private void _unsubscribeFromEvents() {
-        //call the unregister endpoint on the server
-        throw new UnsupportedOperationException();
+    private void _unsubscribeFromEvents() throws IOException {
+        _service.getSubscriptionService().unsubscribe(_subscription);
     }
 
     @Override
@@ -177,7 +182,7 @@ public class DefaultWardenClient implements WardenClient {
 
     private void _checkIsSuspended(Policy policy, String user ) throws SuspendedException {
        Infraction infraction = _infractions.get(_createKey(policy.getId(), user));
-        if (infraction != null && infraction.getExpirationTimestamp()>=System.currentTimeMillis()){
+        if (infraction != null && (infraction.getExpirationTimestamp()>=System.currentTimeMillis() || infraction.getExpirationTimestamp() <0 )){
             throw new SuspendedException(policy, user, infraction.getExpirationTimestamp(), infraction.getValue());
         }
 

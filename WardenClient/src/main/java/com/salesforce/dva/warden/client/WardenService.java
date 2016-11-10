@@ -41,7 +41,7 @@ import java.io.IOException;
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
-public class WardenService implements AutoCloseable {
+class WardenService implements AutoCloseable {
 
     //~ Instance fields ******************************************************************************************************************************
 
@@ -70,7 +70,7 @@ public class WardenService implements AutoCloseable {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public static WardenService getInstance(String endpoint, int maxConn) throws IOException {
+    static WardenService getInstance(String endpoint, int maxConn) throws IOException {
         return getInstance(endpoint, maxConn, 10000, 10000);
     }
 
@@ -86,7 +86,7 @@ public class WardenService implements AutoCloseable {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public static WardenService getInstance(String endpoint, int maxConn, int connTimeout, int connRequestTimeout) throws IOException {
+    static WardenService getInstance(String endpoint, int maxConn, int connTimeout, int connRequestTimeout) throws IOException {
         WardenHttpClient client = new WardenHttpClient(endpoint, maxConn, connTimeout, connRequestTimeout);
 
         return new WardenService(client);
@@ -99,7 +99,7 @@ public class WardenService implements AutoCloseable {
      *
      * @return  DOCUMENT ME!
      */
-    public AuthService getAuthService() {
+    AuthService getAuthService() {
         return new AuthService(httpClient);
     }
 
@@ -108,7 +108,7 @@ public class WardenService implements AutoCloseable {
      *
      * @return  DOCUMENT ME!
      */
-    public PolicyService getPolicyService() {
+    PolicyService getPolicyService() {
         return new PolicyService(httpClient);
     }
 
@@ -117,8 +117,12 @@ public class WardenService implements AutoCloseable {
      *
      * @return  DOCUMENT ME!
      */
-    public UserService getUserService() {
+    UserService getUserService() {
         return new UserService(httpClient);
+    }
+    
+    SubscriptionService getSubscriptionService() {
+        return new SubscriptionService(httpClient);
     }
 
 

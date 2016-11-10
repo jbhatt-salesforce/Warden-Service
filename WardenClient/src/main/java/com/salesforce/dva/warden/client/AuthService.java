@@ -39,7 +39,7 @@ import java.io.IOException;
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
-public class AuthService extends EndpointService {
+class AuthService extends EndpointService {
 
     //~ Static fields/initializers *******************************************************************************************************************
 
@@ -68,7 +68,7 @@ public class AuthService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse login(String username, String password) throws IOException {
+    WardenResponse login(String username, String password) throws IOException {
         String requestUrl = REQUESTURL + "/login";
         Credentials creds = new Credentials();
 
@@ -84,7 +84,7 @@ public class AuthService extends EndpointService {
      *
      * @throws  IOException  DOCUMENT ME!
      */
-    public WardenResponse logout() throws IOException {
+    WardenResponse logout() throws IOException {
         String requestUrl = REQUESTURL + "/logout";
 
         return getClient().executeHttpRequest(WardenHttpClient.RequestType.GET, requestUrl, null);

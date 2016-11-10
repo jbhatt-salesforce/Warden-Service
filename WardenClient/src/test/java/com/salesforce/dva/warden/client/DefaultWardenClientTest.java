@@ -33,7 +33,6 @@ package com.salesforce.dva.warden.client;
 import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
-import com.salesforce.dva.warden.dto.WardenUser;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -47,13 +46,13 @@ public class DefaultWardenClientTest extends AbstractTest {
     @Test
     public void testUpdateMetric() throws IOException, SuspendedException {
        try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
-           DefaultWardenClient client = new DefaultWardenClient(wardenService);
+           DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
            Policy policy = new Policy();
            policy.setId(BigInteger.ONE);
            policy.setDefaultValue(0.0);
            String user = "hpotter";
            client.updateMetric(policy, user, 10);
-           assertEquals(10.0, client._values.get(client._createKey(policy.getId(), user)).doubleValue(), 0.0);
+           assertEquals(10.0, client._values.get(client._createKey(policy.getId(), user)), 0.0);
        }
     }
 
@@ -61,13 +60,13 @@ public class DefaultWardenClientTest extends AbstractTest {
     @Test
     public void testModifyMetric() throws IOException, SuspendedException {
         try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
-            DefaultWardenClient client = new DefaultWardenClient(wardenService);
+            DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
             Policy policy = new Policy();
             policy.setId(BigInteger.ONE);
             policy.setDefaultValue(0.0);
             String user = "hpotter";
             client.modifyMetric(policy, user, 10);
-            assertEquals(10.0, client._values.get(client._createKey(policy.getId(), user)).doubleValue(), 0.0);
+            assertEquals(10.0, client._values.get(client._createKey(policy.getId(), user)), 0.0);
         }
     }
 
@@ -82,7 +81,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             infraction.setPolicyId(BigInteger.ONE);
             infraction.setExpirationTimestamp((long) System.currentTimeMillis()+600000);
 
-            DefaultWardenClient client = new DefaultWardenClient(wardenService);
+            DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
             Policy policy = new Policy();
             policy.setId(BigInteger.ONE);
 
@@ -103,7 +102,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             infraction.setPolicyId(BigInteger.ONE);
             infraction.setExpirationTimestamp((long) System.currentTimeMillis()+600000);
 
-            DefaultWardenClient client = new DefaultWardenClient(wardenService);
+            DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
             Policy policy = new Policy();
             policy.setId(BigInteger.ONE);
 
