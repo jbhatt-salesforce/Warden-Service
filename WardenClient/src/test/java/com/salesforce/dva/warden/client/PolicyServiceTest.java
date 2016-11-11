@@ -247,7 +247,6 @@ public class PolicyServiceTest extends AbstractTest {
             PolicyService policyService = wardenService.getPolicyService();
             SuspensionLevel suspensionLevel = _constructPersistedSuspensionLevel();
             suspensionLevel.setInfractionCount(2);
-            System.out.println(MAPPER.writeValueAsString(suspensionLevel));
             WardenResponse<SuspensionLevel> actualResponse = policyService.updateSuspensionLevel(BigInteger.ONE, BigInteger.ONE, suspensionLevel);
             WardenResponse<SuspensionLevel> expectedResponse = _constructPersistedResponseSuspensionLevel("PUT");
             expectedResponse.getResources().get(0).getEntity().setInfractionCount(2);
@@ -371,7 +370,6 @@ public class PolicyServiceTest extends AbstractTest {
         result.setMessage("success");
         result.setStatus(200);
         result.setResources(resources);
-        System.out.println(MAPPER.writeValueAsString(result));
         return result;
     }
 

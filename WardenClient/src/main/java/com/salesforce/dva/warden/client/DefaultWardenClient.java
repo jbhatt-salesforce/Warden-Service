@@ -42,6 +42,8 @@ import java.util.*;
 
 import com.salesforce.dva.warden.dto.WardenResource;
 import java.net.InetAddress;
+import java.util.logging.Level;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -56,9 +58,10 @@ class DefaultWardenClient implements WardenClient {
     final WardenService _service;
     final String _username;
     final String _password;
-    final Thread _updater;
+    Thread _updater;
     private String _hostname;
     private Subscription _subscription;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultWardenClient.class);
 
     //~ Constructors *********************************************************************************************************************************
     // This is how the client talks to the server.
@@ -80,7 +83,25 @@ class DefaultWardenClient implements WardenClient {
         _password = password;
         _hostname = _getHostname();
         _values = Collections.synchronizedMap(new HashMap<String, Double>());
-        _updater = new Thread(new MetricUpdater(_values, service));
+    }
+
+    private void _initializeUpdaterThread(WardenService service) {
+        _updater = new Thread(new MetricUpdater(_values, service));        
+        _updater.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            private int limit = 5;
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                LOGGER.warn("Uncaught exception in metric updater thread.  After {} more exceptions, the updater thread will be restarted.", --limit);
+                LOGGER.warn(e.getLocalizedMessage(), e);
+                if(limit == 0) {
+                    LOGGER.warn("Restarting updater thread.");
+                    _terminateUpdaterThread();
+                    _initializeUpdaterThread(_service);
+                }
+            }
+        });
+        _updater.setDaemon(true);
+        _updater.start();        
     }
 
     //~ Methods **************************************************************************************************************************************
@@ -90,7 +111,7 @@ class DefaultWardenClient implements WardenClient {
         AuthService authService = _service.getAuthService();
         authService.login(_username, _password);
         _subscription = _subscribeToEvents(port);
-        _updater.start();
+        _initializeUpdaterThread(_service);
         _reconcilePolicies(policies);
     }
 
@@ -154,13 +175,17 @@ class DefaultWardenClient implements WardenClient {
     @Override
     public void unregister() throws IOException {
         _unsubscribeFromEvents();
-        _updater.interrupt();
+        _terminateUpdaterThread();
         // @todo stop listening thread
         _service.getAuthService().logout();
+    }
+
+    private void _terminateUpdaterThread() {
+        _updater.interrupt();
         try {
             _updater.join(10000);
         } catch (InterruptedException ex) {
-            LoggerFactory.getLogger(getClass()).warn("Updater thread failed to stop.  Shutting down.");
+            LOGGER.warn("Updater thread failed to stop.  Giving up.");
         }
     }
 
