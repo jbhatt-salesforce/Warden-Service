@@ -250,7 +250,6 @@ public class UserServiceTest extends AbstractTest {
         result.setMessage("success");
         result.setStatus(200);
         result.setResources(resources);
-        System.out.println(MAPPER.writeValueAsString(result));
         return result;
     }
 
