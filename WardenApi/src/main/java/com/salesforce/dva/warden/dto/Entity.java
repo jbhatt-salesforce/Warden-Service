@@ -40,6 +40,7 @@ import java.util.Date;
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
 @SuppressWarnings("serial")
+public
 abstract class Entity extends Base implements Serializable {
 
     //~ Instance fields ******************************************************************************************************************************

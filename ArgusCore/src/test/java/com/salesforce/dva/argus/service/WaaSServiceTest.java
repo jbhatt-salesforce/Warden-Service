@@ -24,9 +24,11 @@ import com.salesforce.dva.argus.entity.Infraction;
 import com.salesforce.dva.argus.entity.Policy;
 import com.salesforce.dva.argus.entity.PrincipalUser;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
+import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.service.warden.WaaSNotifier;
 import com.salesforce.dva.warden.dto.Policy.Aggregator;
 import com.salesforce.dva.warden.dto.Policy.TriggerType;
+
 import com.sun.tools.javac.util.Log;
 
 public class WaaSServiceTest extends AbstractTest {
@@ -506,5 +508,16 @@ public class WaaSServiceTest extends AbstractTest {
     	
     	int expectedNumber = _waaSService.getSuspensionLevels(mergedPolicy).size();
     	assertTrue(expectedNumber == LEVEL_NUMBER);
-    }  
+    } 
+    
+    @Test
+    public void testSubscriptionCRUD(){
+    	Subscription testSubscription = new Subscription(user, "127.0.0.1",1234);
+    	Subscription newSubscription = _waaSService.updateSubscription(testSubscription);
+    	Subscription mergedSubscription = _waaSService.getSubscription(newSubscription.getId());
+    	assertNotNull(mergedSubscription);
+    	_waaSService.deleteSubscription(mergedSubscription);
+    	Subscription deletedSubscription = _waaSService.getSubscription(newSubscription.getId());
+    	assertNull(deletedSubscription);
+    }
 }

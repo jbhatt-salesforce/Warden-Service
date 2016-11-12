@@ -39,6 +39,7 @@ import com.salesforce.dva.argus.ws.annotation.Description;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Metric;
 import com.salesforce.dva.warden.dto.Policy;
+import com.salesforce.dva.warden.dto.Subscription;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
 import com.salesforce.dva.warden.dto.WardenUser;
 import com.salesforce.dva.warden.dto.WardenResource.MetaKey;
@@ -382,6 +383,61 @@ public class WaaSResources extends AbstractResource {
 		PrincipalUser remoteUser = getRemoteUser(req);
 
 		policy = waaSService.getPolicy(pid);
+		
+		if (policy == null)
+			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
+
+		// check ownership
+		if (!remoteUser.isPrivileged() && !policy.getOwners().contains(remoteUser.getUserName())) {
+			throw new WebApplicationException("Remote user doesn't own this policy and has no priviledge to access it.",
+					Status.BAD_REQUEST);
+		}
+
+		EnumMap<MetaKey, String> meta = new EnumMap<MetaKey, String>(MetaKey.class);
+    	
+    	UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+        URI userUri = ub.build();        
+        
+    	int statusCode = (policy == null) ? Response.Status.NOT_FOUND.getStatusCode() : Response.Status.OK.getStatusCode();
+    	String message = (policy == null) ? Response.Status.NOT_FOUND.getReasonPhrase() : Response.Status.OK.getReasonPhrase();
+    	
+    	meta.put(MetaKey.HREF, userUri.toString());
+        meta.put(MetaKey.STATUS, Integer.toString(statusCode));
+        meta.put(MetaKey.VERB, req.getMethod());
+        meta.put(MetaKey.MESSAGE, message);
+        meta.put(MetaKey.UI_MESSAGE, message);
+        meta.put(MetaKey.DEV_MESSAGE, message);              
+            	       	
+    	Policy policyDto = (policy == null) ? null : WaaSObjectConverter.convertToPolicyDto(policy);
+    	result = new WardenResource<Policy>();
+    	result.setEntity(policyDto);
+    	result.setMeta(meta);
+		
+		return result;
+	}
+    
+    /**
+     * Finds a policy by policy service and name.
+     *
+     * @param   req      	The HttpServlet request object. Cannot be null.
+     * @param   pid  		ID of a policy. Cannot be null and must be a positive non-zero number.
+     *
+     * @return  Policy
+     *
+     * @throws  WebApplicationException  The exception with 404 status will be thrown if a policy does not exist.
+     */
+    
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/policy")
+    @Description("Returns a policy by its ID.")
+	public WardenResource<Policy> getPolicyById(@Context HttpServletRequest req, @QueryParam("service") String service, @QueryParam("name") String name) {
+
+		WardenResource<Policy> result = null;
+		com.salesforce.dva.argus.entity.Policy policy = null;
+		PrincipalUser remoteUser = getRemoteUser(req);
+
+		policy = waaSService.getPolicy(service,name);
 		
 		if (policy == null)
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
@@ -2122,5 +2178,128 @@ public class WaaSResources extends AbstractResource {
 
 		return result;    	
     }
+    
+	/**
+	 * Creates a new subscription.
+	 *
+	 * @param req
+	 *            The HttpServlet request object. Cannot be null.
+	 * @param subscription
+	 *            The subscription object. Cannot be null.
+	 *
+	 * @return Created subscription object.
+	 *
+	 * @throws WebApplicationException
+	 *             The exception with 400 status will be thrown if the
+	 *             subscription object is null.
+	 */
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/subscription")
+	@Description("Creates a new subscription.")
+	public WardenResource<Subscription> createSubscription(@Context HttpServletRequest req, Subscription subscription) {
+		if (subscription == null) {
+			throw new WebApplicationException("Null subscription object cannot be created.", Status.BAD_REQUEST);
+		}
+
+		PrincipalUser remoteUser = getRemoteUser(req);
+
+		com.salesforce.dva.argus.entity.Subscription subscriptionEntity = null;
+		com.salesforce.dva.argus.entity.Subscription entity = new com.salesforce.dva.argus.entity.Subscription(
+				remoteUser, subscription.getHostname(), subscription.getPort());
+		try {
+			subscriptionEntity = waaSService.updateSubscription(entity);
+		} catch (Exception e) {
+			subscriptionEntity = null;
+		}
+
+		EnumMap<MetaKey, String> meta = new EnumMap<MetaKey, String>(MetaKey.class);
+
+		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+		URI userUri = (subscriptionEntity == null) ? ub.build()
+				: ub.path(subscriptionEntity.getId().toString()).build();
+
+		int statusCode = (subscriptionEntity == null) ? Response.Status.BAD_REQUEST.getStatusCode()
+				: Response.Status.OK.getStatusCode();
+		String message = (subscriptionEntity == null) ? Response.Status.BAD_REQUEST.getReasonPhrase()
+				: Response.Status.OK.getReasonPhrase();
+
+		meta.put(MetaKey.HREF, userUri.toString());
+		meta.put(MetaKey.STATUS, Integer.toString(statusCode));
+		meta.put(MetaKey.VERB, req.getMethod());
+		meta.put(MetaKey.MESSAGE, message);
+		meta.put(MetaKey.UI_MESSAGE, message);
+		meta.put(MetaKey.DEV_MESSAGE, message);
+
+		Subscription subscriptionDto = (subscriptionEntity == null) ? null
+				: WaaSObjectConverter.convertToSubscriptionDto(Subscription.class, subscriptionEntity);
+
+		WardenResource<Subscription> result = new WardenResource<>();
+		result.setEntity(subscriptionDto);
+		result.setMeta(meta);
+
+		return result;
+	}
+
+	/**
+	 * Deletes a client subscription.
+	 *
+	 * @param req
+	 *            The HttpServlet request object. Cannot be null.
+	 *
+	 * @return REST response indicating whether the subscription deletion was
+	 *         successful.
+	 *
+	 * @throws WebApplicationException
+	 *             The exception with 404 status will be thrown if a client
+	 *             subscription does not exist.
+	 */
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/unsubscription")
+	@Description("Deletes selected subscription associated with this client.")
+	public WardenResource<Subscription> deleteSubscription(@Context HttpServletRequest req,
+			@QueryParam("id") BigInteger subscriptionId) {
+		if (subscriptionId == null) {
+			throw new WebApplicationException("Subscription id is needed for deletion.", Status.BAD_REQUEST);
+		}
+
+		PrincipalUser remoteUser = getRemoteUser(req);
+
+		int statusCode = Response.Status.NOT_FOUND.getStatusCode();
+		String message = Response.Status.NOT_FOUND.getReasonPhrase();
+
+		com.salesforce.dva.argus.entity.Subscription delSubscription = waaSService.getSubscription(subscriptionId);
+		if (delSubscription != null) {
+
+			waaSService.deleteSubscription(delSubscription);
+
+			statusCode = Response.Status.OK.getStatusCode();
+			message = Response.Status.OK.getReasonPhrase();
+
+		}
+		EnumMap<MetaKey, String> meta = new EnumMap<MetaKey, String>(MetaKey.class);
+
+		UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+		URI userUri = (delSubscription == null) ? ub.build() : ub.path(subscriptionId.toString()).build();
+
+		meta.put(MetaKey.HREF, userUri.toString());
+		meta.put(MetaKey.STATUS, Integer.toString(statusCode));
+		meta.put(MetaKey.VERB, req.getMethod());
+		meta.put(MetaKey.MESSAGE, message);
+		meta.put(MetaKey.UI_MESSAGE, message);
+		meta.put(MetaKey.DEV_MESSAGE, message);
+
+		Subscription subscriptionDto = delSubscription == null ? null
+				: WaaSObjectConverter.convertToSubscriptionDto(Subscription.class, delSubscription);
+
+		WardenResource<Subscription> result = new WardenResource<>();
+		result.setEntity(subscriptionDto);
+		result.setMeta(meta);
+
+		return result;
+	}
+
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
