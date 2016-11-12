@@ -229,7 +229,7 @@ public class WaaSObjectConverter implements Serializable {
   * @throws  WebApplicationException  If an error occurs.
   */
 
- public static com.salesforce.dva.warden.dto.Metric  createToMetricDto(Class<com.salesforce.dva.warden.dto.Metric> clazz, Metric entity) {
+ public static com.salesforce.dva.warden.dto.Metric  convertToMetricDto(Class<com.salesforce.dva.warden.dto.Metric> clazz, Metric entity) {
 	 if (entity == null) {
          throw new WebApplicationException("Null entity object cannot be converted to Dto object.", Status.INTERNAL_SERVER_ERROR);
      }
@@ -258,13 +258,24 @@ public class WaaSObjectConverter implements Serializable {
  	return result;
 	}
 
+ public static com.salesforce.dva.warden.dto.Subscription convertToSubscriptionDto(Class<com.salesforce.dva.warden.dto.Subscription> clazz,com.salesforce.dva.argus.entity.Subscription subscriptionEntity) {
+	 if (subscriptionEntity == null) {
+         throw new WebApplicationException("Null entity object cannot be converted to Dto object.", Status.INTERNAL_SERVER_ERROR);
+     }
+	 com.salesforce.dva.warden.dto.Subscription result = null;
+
+     try {
+         result = clazz.newInstance();
+         BeanUtils.copyProperties(result, subscriptionEntity);
+
+     } catch (Exception ex) {
+         throw new WebApplicationException("Subscription DTO transformation failed.", Status.INTERNAL_SERVER_ERROR);
+     }
+     return result;
+	}
     //~ Methods **************************************************************************************************************************************
 
-    private static com.salesforce.dva.warden.dto.Metric convertToMetricDto(
-		Class<com.salesforce.dva.warden.dto.Metric> class1, Metric m) {
-	// TODO Auto-generated method stub
-	return null;
-}
+   
 	/**
      * Returns the entity ID.
      *
@@ -362,5 +373,6 @@ public class WaaSObjectConverter implements Serializable {
 		
 		return resource;
 	}
+	
 	
 }

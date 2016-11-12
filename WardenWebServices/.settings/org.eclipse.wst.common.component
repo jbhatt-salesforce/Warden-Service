@@ -5,10 +5,10 @@
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/target/generated-resources"/>
-        <dependent-module archiveName="argus-core-4.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/argus-core/argus-core">
+        <dependent-module archiveName="argus-core-2.2.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/argus-core/argus-core">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="warden-api-4.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/warden-api/warden-api">
+        <dependent-module archiveName="warden-api-2.2.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/warden-api/warden-api">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/argus-webservices/target/classes"/>
