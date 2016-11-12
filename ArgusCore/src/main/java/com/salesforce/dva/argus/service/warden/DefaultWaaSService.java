@@ -28,6 +28,7 @@ import com.salesforce.dva.argus.entity.Infraction;
 import com.salesforce.dva.argus.entity.Notification;
 import com.salesforce.dva.argus.entity.Policy;
 import com.salesforce.dva.argus.entity.PrincipalUser;
+import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
 import com.salesforce.dva.argus.entity.Trigger;
 import com.salesforce.dva.warden.dto.Policy.TriggerType;
@@ -1015,6 +1016,66 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		em.getEntityManagerFactory().getCache().evictAll();
 		List<Infraction> result = Infraction.findByUser(em, principalUser);
 
+		return result;
+	}
+	
+	/**
+	 * Return a subscription based on subscription Id. called by /subscription/{sid} DELETE
+	 * 
+	 * @param subscriptionId	 id used for query a client subscription.
+	 * 
+	 */
+	@Override
+	@Transactional
+	public Subscription getSubscription(BigInteger subscriptionId) {
+		requireNotDisposed();
+		requireArgument(subscriptionId != null && subscriptionId.signum() == 1, "Subscription id cannot be null and must be positive.");
+
+		EntityManager em = emf.get();
+		em.getEntityManagerFactory().getCache().evictAll();
+
+		Subscription result = Subscription.findByPrimaryKey(em, subscriptionId, Subscription.class);
+
+		return result;
+	}
+
+	/**
+	 * Delete a subscription, called by /subscription/{sid} DELETE
+	 * 
+	 * @param subscription
+	 *            subscription used for deletion.
+	 */
+	@Override
+	@Transactional
+	public void deleteSubscription(Subscription subscription) {
+		requireNotDisposed();
+		requireArgument(subscription != null, "Subscription cannot be null.");
+		_logger.debug("Deleting a subscription {}.", subscription);
+
+		EntityManager em = emf.get();
+
+		deleteEntity(em, subscription);
+		em.flush();
+	}
+
+	/**
+	 * Update a subscription,called by /subscriptino/{sid} POST
+	 * 
+	 * @param subscription
+	 *            subscription used for update.
+	 * @return Subscription updated subscription
+	 */
+	@Override
+	@Transactional
+	public Subscription updateSubscription(Subscription subscription) {
+		requireNotDisposed();
+		requireArgument(subscription != null, "Cannot update a null subscription");
+
+		EntityManager em = emf.get();
+		Subscription result = mergeEntity(em, subscription);
+
+		em.flush();
+		_logger.debug("Updated subscription to : {}", result);
 		return result;
 	}
 	//~ Inner Classes ********************************************************************************************************************************

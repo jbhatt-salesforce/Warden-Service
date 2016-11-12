@@ -8,6 +8,7 @@ import com.salesforce.dva.argus.entity.Infraction;
 import com.salesforce.dva.argus.entity.Metric;
 import com.salesforce.dva.argus.entity.Policy;
 import com.salesforce.dva.argus.entity.PrincipalUser;
+import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
 
 public interface WaaSService {
@@ -321,6 +322,12 @@ public interface WaaSService {
 	void startPushingMetrics();
 
 	void stopPushingMetrics();
+
+	Subscription getSubscription(BigInteger subscriptionId);
+
+	void deleteSubscription(Subscription subscription);
+
+	Subscription updateSubscription(Subscription subscription);
 	
 	
 	
