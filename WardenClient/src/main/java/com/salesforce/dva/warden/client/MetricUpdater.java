@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by jbhatt on 10/12/16.
  */
-class MetricUpdater implements Runnable {
+class MetricUpdater extends  Thread {
 
     Map<String, Double> _values;
     WardenService _wardenService;
@@ -55,5 +55,7 @@ class MetricUpdater implements Runnable {
             });
             delta = System.currentTimeMillis()-start;
         }
+        _values = null;
+        _wardenService = null;
     }
 }

@@ -42,7 +42,6 @@ import java.util.*;
 
 import com.salesforce.dva.warden.dto.WardenResource;
 import java.net.InetAddress;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +58,7 @@ class DefaultWardenClient implements WardenClient {
     final String _username;
     final String _password;
     Thread _updater;
+    Thread _listener;
     private String _hostname;
     private Subscription _subscription;
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultWardenClient.class);
@@ -86,18 +86,13 @@ class DefaultWardenClient implements WardenClient {
     }
 
     private void _initializeUpdaterThread(WardenService service) {
-        _updater = new Thread(new MetricUpdater(_values, service));        
+        _updater = new MetricUpdater(_values, service);        
         _updater.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            private int limit = 5;
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                LOGGER.warn("Uncaught exception in metric updater thread.  After {} more exceptions, the updater thread will be restarted.", --limit);
-                LOGGER.warn(e.getLocalizedMessage(), e);
-                if(limit == 0) {
-                    LOGGER.warn("Restarting updater thread.");
-                    _terminateUpdaterThread();
-                    _initializeUpdaterThread(_service);
-                }
+                LOGGER.warn("Uncaught exception in metric updater thread.  Restarting updater thread.",e);
+                _terminateUpdaterThread();
+                _initializeUpdaterThread(_service);
             }
         });
         _updater.setDaemon(true);
@@ -133,7 +128,7 @@ class DefaultWardenClient implements WardenClient {
     }
     
     private Subscription _subscribeToEvents(int port) throws IOException {
-        // @todo start listener thread
+        _initializeEventListener(port);
         Subscription subscription = new Subscription();
         subscription.setHostname(_hostname);
         subscription.setPort(port);
@@ -191,6 +186,7 @@ class DefaultWardenClient implements WardenClient {
 
     private void _unsubscribeFromEvents() throws IOException {
         _service.getSubscriptionService().unsubscribe(_subscription);
+        _terminateEventListener();
     }
 
     @Override
@@ -214,7 +210,7 @@ class DefaultWardenClient implements WardenClient {
 
     }
 
-     String _createKey(BigInteger policyId, String user) {
+     static String _createKey(BigInteger policyId, String user) {
         return policyId.toString() + ":" + user;
     }
 
@@ -230,6 +226,29 @@ class DefaultWardenClient implements WardenClient {
 
         _values.put(key, cachedValue);
 
+    }
+
+    private void _initializeEventListener(int port) {
+        _listener = new EventListener(_infractions, _service, port);
+        _listener.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                LOGGER.warn("Uncaught exception in event listener.  Restarting listener thread.",e);
+                _terminateEventListener();
+                _initializeEventListener(port);
+            }
+        });
+        _listener.setDaemon(true);
+        _listener.start();        
+    }
+
+    private void _terminateEventListener() {
+        _listener.interrupt();
+        try {
+            _listener.join(10000);
+        } catch (InterruptedException ex) {
+            LOGGER.warn("Listener thread failed to stop.  Giving up.");
+        }
     }
     
 }
