@@ -509,7 +509,7 @@
      <keys>Copyright</keys>
      <override>true</override>
      <smartMode>0</smartMode>
-    <text>/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */</text>
+    <text>/* Copyright (c) 2015-$date.year$, Salesforce.com, Inc.  All rights reserved. */</text>
      <use>true</use>
     </footer>
     <header>
@@ -517,7 +517,7 @@
      <keys>Copyright</keys>
      <override>true</override>
      <smartMode>0</smartMode>
-    <text>/* Copyright (c) 2014, Salesforce.com, Inc.
+    <text>/* Copyright (c) 2015-$date.year$, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -696,7 +696,7 @@
        <bean>false</bean>
        <count>true</count>
        <custom>true</custom>
-       <enable>false</enable>
+       <enable>true</enable>
        <level>true</level>
        <name>true</name>
        <order>level|name|count|bean|custom|regex</order>

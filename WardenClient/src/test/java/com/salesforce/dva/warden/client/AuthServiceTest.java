@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,16 @@ import static org.junit.Assert.*;
 public class AuthServiceTest extends AbstractTest {
 
     @Test
+    public void testBadLogin() throws IOException {
+        try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
+            AuthService authService = wardenService.getAuthService();
+            WardenResponse loginResult = authService.login("aBadUsername", "aBadPassword");
+
+            assertEquals(403, loginResult.getStatus());
+        }
+    }
+
+    @Test
     public void testLoginLogout() throws IOException {
         try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
             AuthService authService = wardenService.getAuthService();
@@ -39,15 +49,5 @@ public class AuthServiceTest extends AbstractTest {
             assertEquals(200, logoutResult.getStatus());
         }
     }
-
-    @Test
-    public void testBadLogin() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
-            AuthService authService = wardenService.getAuthService();
-            WardenResponse loginResult = authService.login("aBadUsername", "aBadPassword");
-
-            assertEquals(403, loginResult.getStatus());
-        }
-    }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

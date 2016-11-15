@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,22 +31,6 @@ import static org.junit.Assert.assertEquals;
 public class DefaultWardenClientTest extends AbstractTest {
 
     @Test
-    public void testUpdateMetric() throws IOException, SuspendedException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
-            DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
-            Policy policy = new Policy();
-
-            policy.setId(BigInteger.ONE);
-            policy.setDefaultValue(0.0);
-
-            String user = "hpotter";
-
-            client.updateMetric(policy, user, 10);
-            assertEquals(10.0, client._values.get(client.createKey(policy.getId(), user)), 0.0);
-        }
-    }
-
-    @Test
     public void testModifyMetric() throws IOException, SuspendedException {
         try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
             DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
@@ -58,6 +42,39 @@ public class DefaultWardenClientTest extends AbstractTest {
             String user = "hpotter";
 
             client.modifyMetric(policy, user, 10);
+            assertEquals(10.0, client._values.get(client.createKey(policy.getId(), user)), 0.0);
+        }
+    }
+
+    @Test(expected = SuspendedException.class)
+    public void testModifyMetricSuspendedUser() throws IOException, SuspendedException {
+        try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
+            Infraction infraction = new Infraction();
+
+            infraction.setPolicyId(BigInteger.ONE);
+            infraction.setExpirationTimestamp((long) System.currentTimeMillis() + 600000);
+
+            DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
+            Policy policy = new Policy();
+
+            policy.setId(BigInteger.ONE);
+            client._infractions.put(client.createKey(policy.getId(), "hpotter"), infraction);
+            client.modifyMetric(policy, "hpotter", 10);
+        }
+    }
+
+    @Test
+    public void testUpdateMetric() throws IOException, SuspendedException {
+        try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
+            DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
+            Policy policy = new Policy();
+
+            policy.setId(BigInteger.ONE);
+            policy.setDefaultValue(0.0);
+
+            String user = "hpotter";
+
+            client.updateMetric(policy, user, 10);
             assertEquals(10.0, client._values.get(client.createKey(policy.getId(), user)), 0.0);
         }
     }
@@ -78,22 +95,5 @@ public class DefaultWardenClientTest extends AbstractTest {
             client.updateMetric(policy, "hpotter", 10);
         }
     }
-
-    @Test(expected = SuspendedException.class)
-    public void testModifyMetricSuspendedUser() throws IOException, SuspendedException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
-            Infraction infraction = new Infraction();
-
-            infraction.setPolicyId(BigInteger.ONE);
-            infraction.setExpirationTimestamp((long) System.currentTimeMillis() + 600000);
-
-            DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
-            Policy policy = new Policy();
-
-            policy.setId(BigInteger.ONE);
-            client._infractions.put(client.createKey(policy.getId(), "hpotter"), infraction);
-            client.modifyMetric(policy, "hpotter", 10);
-        }
-    }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

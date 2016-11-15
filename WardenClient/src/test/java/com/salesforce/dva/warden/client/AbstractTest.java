@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,8 @@ public abstract class AbstractTest {
         MAPPER.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.ANY);
     }
 
+    protected void processRequest(HttpRequestResponse step) { }
+
     WardenHttpClient getMockedClient(String jsonFile) {
         try {
             String endpoint = "https://localhost:8080/wardenws";
@@ -74,8 +76,6 @@ public abstract class AbstractTest {
         }
     }
 
-    protected void processRequest(HttpRequestResponse step) { }
-
     protected static class HttpRequestResponse {
 
         private WardenHttpClient.RequestType type;
@@ -87,53 +87,53 @@ public abstract class AbstractTest {
 
         private HttpRequestResponse() { }
 
-        public WardenHttpClient.RequestType getType() {
-            return type;
-        }
-
-        public void setType(WardenHttpClient.RequestType type) {
-            this.type = type;
-        }
-
         public String getEndpoint() {
             return endpoint;
-        }
-
-        public void setEndpoint(String endpoint) {
-            this.endpoint = endpoint;
         }
 
         public String getJsonInput() {
             return jsonInput;
         }
 
-        public void setJsonInput(String jsonInput) {
-            this.jsonInput = jsonInput;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
+        public String getJsonOutput() {
+            return jsonOutput;
         }
 
         public String getMessage() {
             return message;
         }
 
-        public void setMessage(String message) {
-            this.message = message;
+        public int getStatus() {
+            return status;
         }
 
-        public String getJsonOutput() {
-            return jsonOutput;
+        public WardenHttpClient.RequestType getType() {
+            return type;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
+
+        public void setJsonInput(String jsonInput) {
+            this.jsonInput = jsonInput;
         }
 
         public void setJsonOutput(String jsonOutput) {
             this.jsonOutput = jsonOutput;
         }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        public void setType(WardenHttpClient.RequestType type) {
+            this.type = type;
+        }
     }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

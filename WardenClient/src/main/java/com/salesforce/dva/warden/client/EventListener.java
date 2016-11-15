@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -93,4 +93,4 @@ class EventListener extends Thread {
         _socket = null;
     }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

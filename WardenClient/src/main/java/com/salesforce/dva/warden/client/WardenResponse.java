@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,6 @@ public class WardenResponse<T> {
 
         int status = response.getStatusLine().getStatusCode();
         String message = response.getStatusLine().getReasonPhrase();
-
         HttpEntity entity = response.getEntity();
         List<WardenResource<T>> resources = new ArrayList<>();
 
@@ -158,4 +157,4 @@ public class WardenResponse<T> {
         this._status = status;
     }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
