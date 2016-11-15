@@ -1,33 +1,22 @@
-/*
- * Copyright (c) 2016, Salesforce.com, Inc.
+/* Copyright (c) 2014, Salesforce.com, Inc.
  * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of Salesforce.com nor the names of its contributors may
- * be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -59,6 +48,8 @@ import java.net.URL;
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
 class WardenHttpClient {
+
+    //~ Static fields/initializers *******************************************************************************************************************
 
     // ~ Static fields/initializers
     // *******************************************************************************************************************
@@ -105,7 +96,7 @@ class WardenHttpClient {
         connMgr.setMaxTotal(maxConn);
         connMgr.setDefaultMaxPerRoute(maxConn);
 
-        String routePath = endpoint.substring(0, endpoint.lastIndexOf(":"));
+        String routePath = endpoint.substring(0, endpoint.lastIndexOf(':'));
         HttpHost host = new HttpHost(routePath, port);
         RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectionRequestTimeout(reqTimeout).setConnectTimeout(timeout).build();
 
@@ -148,17 +139,6 @@ class WardenHttpClient {
         httpContext.clear();
     }
 
-    /* Execute a request given by type requestType. */
-    <T> WardenResponse<T> executeHttpRequest(RequestType requestType, String url, Object payload) throws IOException {
-        url = endpoint + url;
-
-        String json = payload == null ? null : toJson(payload);
-        HttpResponse response = doHttpRequest(requestType, url, json);
-        WardenResponse<T> wardenResponse = WardenResponse.generateResponse(response);
-
-        return wardenResponse;
-    }
-
     HttpResponse doHttpRequest(RequestType requestType, String url, String json) throws IOException {
         StringEntity entity = null;
 
@@ -194,6 +174,17 @@ class WardenHttpClient {
         }
     }
 
+    /* Execute a request given by type requestType. */
+    <T> WardenResponse<T> executeHttpRequest(RequestType requestType, String url, Object payload) throws IOException {
+        url = endpoint + url;
+
+        String json = payload == null ? null : toJson(payload);
+        HttpResponse response = doHttpRequest(requestType, url, json);
+        WardenResponse<T> wardenResponse = WardenResponse.generateResponse(response);
+
+        return wardenResponse;
+    }
+
     //~ Enums ****************************************************************************************************************************************
 
     // ~ Enums
@@ -211,4 +202,4 @@ class WardenHttpClient {
         PUT;
     }
 }
-/* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
