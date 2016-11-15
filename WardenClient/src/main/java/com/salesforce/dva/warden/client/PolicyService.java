@@ -135,14 +135,12 @@ final class PolicyService extends EndpointService {
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
-    // ======================= Infractions CRUD ====================================
     WardenResponse<Infraction> getInfractions(BigInteger policyId) throws IOException {
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/infraction";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
-    // ============================ Metrics given a PolicyId and a UserId CRUD=================================
     WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(BigInteger policyId, String userName, Long start, Long end) throws IOException {
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/metric?start=" + start + "&end=" + end;
 

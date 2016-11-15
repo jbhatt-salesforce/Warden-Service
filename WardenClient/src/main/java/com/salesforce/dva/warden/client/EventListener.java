@@ -36,8 +36,8 @@ class EventListener extends Thread {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    Map<String, Infraction> _infractions;
-    WardenService _wardenService;
+    private Map<String, Infraction> _infractions;
+    private WardenService _wardenService;
     int _port;
     DatagramSocket _socket;
 
@@ -46,15 +46,13 @@ class EventListener extends Thread {
     /**
      * Creates a new EventListener object.
      *
-     * @param   infractions    DOCUMENT ME!
-     * @param   wardenService  DOCUMENT ME!
-     * @param   port           DOCUMENT ME!
+     * @param   infractions  DOCUMENT ME!
+     * @param   port         DOCUMENT ME!
      *
      * @throws  SocketException  DOCUMENT ME!
      */
-    EventListener(Map<String, Infraction> infractions, WardenService wardenService, int port) throws SocketException {
+    EventListener(Map<String, Infraction> infractions, int port) throws SocketException {
         this._infractions = infractions;
-        this._wardenService = wardenService;
         this._port = port;
         this._socket = new DatagramSocket(_port);
     }
@@ -69,8 +67,6 @@ class EventListener extends Thread {
 
     @Override
     public void run() {
-        long delta = 0;
-
         while (!Thread.interrupted()) {
             Thread.yield();
             try {

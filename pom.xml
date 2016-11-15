@@ -265,7 +265,7 @@
                     <execution>
                         <id>format-src</id>
                         <configuration>
-                            <compile>true</compile>
+                            <compile>false</compile>
                             <convention>${top}/.jalopy.xml</convention>
                             <javadoc>true</javadoc>
                             <logLevel>error</logLevel>
@@ -287,7 +287,7 @@
                     <execution>
                         <id>format-test</id>
                         <configuration>
-                            <compile>true</compile>
+                            <compile>false</compile>
                             <convention>${top}/.jalopy-test.xml</convention>
                             <javadoc>true</javadoc>
                             <logLevel>error</logLevel>

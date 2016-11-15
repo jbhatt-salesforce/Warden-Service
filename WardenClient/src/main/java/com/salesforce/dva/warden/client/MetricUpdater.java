@@ -33,8 +33,8 @@ class MetricUpdater extends Thread {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    Map<String, Double> _values;
-    WardenService _wardenService;
+    private Map<String, Double> _values;
+    private WardenService _wardenService;
 
     //~ Constructors *********************************************************************************************************************************
 
