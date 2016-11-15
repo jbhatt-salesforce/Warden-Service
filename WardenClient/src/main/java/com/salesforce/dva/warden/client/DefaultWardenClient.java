@@ -51,8 +51,8 @@ class DefaultWardenClient implements WardenClient {
     final WardenService _service;
     final String _username;
     final String _password;
-    Thread _updater;
-    Thread _listener;
+    private Thread _updater;
+    private Thread _listener;
     private String _hostname;
     private Subscription _subscription;
 
@@ -151,7 +151,7 @@ class DefaultWardenClient implements WardenClient {
 
     private void _initializeEventListener(int port) {
         try {
-            _listener = new EventListener(_infractions, _service, port);
+            _listener = new EventListener(_infractions, port);
         } catch (SocketException ex) {
             throw new RuntimeException(ex);
         }

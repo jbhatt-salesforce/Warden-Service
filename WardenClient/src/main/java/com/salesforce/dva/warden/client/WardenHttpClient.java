@@ -65,14 +65,11 @@ class WardenHttpClient {
 
     // ~ Instance fields
     // ******************************************************************************************************************************
-    int maxConn = 100;
-    int connTimeout = 10000;
-    int connRequestTimeout = 10000;
-    String endpoint;
-    CloseableHttpClient httpClient;
-    PoolingHttpClientConnectionManager connMgr;
-    private BasicCookieStore cookieStore;
-    private BasicHttpContext httpContext;
+    String _endpoint;
+    private final CloseableHttpClient _httpClient;
+    private final PoolingHttpClientConnectionManager _connMgr;
+    private final BasicCookieStore _cookieStore;
+    private final BasicHttpContext _httpContext;
 
     //~ Constructors *********************************************************************************************************************************
 
@@ -81,7 +78,7 @@ class WardenHttpClient {
     /**
      * Creates a new Argus HTTP client.
      *
-     * @param   endpoint    The URL of the read endpoint including the port number. Must not be null.
+     * @param   endpoint    The URL of the read _endpoint including the port number. Must not be null.
      * @param   maxConn     The maximum number of concurrent connections. Must be greater than 0.
      * @param   timeout     The connection timeout in milliseconds. Must be greater than 0.
      * @param   reqTimeout  The connection request timeout in milliseconds. Must be greater than 0.
@@ -92,21 +89,21 @@ class WardenHttpClient {
         URL url = new URL(endpoint);
         int port = url.getPort();
 
-        connMgr = new PoolingHttpClientConnectionManager();
-        connMgr.setMaxTotal(maxConn);
-        connMgr.setDefaultMaxPerRoute(maxConn);
+        _connMgr = new PoolingHttpClientConnectionManager();
+        _connMgr.setMaxTotal(maxConn);
+        _connMgr.setDefaultMaxPerRoute(maxConn);
 
         String routePath = endpoint.substring(0, endpoint.lastIndexOf(':'));
         HttpHost host = new HttpHost(routePath, port);
         RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectionRequestTimeout(reqTimeout).setConnectTimeout(timeout).build();
 
-        connMgr.setMaxPerRoute(new HttpRoute(host), maxConn / 2);
-        httpClient = HttpClients.custom().setConnectionManager(connMgr).setDefaultRequestConfig(defaultRequestConfig).build();
-        cookieStore = new BasicCookieStore();
-        httpContext = new BasicHttpContext();
-        httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
+        _connMgr.setMaxPerRoute(new HttpRoute(host), maxConn / 2);
+        _httpClient = HttpClients.custom().setConnectionManager(_connMgr).setDefaultRequestConfig(defaultRequestConfig).build();
+        _cookieStore = new BasicCookieStore();
+        _httpContext = new BasicHttpContext();
+        _httpContext.setAttribute(HttpClientContext.COOKIE_STORE, _cookieStore);
         LOGGER.debug("Argus HTTP Client initialized using " + endpoint);
-        this.endpoint = endpoint;
+        this._endpoint = endpoint;
     }
 
     //~ Methods **************************************************************************************************************************************
@@ -134,9 +131,9 @@ class WardenHttpClient {
      * @throws  IOException  DOCUMENT ME!
      */
     void dispose() throws IOException {
-        httpClient.close();
-        cookieStore.clear();
-        httpContext.clear();
+        _httpClient.close();
+        _cookieStore.clear();
+        _httpContext.clear();
     }
 
     HttpResponse doHttpRequest(RequestType requestType, String url, String json) throws IOException {
@@ -152,23 +149,23 @@ class WardenHttpClient {
                 HttpPost post = new HttpPost(url);
 
                 post.setEntity(entity);
-                return httpClient.execute(post, httpContext);
+                return _httpClient.execute(post, _httpContext);
             case GET:
 
                 HttpGet httpGet = new HttpGet(url);
 
-                return httpClient.execute(httpGet, httpContext);
+                return _httpClient.execute(httpGet, _httpContext);
             case DELETE:
 
                 HttpDelete httpDelete = new HttpDelete(url);
 
-                return httpClient.execute(httpDelete, httpContext);
+                return _httpClient.execute(httpDelete, _httpContext);
             case PUT:
 
                 HttpPut httpput = new HttpPut(url);
 
                 httpput.setEntity(entity);
-                return httpClient.execute(httpput, httpContext);
+                return _httpClient.execute(httpput, _httpContext);
             default:
                 throw new IllegalArgumentException(" Request Type " + requestType + " not a valid request type. ");
         }
@@ -176,7 +173,7 @@ class WardenHttpClient {
 
     /* Execute a request given by type requestType. */
     <T> WardenResponse<T> executeHttpRequest(RequestType requestType, String url, Object payload) throws IOException {
-        url = endpoint + url;
+        url = _endpoint + url;
 
         String json = payload == null ? null : toJson(payload);
         HttpResponse response = doHttpRequest(requestType, url, json);

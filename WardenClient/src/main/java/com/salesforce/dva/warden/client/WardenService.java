@@ -34,7 +34,7 @@ class WardenService implements AutoCloseable {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private final WardenHttpClient httpClient;
+    final WardenHttpClient _httpClient;
 
     //~ Constructors *********************************************************************************************************************************
 
@@ -44,7 +44,7 @@ class WardenService implements AutoCloseable {
      * @param  client  DOCUMENT ME!
      */
     WardenService(WardenHttpClient client) {
-        httpClient = client;
+        _httpClient = client;
     }
 
     //~ Methods **************************************************************************************************************************************
@@ -89,7 +89,7 @@ class WardenService implements AutoCloseable {
      * @throws  IOException  DOCUMENT ME!
      */
     public void close() throws IOException {
-        httpClient.dispose();
+        _httpClient.dispose();
     }
 
     /**
@@ -98,7 +98,7 @@ class WardenService implements AutoCloseable {
      * @return  DOCUMENT ME!
      */
     AuthService getAuthService() {
-        return new AuthService(httpClient);
+        return new AuthService(_httpClient);
     }
 
     /**
@@ -107,11 +107,11 @@ class WardenService implements AutoCloseable {
      * @return  DOCUMENT ME!
      */
     PolicyService getPolicyService() {
-        return new PolicyService(httpClient);
+        return new PolicyService(_httpClient);
     }
 
     SubscriptionService getSubscriptionService() {
-        return new SubscriptionService(httpClient);
+        return new SubscriptionService(_httpClient);
     }
 
     /**
@@ -120,7 +120,7 @@ class WardenService implements AutoCloseable {
      * @return  DOCUMENT ME!
      */
     UserService getUserService() {
-        return new UserService(httpClient);
+        return new UserService(_httpClient);
     }
 
     //~ Inner Classes ********************************************************************************************************************************
