@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -38,11 +38,6 @@ public class MetricUpdaterTest extends AbstractTest {
 
     private final List<HttpRequestResponse> interceptedRequests = Collections.synchronizedList(new ArrayList<>());
 
-    @Override
-    protected void processRequest(HttpRequestResponse step) {
-        interceptedRequests.add(step);
-    }
-
     @Before
     public void beforeTest() {
         interceptedRequests.clear();
@@ -66,6 +61,11 @@ public class MetricUpdaterTest extends AbstractTest {
         }
     }
 
+    @Override
+    protected void processRequest(HttpRequestResponse step) {
+        interceptedRequests.add(step);
+    }
+
     private Policy _constructUnPersistedPolicy() throws JsonProcessingException {
         Policy result = new Policy();
 
@@ -84,4 +84,4 @@ public class MetricUpdaterTest extends AbstractTest {
         return result;
     }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

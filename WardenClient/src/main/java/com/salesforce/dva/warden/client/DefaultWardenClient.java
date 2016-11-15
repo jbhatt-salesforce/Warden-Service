@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -86,18 +86,6 @@ class DefaultWardenClient implements WardenClient {
         _hostname = _getHostname();
         _values = Collections.synchronizedMap(new HashMap<String, Double>());
     }
-    
-    private static class InfractionCache extends LinkedHashMap<String, Infraction> {
-        
-        private static final long serialVersionUID = 1L;
-        
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
-            Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
-
-            return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
-        }
-    }
 
     //~ Methods **************************************************************************************************************************************
 
@@ -127,7 +115,6 @@ class DefaultWardenClient implements WardenClient {
     public void unregister() throws IOException {
         _unsubscribeFromEvents();
         _terminateUpdaterThread();
-
         _service.getAuthService().logout();
     }
 
@@ -272,5 +259,24 @@ class DefaultWardenClient implements WardenClient {
         }
         _values.put(key, cachedValue);
     }
+
+    //~ Inner Classes ********************************************************************************************************************************
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @author  Tom Valine (tvaline@salesforce.com)
+     */
+    private static class InfractionCache extends LinkedHashMap<String, Infraction> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
+            Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
+
+            return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
+        }
+    }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

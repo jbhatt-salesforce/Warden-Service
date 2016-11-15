@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,33 +32,11 @@ import static org.junit.Assert.assertEquals;
 public class UserServiceTest extends AbstractTest {
 
     @Test
-    public void testGetUsers() throws IOException {
+    public void testGetInfractionsForUser() throws IOException {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
-            WardenResponse<WardenUser> expectedResponse = _constructPersistedResponse("GET");
-            WardenResponse<WardenUser> actualResponse = userService.getUsers();
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetUserById() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<WardenUser> expectedResponse = _constructPersistedResponse("GET");
-            WardenResponse<WardenUser> actualResponse = userService.getUserById("hpotter");
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetPoliciesByUser() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<Policy> expectedResponse = _constructPersistedResponsePolicy("GET");
-            WardenResponse<Policy> actualResponse = userService.getPoliciesForUser("hpotter");
+            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
+            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUser("hpotter");
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -76,11 +54,22 @@ public class UserServiceTest extends AbstractTest {
     }
 
     @Test
-    public void testGetInfractionsForUser() throws IOException {
+    public void testGetPoliciesByUser() throws IOException {
+        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<Policy> expectedResponse = _constructPersistedResponsePolicy("GET");
+            WardenResponse<Policy> actualResponse = userService.getPoliciesForUser("hpotter");
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    @Test
+    public void testGetSuspensionsionForUser() throws IOException {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUser("hpotter");
+            WardenResponse<Infraction> actualResponse = userService.getSuspensionForUser("hpotter", BigInteger.ONE);
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -98,11 +87,22 @@ public class UserServiceTest extends AbstractTest {
     }
 
     @Test
-    public void testGetSuspensionsionForUser() throws IOException {
+    public void testGetUserById() throws IOException {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
-            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getSuspensionForUser("hpotter", BigInteger.ONE);
+            WardenResponse<WardenUser> expectedResponse = _constructPersistedResponse("GET");
+            WardenResponse<WardenUser> actualResponse = userService.getUserById("hpotter");
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    @Test
+    public void testGetUsers() throws IOException {
+        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<WardenUser> expectedResponse = _constructPersistedResponse("GET");
+            WardenResponse<WardenUser> actualResponse = userService.getUsers();
 
             assertEquals(expectedResponse, actualResponse);
         }
@@ -121,6 +121,40 @@ public class UserServiceTest extends AbstractTest {
         result.setCreatedDate(new Date(1472847819167L));
         result.setModifiedById(BigInteger.TEN);
         result.setModifiedDate(new Date(1472847819167L));
+        return result;
+    }
+
+    private Policy _constructPersistedPolicy() throws JsonProcessingException {
+        Policy result = _constructUnPersistedPolicy();
+
+        result.setId(BigInteger.ONE);
+        result.setCreatedById(BigInteger.ONE);
+        result.setCreatedDate(new Date(1472847819167L));
+        result.setModifiedById(BigInteger.TEN);
+        result.setModifiedDate(new Date(1472847819167L));
+        return result;
+    }
+
+    private WardenResponse<WardenUser> _constructPersistedResponse(String httpVerb) throws JsonProcessingException {
+        WardenUser persistedUser = _constructPersistedUser();
+        WardenResponse<WardenUser> result = new WardenResponse<>();
+        WardenResource<WardenUser> resource = new WardenResource<>();
+        List<WardenResource<WardenUser>> resources = new ArrayList<>(1);
+        EnumMap<MetaKey, String> meta = new EnumMap<>(MetaKey.class);
+
+        meta.put(MetaKey.HREF, "TestHref");
+        meta.put(MetaKey.DEV_MESSAGE, "TestDevMessage");
+        meta.put(MetaKey.MESSAGE, "TestMessage");
+        meta.put(MetaKey.STATUS, "200");
+        meta.put(MetaKey.UI_MESSAGE, "TestUIMessage");
+        meta.put(MetaKey.VERB, httpVerb);
+        persistedUser.setId(BigInteger.ONE);
+        resource.setEntity(persistedUser);
+        resource.setMeta(meta);
+        resources.add(resource);
+        result.setMessage("success");
+        result.setStatus(200);
+        result.setResources(resources);
         return result;
     }
 
@@ -148,35 +182,6 @@ public class UserServiceTest extends AbstractTest {
         result.setMessage("success");
         result.setStatus(200);
         result.setResources(resources);
-        return result;
-    }
-
-    private Policy _constructUnPersistedPolicy() throws JsonProcessingException {
-        Policy result = new Policy();
-
-        result.setService("TestService");
-        result.setName("TestName");
-        result.setOwners(Arrays.asList("TestOwner"));
-        result.setUsers(Arrays.asList("TestUser"));
-        result.setSubSystem("TestSubSystem");
-        result.setMetricName("TestMetricName");
-        result.setTriggerType(Policy.TriggerType.BETWEEN);
-        result.setAggregator(Policy.Aggregator.AVG);
-        result.setThresholds(Arrays.asList(0.0));
-        result.setTimeUnit("5min");
-        result.setDefaultValue(0.0);
-        result.setCronEntry("0 */4 * * *");
-        return result;
-    }
-
-    private Policy _constructPersistedPolicy() throws JsonProcessingException {
-        Policy result = _constructUnPersistedPolicy();
-
-        result.setId(BigInteger.ONE);
-        result.setCreatedById(BigInteger.ONE);
-        result.setCreatedDate(new Date(1472847819167L));
-        result.setModifiedById(BigInteger.TEN);
-        result.setModifiedDate(new Date(1472847819167L));
         return result;
     }
 
@@ -216,27 +221,22 @@ public class UserServiceTest extends AbstractTest {
         return result;
     }
 
-    private WardenResponse<WardenUser> _constructPersistedResponse(String httpVerb) throws JsonProcessingException {
-        WardenUser persistedUser = _constructPersistedUser();
-        WardenResponse<WardenUser> result = new WardenResponse<>();
-        WardenResource<WardenUser> resource = new WardenResource<>();
-        List<WardenResource<WardenUser>> resources = new ArrayList<>(1);
-        EnumMap<MetaKey, String> meta = new EnumMap<>(MetaKey.class);
+    private Policy _constructUnPersistedPolicy() throws JsonProcessingException {
+        Policy result = new Policy();
 
-        meta.put(MetaKey.HREF, "TestHref");
-        meta.put(MetaKey.DEV_MESSAGE, "TestDevMessage");
-        meta.put(MetaKey.MESSAGE, "TestMessage");
-        meta.put(MetaKey.STATUS, "200");
-        meta.put(MetaKey.UI_MESSAGE, "TestUIMessage");
-        meta.put(MetaKey.VERB, httpVerb);
-        persistedUser.setId(BigInteger.ONE);
-        resource.setEntity(persistedUser);
-        resource.setMeta(meta);
-        resources.add(resource);
-        result.setMessage("success");
-        result.setStatus(200);
-        result.setResources(resources);
+        result.setService("TestService");
+        result.setName("TestName");
+        result.setOwners(Arrays.asList("TestOwner"));
+        result.setUsers(Arrays.asList("TestUser"));
+        result.setSubSystem("TestSubSystem");
+        result.setMetricName("TestMetricName");
+        result.setTriggerType(Policy.TriggerType.BETWEEN);
+        result.setAggregator(Policy.Aggregator.AVG);
+        result.setThresholds(Arrays.asList(0.0));
+        result.setTimeUnit("5min");
+        result.setDefaultValue(0.0);
+        result.setCronEntry("0 */4 * * *");
         return result;
     }
 }
-/* Copyright (c) 2014, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

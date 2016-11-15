@@ -121,6 +121,14 @@
         </repository>
     </distributionManagement>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>localRepo</id>
+            <name>localRepo</name>
+            <url>file://${top}/repo/localPlugin</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <properties>
         <top>${project.basedir}</top>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -249,7 +257,7 @@
                     </execution>
                 </executions>
             </plugin>
-             <!-- <plugin>
+            <plugin>
                 <groupId>triemax</groupId>
                 <artifactId>jalopy-maven</artifactId>
                 <version>1.9.5-328</version>
@@ -258,7 +266,7 @@
                         <id>format-src</id>
                         <configuration>
                             <compile>true</compile>
-                            <convention>.jalopy.xml</convention>
+                            <convention>${top}/.jalopy.xml</convention>
                             <javadoc>true</javadoc>
                             <logLevel>error</logLevel>
                             <includes>
@@ -280,7 +288,7 @@
                         <id>format-test</id>
                         <configuration>
                             <compile>true</compile>
-                            <convention>.jalopy-test.xml</convention>
+                            <convention>${top}/.jalopy-test.xml</convention>
                             <javadoc>true</javadoc>
                             <logLevel>error</logLevel>
                             <includes>
@@ -299,7 +307,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin> --> 
+            </plugin>
         </plugins>
     </build>
     <reporting>
