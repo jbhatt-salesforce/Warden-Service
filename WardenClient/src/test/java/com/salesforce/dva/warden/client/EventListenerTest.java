@@ -29,12 +29,89 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.LinkedHashMap;
+import java.util.concurrent.CountDownLatch;
+import static org.junit.Assert.assertEquals;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
-/** @todo multithreaded stress test. */
 public class EventListenerTest {
+
+    @Test
+    public void testMultipleEvents() throws IOException, InterruptedException {
+        LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
+        int[] ports = { 4444, 5555, 6666, 7777 };
+        int threadCount = 20;
+        int eventCount = 100;
+        Thread[] threads = new Thread[threadCount];
+
+        for (int port : ports) {
+            final DatagramSocket socket = new DatagramSocket();
+            CountDownLatch startingGate = new CountDownLatch(1);
+
+            try {
+                EventListener listener = new EventListener(infractions, port);
+
+                listener.setDaemon(true);
+                listener.start();
+                for (int i = 0; i < threads.length; i++) {
+                    Thread thread = new Thread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                try {
+                                    byte[] buf = new byte[1024];
+                                    DatagramPacket packet = new DatagramPacket(buf, 1024);
+
+                                    packet.setAddress(InetAddress.getLocalHost());
+                                    packet.setPort(port);
+
+                                    startingGate.await();
+                                    for (int j = 0; j < eventCount; j++) {
+                                        Infraction infraction = new Infraction();
+
+                                        infraction.setPolicyId(BigInteger.ONE);
+                                        infraction.setUserName(Thread.currentThread().getId() + "." + j);
+                                        System.out.println(infraction.getUserName());
+                                        packet.setData(new ObjectMapper().writeValueAsBytes(infraction));
+                                        socket.send(packet);
+                                    }
+                                } catch (InterruptedException ex) {
+                                    return;
+                                } catch (IOException ex) {
+                                    throw new RuntimeException(ex);
+                                }
+                            }
+                        });
+
+                    thread.setDaemon(true);
+                    thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
+                            @Override
+                            public void uncaughtException(Thread t, Throwable e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                    threads[i] = thread;
+                    thread.start();
+                }
+                startingGate.countDown();
+                for (int i = 0; i < threads.length; i++) {
+                    threads[i].join(10000);
+                }
+                listener.interrupt();
+                listener.join(10000);
+                assertFalse(infractions.isEmpty());
+                assertEquals(threadCount * eventCount, infractions.size());
+                return;
+            } catch (SocketException ex) {
+                assert true : "Try the next port";
+            } finally {
+                socket.close();
+            } // end try-catch-finally
+        } // end for
+        fail("No available port found.");
+    }
 
     @Test
     public void testRun() throws IOException, InterruptedException {
