@@ -30,13 +30,17 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.LinkedHashMap;
 import java.util.concurrent.CountDownLatch;
-import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class EventListenerTest {
 
+    private static class Client {
+        private Client (int port){}
+        void sendInfraction(Infraction infraction){
+
+        }
+    }
     @Test
     public void testMultipleEvents() throws IOException, InterruptedException {
         LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
@@ -46,40 +50,31 @@ public class EventListenerTest {
         Thread[] threads = new Thread[threadCount];
 
         for (int port : ports) {
-            final DatagramSocket socket = new DatagramSocket();
+
+            EventServer listener = new EventServer();
+            Client client = new Client(port);
             CountDownLatch startingGate = new CountDownLatch(1);
 
             try {
-                EventListener listener = new EventListener(infractions, port);
+                listener.start(port, infractions);
 
-                listener.setDaemon(true);
-                listener.start();
                 for (int i = 0; i < threads.length; i++) {
                     Thread thread = new Thread(new Runnable() {
 
                             @Override
                             public void run() {
                                 try {
-                                    byte[] buf = new byte[1024];
-                                    DatagramPacket packet = new DatagramPacket(buf, 1024);
-
-                                    packet.setAddress(InetAddress.getLocalHost());
-                                    packet.setPort(port);
-
                                     startingGate.await();
                                     for (int j = 0; j < eventCount; j++) {
                                         Infraction infraction = new Infraction();
 
                                         infraction.setPolicyId(BigInteger.ONE);
                                         infraction.setUserName(Thread.currentThread().getId() + "." + j);
-                                        System.out.println(infraction.getUserName());
-                                        packet.setData(new ObjectMapper().writeValueAsBytes(infraction));
-                                        socket.send(packet);
+                                        //send to server
+                                        client.sendInfraction(infraction);
                                     }
                                 } catch (InterruptedException ex) {
                                     return;
-                                } catch (IOException ex) {
-                                    throw new RuntimeException(ex);
                                 }
                             }
                         });
@@ -99,15 +94,15 @@ public class EventListenerTest {
                 for (int i = 0; i < threads.length; i++) {
                     threads[i].join(10000);
                 }
-                listener.interrupt();
-                listener.join(10000);
                 assertFalse(infractions.isEmpty());
                 assertEquals(threadCount * eventCount, infractions.size());
                 return;
-            } catch (SocketException ex) {
-                assert true : "Try the next port";
-            } finally {
-                socket.close();
+            } catch (SocketException ex){
+                continue;
+            }
+              finally
+             {
+                listener.stop();
             } // end try-catch-finally
         } // end for
         fail("No available port found.");
@@ -119,37 +114,27 @@ public class EventListenerTest {
         int[] ports = { 4444, 5555, 6666, 7777 };
 
         for (int port : ports) {
-            DatagramSocket socket = null;
+            EventServer eventServer = new EventServer();
+            Client client = new Client(port);
 
             try {
-                EventListener listener = new EventListener(infractions, port);
-
-                listener.setDaemon(true);
-                listener.start();
-                socket = new DatagramSocket();
-
-                byte[] buf = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buf, 1024);
-
-                packet.setAddress(InetAddress.getLocalHost());
-                packet.setPort(port);
+                eventServer.start(port, infractions);
 
                 Infraction infraction = new Infraction();
 
                 infraction.setPolicyId(BigInteger.ONE);
                 infraction.setUserName("hpotter");
-                packet.setData(new ObjectMapper().writeValueAsBytes(infraction));
-                socket.send(packet);
-                listener.interrupt();
-                listener.join(10000);
+                //sent packet to server
+                client.sendInfraction(infraction);
+
                 assertFalse(infractions.isEmpty());
+                assertTrue(infractions.size() == 1);
                 return;
-            } catch (SocketException ex) {
-                assert true : "Try the next port";
-            } finally {
-                if (socket != null) {
-                    socket.close();
-                }
+            } catch (SocketException ex){
+                continue;
+            }
+            finally {
+                eventServer.stop();
             }
         }
         fail("No available port found.");
