@@ -42,7 +42,7 @@ public class EventListenerTest {
         }
     }
     @Test
-    public void testMultipleEvents() throws IOException, InterruptedException {
+    public void testMultipleEvents() throws Exception {
         LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
         int[] ports = { 4444, 5555, 6666, 7777 };
         int threadCount = 20;
@@ -51,12 +51,12 @@ public class EventListenerTest {
 
         for (int port : ports) {
 
-            EventServer listener = new EventServer();
+            EventServer listener = new EventServer(port, infractions);
             Client client = new Client(port);
             CountDownLatch startingGate = new CountDownLatch(1);
 
             try {
-                listener.start(port, infractions);
+                listener.start();
 
                 for (int i = 0; i < threads.length; i++) {
                     Thread thread = new Thread(new Runnable() {
@@ -109,16 +109,16 @@ public class EventListenerTest {
     }
 
     @Test
-    public void testRun() throws IOException, InterruptedException {
+    public void testRun() throws Exception {
         LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
         int[] ports = { 4444, 5555, 6666, 7777 };
 
         for (int port : ports) {
-            EventServer eventServer = new EventServer();
+            EventServer eventServer = new EventServer(port, infractions);
             Client client = new Client(port);
 
             try {
-                eventServer.start(port, infractions);
+                eventServer.start();
 
                 Infraction infraction = new Infraction();
 

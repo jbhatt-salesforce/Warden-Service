@@ -102,18 +102,19 @@ class DefaultWardenClient implements WardenClient {
     }
 
     @Override
-    public void register(List<Policy> policies, int port) throws IOException {
+    public void register(List<Policy> policies, int port) throws Exception {
         AuthService authService = _service.getAuthService();
+        _listener = new EventServer(port, _infractions);
 
         authService.login(_username, _password);
         _initializeUpdaterThread(_service);
-        _listener.start(port, _infractions);
+        _listener.start();
         _reconcilePolicies(policies);
         _subscription = _subscribeToEvents(port);
     }
 
     @Override
-    public void unregister() throws IOException {
+    public void unregister() throws Exception {
         _unsubscribeFromEvents();
         _listener.stop();
         _terminateUpdaterThread();

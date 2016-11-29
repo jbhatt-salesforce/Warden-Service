@@ -44,7 +44,7 @@ public class MetricUpdaterTest extends AbstractTest {
     }
 
     @Test
-    public void testPeriodicServerPush() throws IOException, InterruptedException, SuspendedException {
+    public void testPeriodicServerPush() throws IOException, InterruptedException, SuspendedException, Exception {
         try(WardenService wardenService = new WardenService(getMockedClient("/MetricUpdaterTest.testPeriodicServerPush.json"))) {
             DefaultWardenClient client = new DefaultWardenClient(wardenService, "hpotter", "aZkaban");
             Policy policy = _constructUnPersistedPolicy();

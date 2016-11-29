@@ -52,10 +52,10 @@ public interface WardenClient {
      * @param  policy  DOCUMENT ME!
      * @param  port    DOCUMENT ME!
      */
-    void register(List<Policy> policy, int port) throws IOException;
+    void register(List<Policy> policy, int port) throws Exception;
 
     /** DOCUMENT ME! */
-    void unregister() throws IOException;
+    void unregister() throws Exception;
 
     /**
      * DOCUMENT ME!
