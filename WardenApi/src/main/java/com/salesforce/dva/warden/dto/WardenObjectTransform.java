@@ -25,7 +25,7 @@ public class WardenObjectTransform {
      *
      * @author  Ruofan Zhang (rzhang@salesforce.com)
      */
-    static class InfractionSerializer extends JsonSerializer<Infraction> {
+    public static class InfractionSerializer extends JsonSerializer<Infraction> {
    
 
         @Override

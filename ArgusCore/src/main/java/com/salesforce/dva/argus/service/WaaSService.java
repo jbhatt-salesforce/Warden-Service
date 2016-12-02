@@ -328,6 +328,8 @@ public interface WaaSService {
 	void deleteSubscription(Subscription subscription);
 
 	Subscription updateSubscription(Subscription subscription);
+
+	List<Subscription> getSubscriptions();
 	
 	
 	

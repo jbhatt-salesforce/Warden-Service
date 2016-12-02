@@ -39,6 +39,7 @@ import com.salesforce.dva.argus.entity.Infraction;
 import com.salesforce.dva.argus.entity.Metric;
 import com.salesforce.dva.argus.entity.Policy;
 import com.salesforce.dva.argus.entity.PrincipalUser;
+import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.service.AnnotationService;
 import com.salesforce.dva.argus.service.MetricService;
 import com.salesforce.dva.argus.service.TSDBService;
@@ -48,6 +49,9 @@ import com.salesforce.dva.argus.service.alert.DefaultAlertService.NotificationCo
 import com.salesforce.dva.argus.service.alert.notifier.DefaultNotifier;
 import com.salesforce.dva.argus.system.SystemConfiguration;
 import com.salesforce.dva.warden.dto.WardenEvent;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -128,14 +132,16 @@ public  class WaaSNotifier extends DefaultNotifier {
     	
     	//wrap warden event data
     	WardenEvent wardenEvent = new WardenEvent();
-    	byte[] data = wardenEvent.getWardenEventData(Infraction.transformToDto(newInfraction), WardenEvent.WardenEventType.NEW_INFRACTION);
+    	//byte[] data = wardenEvent.getWardenEventData(Infraction.transformToDto(newInfraction), WardenEvent.WardenEventType.NEW_INFRACTION);
+    	ByteBuf data = wardenEvent.getWardenEventData(Infraction.transformToDto(newInfraction));
     	
     	//send out warden event
     	try {
-			WaaSNotifierWorker.doStart(InetAddress.getByName("localhost"),9090, data);
+    		//WaaSNotifierWorker.doStart(InetAddress.getByName("localhost"),9090, data);
     		//WaaSNotifierWorker.doStart(InetAddress.getByName("www.google.com"),80, data);
-			
-		} catch (UnknownHostException e) {
+			List<Subscription> subscriptions = _waaSService.getSubscriptions();
+    		WaaSNotifierClient.doStart(subscriptions, data);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
     	addAnnotationSuspendedUser(context, policy);

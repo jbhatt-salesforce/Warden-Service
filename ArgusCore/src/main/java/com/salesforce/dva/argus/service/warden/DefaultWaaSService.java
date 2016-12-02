@@ -1038,6 +1038,23 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 		return result;
 	}
+	
+	/**
+	 * Return all subscriptions. called by WaaSNotifier.
+	 */
+	@Override
+	@Transactional
+	public List<Subscription> getSubscriptions() {
+		requireNotDisposed();		
+
+		EntityManager em = emf.get();
+		em.getEntityManagerFactory().getCache().evictAll();
+
+		List<Subscription> result = Subscription.findAllSubscriptions(em);
+
+		return result;
+	}
+	
 
 	/**
 	 * Delete a subscription, called by /subscription/{sid} DELETE

@@ -11,6 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.salesforce.dva.warden.dto.WardenEvent.WardenEventType;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.example.echo.EchoClient;
+
 /**
  * Warden object for warden event notification
  *
@@ -36,32 +40,41 @@ public class WardenEvent {
         return mapper;
     }
     
-    
-    
     /* Writes new infractions.*/
-    public  byte[] getWardenEventData(Infraction infraction, WardenEventType wardenEventType) {
+    public  ByteBuf getWardenEventData(Infraction infraction) {
     	if(infraction == null)
-    		throw new IllegalArgumentException("No wardenObject found!");
+    		throw new IllegalArgumentException("No wardenObject found!");    	
     	
-    	//byte[] eventCodeArr = ByteBuffer.allocate(4).putInt(wardenEventType.value()).array();
-//    	byte[] eventCodeArr = WardenEvent.WardenEventType.NEW_INFRACTION.value().getBytes();
-//    	byte[] dtoArr = fromEntity(infraction).getBytes();
-//    	byte[] data = new byte[eventCodeArr.length + dtoArr.length];
-//    	System.arraycopy(eventCodeArr, 0, data, 0, eventCodeArr.length);
-//    	System.arraycopy(dtoArr, 0, data, eventCodeArr.length, data.length);
-//    	
-//    	return data;
-    	
-    	byte[] code = WardenEvent.WardenEventType.NEW_INFRACTION.value().getBytes();
-	      byte[] delimiter = "-".getBytes();
 	      byte[] entity =fromEntity(infraction).getBytes();
-	      ByteBuffer message = ByteBuffer.allocate(code.length + delimiter.length + entity.length);
-	      message.put(code);
-	      message.put(delimiter);
-	      message.put(entity);
+	      ByteBuf message = Unpooled.copiedBuffer(entity);
 	      
-	      return message.array();
+	      return message;
     }
+    
+//    /* Writes new infractions.*/
+//    public  byte[] getWardenEventData(Infraction infraction, WardenEventType wardenEventType) {
+//    	if(infraction == null)
+//    		throw new IllegalArgumentException("No wardenObject found!");
+//    	
+//    	//byte[] eventCodeArr = ByteBuffer.allocate(4).putInt(wardenEventType.value()).array();
+////    	byte[] eventCodeArr = WardenEvent.WardenEventType.NEW_INFRACTION.value().getBytes();
+////    	byte[] dtoArr = fromEntity(infraction).getBytes();
+////    	byte[] data = new byte[eventCodeArr.length + dtoArr.length];
+////    	System.arraycopy(eventCodeArr, 0, data, 0, eventCodeArr.length);
+////    	System.arraycopy(dtoArr, 0, data, eventCodeArr.length, data.length);
+////    	
+////    	return data;
+//    	
+//    	byte[] code = WardenEvent.WardenEventType.NEW_INFRACTION.value().getBytes();
+//	      byte[] delimiter = "-".getBytes();
+//	      byte[] entity =fromEntity(infraction).getBytes();
+//	      ByteBuffer message = ByteBuffer.allocate(code.length + delimiter.length + entity.length);
+//	      message.put(code);
+//	      message.put(delimiter);
+//	      message.put(entity);
+//	      
+//	      return message.array();
+//    }
     
     
 //	/* Helper method to convert JSON String representation to the corresponding Java entity. */

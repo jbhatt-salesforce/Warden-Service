@@ -4,6 +4,8 @@ import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Basic;
@@ -54,7 +56,8 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(name = "SUBSCRIPTION", uniqueConstraints = @UniqueConstraint(columnNames = { "hostname", "port" }) )
 @NamedQueries({
-		@NamedQuery(name = "Subscription.findByHostnameAndPort", query = "SELECT r FROM Subscription r WHERE r.hostname = :hostname AND r.port = :port")
+		@NamedQuery(name = "Subscription.findByHostnameAndPort", query = "SELECT r FROM Subscription r WHERE r.hostname = :hostname AND r.port = :port"),
+		@NamedQuery(name = "Subscription.findAll", query = "SELECT r FROM Subscription r")
 })
 public class Subscription extends JPAEntity implements Serializable {
 	// ~ Instance fields
@@ -123,6 +126,24 @@ public class Subscription extends JPAEntity implements Serializable {
 			return null;
 		}
 	}
+	/**
+	 * Finds all subscriptions.
+	 *
+	 * @param em	The entity manager to use. Cannot be null.	
+	 * @return The corresponding subscription or null.
+	 */
+	public static List<Subscription> findAllSubscriptions(EntityManager em) {
+		requireArgument(em != null, "Entity manager can not be null.");
+
+		TypedQuery<Subscription> query = em.createNamedQuery("Subscription.findAll", Subscription.class);
+
+		try {
+			query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+			return query.getResultList();
+	       } catch (NoResultException ex) {
+	    	   return new ArrayList<>(0);
+	       }
+	}
 
 	public String getHostname() {
 		return hostname;
@@ -176,5 +197,7 @@ public class Subscription extends JPAEntity implements Serializable {
 
 		return MessageFormat.format(format, params);
 	}
+
+	
 
 }
