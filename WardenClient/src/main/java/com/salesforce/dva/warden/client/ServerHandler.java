@@ -4,6 +4,7 @@ import com.salesforce.dva.warden.dto.Infraction;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 
 import java.util.Map;
 
@@ -25,15 +26,16 @@ public class ServerHandler extends ChannelInboundHandlerAdapter  {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) { // (2)
-            // Discard the received data silently.
-            System.out.println((char) ((ByteBuf) msg).readByte());
-            ctx.write(msg);
-        }
-
-        @Override
-        public void channelReadComplete(ChannelHandlerContext ctx){
-            System.out.flush();
-            ctx.flush();
+            ByteBuf in = (ByteBuf) msg;
+            try {
+                while (in.isReadable()) {
+                    System.out.print((char) ((ByteBuf) msg).readByte());
+                }
+                System.out.flush();
+            } finally {
+                ReferenceCountUtil.release(msg);
+            }
+            ctx.close();
         }
 
         @Override
