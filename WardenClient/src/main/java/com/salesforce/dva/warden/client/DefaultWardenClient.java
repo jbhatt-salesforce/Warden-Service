@@ -52,7 +52,7 @@ class DefaultWardenClient implements WardenClient {
     final String _username;
     final String _password;
     private Thread _updater;
-    private Thread _listener;
+    private EventServer _listener;
     private String _hostname;
     private Subscription _subscription;
 
@@ -102,18 +102,21 @@ class DefaultWardenClient implements WardenClient {
     }
 
     @Override
-    public void register(List<Policy> policies, int port) throws IOException {
+    public void register(List<Policy> policies, int port) throws Exception {
         AuthService authService = _service.getAuthService();
+        _listener = new EventServer(port, _infractions);
 
         authService.login(_username, _password);
-        _subscription = _subscribeToEvents(port);
         _initializeUpdaterThread(_service);
+        _listener.start();
         _reconcilePolicies(policies);
+        _subscription = _subscribeToEvents(port);
     }
 
     @Override
-    public void unregister() throws IOException {
+    public void unregister() throws Exception {
         _unsubscribeFromEvents();
+        _listener.stop();
         _terminateUpdaterThread();
         _service.getAuthService().logout();
     }
@@ -149,24 +152,6 @@ class DefaultWardenClient implements WardenClient {
         }
     }
 
-    private void _initializeEventListener(int port) {
-        try {
-            _listener = new EventListener(_infractions, port);
-        } catch (SocketException ex) {
-            throw new RuntimeException(ex);
-        }
-        _listener.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    LOGGER.warn("Uncaught exception in event listener.  Restarting listener thread.", e);
-                    _terminateEventListener();
-                    _initializeEventListener(port);
-                }
-            });
-        _listener.setDaemon(true);
-        _listener.start();
-    }
 
     private void _initializeUpdaterThread(WardenService service) {
         _updater = new MetricUpdater(_values, service);
@@ -215,7 +200,6 @@ class DefaultWardenClient implements WardenClient {
     }
 
     private Subscription _subscribeToEvents(int port) throws IOException {
-        _initializeEventListener(port);
 
         Subscription subscription = new Subscription();
 
@@ -223,15 +207,6 @@ class DefaultWardenClient implements WardenClient {
         subscription.setPort(port);
         subscription = _service.getSubscriptionService().subscribe(subscription).getResources().get(0).getEntity();
         return subscription;
-    }
-
-    private void _terminateEventListener() {
-        _listener.interrupt();
-        try {
-            _listener.join(10000);
-        } catch (InterruptedException ex) {
-            LOGGER.warn("Listener thread failed to stop.  Giving up.");
-        }
     }
 
     private void _terminateUpdaterThread() {
@@ -245,7 +220,6 @@ class DefaultWardenClient implements WardenClient {
 
     private void _unsubscribeFromEvents() throws IOException {
         _service.getSubscriptionService().unsubscribe(_subscription);
-        _terminateEventListener();
     }
 
     private void _updateLocalValue(Policy policy, String user, Double value, Boolean replace) {
