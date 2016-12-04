@@ -20,73 +20,62 @@
 package com.salesforce.dva.warden.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
 import com.salesforce.dva.warden.dto.Infraction;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.CharsetUtil;
+import io.netty.util.ReferenceCountUtil;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Created by jbhatt on 10/12/16.
+ * Created by jbhatt on 11/29/16.
  *
  * @author  Tom Valine (tvaline@salesforce.com)
  */
-class EventListener extends Thread {
+public class EventServerHandler extends ChannelInboundHandlerAdapter {
+
+    //~ Static fields/initializers *******************************************************************************************************************
+
+    private static final AtomicLong count = new AtomicLong();
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private Map<String, Infraction> _infractions;
-    private WardenService _wardenService;
-    int _port;
-    DatagramSocket _socket;
+    // A filter will call handleEvent method and send a response to the warden server
+    // update infraction cache
+    // response json
+    // status: 1 or 0
+    private InfractionCache _infractions;
 
     //~ Constructors *********************************************************************************************************************************
 
     /**
-     * Creates a new EventListener object.
+     * Creates a new EventServerHandler object.
      *
-     * @param   infractions  DOCUMENT ME!
-     * @param   port         DOCUMENT ME!
-     *
-     * @throws  SocketException  DOCUMENT ME!
+     * @param  infractions  DOCUMENT ME!
      */
-    EventListener(Map<String, Infraction> infractions, int port) throws SocketException {
-        this._infractions = infractions;
-        this._port = port;
-        this._socket = new DatagramSocket(_port);
+    public EventServerHandler(InfractionCache infractions) {
+        _infractions = infractions;
     }
 
     //~ Methods **************************************************************************************************************************************
 
     @Override
-    public void interrupt() {
-        super.interrupt(); // To change body of generated methods, choose Tools | Templates.
-        _socket.close();
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException, IOException { // (2)
+
+        ByteBuf buf = (ByteBuf) msg;
+        Infraction infraction = new ObjectMapper().readValue(buf.toString(CharsetUtil.UTF_8), Infraction.class);
+
+        _infractions.put(infraction);
+        ReferenceCountUtil.release(msg);
     }
 
     @Override
-    public void run() {
-        while (!Thread.interrupted()) {
-            Thread.yield();
-            try {
-                byte[] buf = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-
-                _socket.receive(packet);
-
-                ObjectMapper mapper = new ObjectMapper();
-                Infraction infraction = mapper.readValue(packet.getData(), Infraction.class);
-
-                _infractions.put(DefaultWardenClient.createKey(infraction.getPolicyId(), infraction.getUserName()), infraction);
-            } catch (IOException e) {
-                interrupt();
-                throw new RuntimeException(e);
-            }
-        }
-        _infractions = null;
-        _wardenService = null;
-        _socket = null;
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

@@ -19,138 +19,76 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
 import com.salesforce.dva.warden.dto.Infraction;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 import org.junit.Test;
-
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.LinkedHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.*;
 
 public class EventListenerTest {
 
-    private static class Client {
-        private int _port;
-
-        private Client(int port) {
-            this._port = port;
-        }
-
-        void sendInfraction(Infraction infraction) throws UnknownHostException, InterruptedException {
-            EventLoopGroup group = new NioEventLoopGroup();
-            try {
-                Bootstrap b = new Bootstrap();
-                b.group(group)
-                        .channel(NioSocketChannel.class)
-                        .option(ChannelOption.TCP_NODELAY, true)
-                        .handler(new ChannelInitializer<SocketChannel>() {
-                            @Override
-                            public void initChannel(SocketChannel ch) throws Exception {
-                                ChannelPipeline p = ch.pipeline();
-                                p.addLast(new EchoClientHandler(infraction));
-                            }
-                        });
-
-                // Start the client.
-                ChannelFuture f = b.connect(InetAddress.getLocalHost(), _port).sync();
-
-                // Wait until the connection is closed.
-                f.channel().closeFuture().sync();
-            } finally {
-                // Shut down the event loop to terminate all threads.
-                group.shutdownGracefully();
-            }
-
-        }
-
-        public class EchoClientHandler extends ChannelInboundHandlerAdapter {
-
-            private final ByteBuf firstMessage;
-
-            /**
-             * Creates a client-side handler.
-             *
-             * @param infraction
-             */
-            public EchoClientHandler(Infraction infraction) {
-
-                firstMessage = Unpooled.buffer(256);
-                ByteBufUtil.writeUtf8(firstMessage, "Test");
-
-            }
-
-            @Override
-            public void channelActive(ChannelHandlerContext ctx) {
-                ctx.writeAndFlush(firstMessage).addListener(ChannelFutureListener.CLOSE);
-            }
-
-            @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                // Close the connection when an exception is raised.
-                cause.printStackTrace();
-                ctx.close();
-            }
-        }
-    }
-
     @Test
     public void testMultipleEvents() throws Exception {
-        LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
-        int[] ports = {4444, 5555, 6666, 7777};
+        InfractionCache infractions = new InfractionCache();
+        int[] ports = { 4444, 5555, 6666, 7777 };
         int threadCount = 20;
-        int eventCount = 100;
+        int eventCount = 200;
         Thread[] threads = new Thread[threadCount];
 
         for (int port : ports) {
-
-            EventServer listener = new EventServer(port, infractions);
-            Client client = new Client(port);
+            EventServer server = new EventServer(port, infractions);
+            EventClient client = new EventClient(port);
             CountDownLatch startingGate = new CountDownLatch(1);
 
             try {
-                listener.start();
-
+                server.start();
+                client.start();
                 for (int i = 0; i < threads.length; i++) {
                     Thread thread = new Thread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            try {
-                                startingGate.await();
-                                for (int j = 0; j < eventCount; j++) {
-                                    Infraction infraction = new Infraction();
-
-                                    infraction.setPolicyId(BigInteger.ONE);
-                                    infraction.setUserName(Thread.currentThread().getId() + "." + j);
-                                    //send to server
-                                    client.sendInfraction(infraction);
+                            @Override
+                            public void run() {
+                                try {
+                                    startingGate.await();
+                                } catch (InterruptedException ex) {
+                                    return;
                                 }
-                            } catch (InterruptedException | UnknownHostException ex) {
-                                return;
-                            }
-                        }
-                    });
+                                for (int j = 0; j < eventCount; j++) {
+                                    try {
+                                        Thread.sleep(25);
 
-                    thread.setDaemon(true);
+                                        Infraction infraction = new Infraction();
+
+                                        infraction.setPolicyId(BigInteger.valueOf(System.currentTimeMillis()));
+                                        infraction.setUserName(Thread.currentThread().getId() + "." + j);
+                                        infraction.setExpirationTimestamp(System.currentTimeMillis() + 300000);
+                                        client.sendInfraction(infraction);
+                                    } catch (Exception ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }
+                            }
+                        });
+
                     thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
-                        @Override
-                        public void uncaughtException(Thread t, Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+                            @Override
+                            public void uncaughtException(Thread t, Throwable e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
                     threads[i] = thread;
                     thread.start();
                 }
@@ -158,47 +96,106 @@ public class EventListenerTest {
                 for (int i = 0; i < threads.length; i++) {
                     threads[i].join(10000);
                 }
-                assertFalse(infractions.isEmpty());
-                assertEquals(threadCount * eventCount, infractions.size());
-                return;
-            } catch (SocketException ex) {
+            } catch (Exception ex) {
+                ex.printStackTrace();
                 continue;
             } finally {
-                listener.stop();
+                client.close();
+                server.close();
             } // end try-catch-finally
+            assertFalse(infractions.isEmpty());
+            assertEquals(threadCount * eventCount, infractions.size());
+            return;
         } // end for
         fail("No available port found.");
     }
 
     @Test
     public void testRun() throws Exception {
-        LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
-        int[] ports = {4444, 5555, 6666, 7777};
+        InfractionCache infractions = new InfractionCache();
+        int[] ports = { 4444, 5555, 6666, 7777 };
 
         for (int port : ports) {
             EventServer eventServer = new EventServer(port, infractions);
-            Client client = new Client(port);
+            EventClient eventClient = new EventClient(port);
 
             try {
                 eventServer.start();
+                eventClient.start();
 
                 Infraction infraction = new Infraction();
 
                 infraction.setPolicyId(BigInteger.ONE);
                 infraction.setUserName("hpotter");
-                //sent packet to server
-                client.sendInfraction(infraction);
-
-                assertFalse(infractions.isEmpty());
-                assertTrue(infractions.size() == 1);
-                return;
-            } catch (SocketException ex) {
+                infraction.setExpirationTimestamp(System.currentTimeMillis() + 300000);
+                eventClient.sendInfraction(infraction);
+            } catch (Exception ex) {
                 continue;
             } finally {
-                eventServer.stop();
+                if (eventClient != null) {
+                    eventClient.close();
+                }
+                if (eventServer != null) {
+                    eventServer.close();
+                }
             }
+            assertFalse(infractions.isEmpty());
+            assertTrue(infractions.size() == 1);
+            return;
         }
         fail("No available port found.");
+    }
+
+    private static class EventClient {
+
+        private Channel channel;
+        private EventLoopGroup workerGroup;
+        private final int port;
+        private final AtomicLong count = new AtomicLong();
+
+        public EventClient(int port) {
+            this.port = port;
+        }
+
+        public void close() throws Exception {
+            workerGroup.shutdownGracefully().await();
+        }
+
+        public void sendInfraction(Infraction infraction) throws Exception {
+            channel.writeAndFlush(new ObjectMapper().writeValueAsString(infraction));
+        }
+
+        public void start() throws Exception {
+            workerGroup = new NioEventLoopGroup(100);
+
+            Bootstrap b = new Bootstrap();
+
+            b.group(workerGroup).channel(NioSocketChannel.class).remoteAddress(InetAddress.getLocalHost(), port).option(ChannelOption.SO_SNDBUF, 1024)
+            .handler(new ChannelInitializer<SocketChannel>() {
+
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8));
+                        ch.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
+
+                                @Override
+                                public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+                                    if (!ctx.channel().isWritable()) {
+                                        ctx.flush();
+                                    }
+                                    ctx.write(msg);
+                                }
+                            });
+                    }
+
+                    @Override
+                    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                        cause.printStackTrace();
+                        ctx.close();
+                    }
+                });
+            channel = b.connect().sync().channel();
+        }
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

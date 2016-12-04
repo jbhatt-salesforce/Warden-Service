@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.*;
 
 /**
@@ -46,8 +45,8 @@ class DefaultWardenClient implements WardenClient {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    final Map<String, Infraction> _infractions;
-    final Map<String, Double> _values;
+    final InfractionCache _infractions;
+    final ValueCache _values;
     final WardenService _service;
     final String _username;
     final String _password;
@@ -80,17 +79,11 @@ class DefaultWardenClient implements WardenClient {
      */
     DefaultWardenClient(WardenService service, String username, String password) {
         _service = service;
-        _infractions = Collections.synchronizedMap(new InfractionCache());
+        _infractions = new InfractionCache();
         _username = username;
         _password = password;
         _hostname = _getHostname();
-        _values = Collections.synchronizedMap(new HashMap<String, Double>());
-    }
-
-    //~ Methods **************************************************************************************************************************************
-
-    static String createKey(BigInteger policyId, String user) {
-        return policyId.toString() + ":" + user;
+        _values = new ValueCache();
     }
 
     //~ Methods **************************************************************************************************************************************
@@ -104,8 +97,8 @@ class DefaultWardenClient implements WardenClient {
     @Override
     public void register(List<Policy> policies, int port) throws Exception {
         AuthService authService = _service.getAuthService();
-        _listener = new EventServer(port, _infractions);
 
+        _listener = new EventServer(port, _infractions);
         authService.login(_username, _password);
         _initializeUpdaterThread(_service);
         _listener.start();
@@ -116,7 +109,7 @@ class DefaultWardenClient implements WardenClient {
     @Override
     public void unregister() throws Exception {
         _unsubscribeFromEvents();
-        _listener.stop();
+        _listener.close();
         _terminateUpdaterThread();
         _service.getAuthService().logout();
     }
@@ -128,7 +121,7 @@ class DefaultWardenClient implements WardenClient {
     }
 
     private void _checkIsSuspended(Policy policy, String user) throws SuspendedException {
-        Infraction infraction = _infractions.get(createKey(policy.getId(), user));
+        Infraction infraction = _infractions.get(policy.getId(), user);
 
         if (infraction != null && (infraction.getExpirationTimestamp() >= System.currentTimeMillis() || infraction.getExpirationTimestamp() < 0)) {
             throw new SuspendedException(policy, user, infraction.getExpirationTimestamp(), infraction.getValue());
@@ -151,7 +144,6 @@ class DefaultWardenClient implements WardenClient {
             return "unknown-host";
         }
     }
-
 
     private void _initializeUpdaterThread(WardenService service) {
         _updater = new MetricUpdater(_values, service);
@@ -193,14 +185,13 @@ class DefaultWardenClient implements WardenClient {
             for (WardenResource<Infraction> wardenResponse : suspensionResponses) {
                 Infraction suspension = wardenResponse.getEntity();
 
-                _infractions.put(createKey(suspension.getPolicyId(), suspension.getUserName()), suspension);
+                _infractions.put(suspension);
             }
         }
         return result;
     }
 
     private Subscription _subscribeToEvents(int port) throws IOException {
-
         Subscription subscription = new Subscription();
 
         subscription.setHostname(_hostname);
@@ -223,15 +214,14 @@ class DefaultWardenClient implements WardenClient {
     }
 
     private void _updateLocalValue(Policy policy, String user, Double value, Boolean replace) {
-        String key = createKey(policy.getId(), user);
-        Double cachedValue = _values.get(key);
+        Double cachedValue = _values.get(policy.getId(), user);
 
         if (cachedValue == null) {
             cachedValue = replace ? value : policy.getDefaultValue() + value;
         } else {
             cachedValue = replace ? value : cachedValue + value;
         }
-        _values.put(key, cachedValue);
+        _values.put(policy.getId(), user, cachedValue);
     }
 
     //~ Inner Classes ********************************************************************************************************************************
@@ -241,15 +231,95 @@ class DefaultWardenClient implements WardenClient {
      *
      * @author  Tom Valine (tvaline@salesforce.com)
      */
-    private static class InfractionCache extends LinkedHashMap<String, Infraction> {
+    public static class InfractionCache {
 
         private static final long serialVersionUID = 1L;
+        Map<String, Infraction> _infractions = Collections.synchronizedMap(new LinkedHashMap<String, Infraction>() {
 
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
-            Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
+                    Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
 
-            return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
+                    return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
+                }
+            });
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param   id    DOCUMENT ME!
+         * @param   user  DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public Infraction get(BigInteger id, String user) {
+            return _infractions.get(createKey(id, user));
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public boolean isEmpty() {
+            return _infractions.isEmpty();
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  infraction  DOCUMENT ME!
+         */
+        public void put(Infraction infraction) {
+            _infractions.put(createKey(infraction.getPolicyId(), infraction.getUserName()), infraction);
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public int size() {
+            return _infractions.size();
+        }
+
+        private String createKey(BigInteger policyId, String user) {
+            return policyId.toString() + ":" + user;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @author  Tom Valine (tvaline@salesforce.com)
+     */
+    public static class ValueCache extends HashMap<String, Double> {
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param   policyId  DOCUMENT ME!
+         * @param   user      DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public Double get(BigInteger policyId, String user) {
+            return get(createKey(policyId, user));
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  policyId  DOCUMENT ME!
+         * @param  user      DOCUMENT ME!
+         * @param  value     DOCUMENT ME!
+         */
+        public void put(BigInteger policyId, String user, Double value) {
+            put(createKey(policyId, user), value);
+        }
+
+        private String createKey(BigInteger policyId, String user) {
+            return policyId.toString() + ":" + user;
         }
     }
 }

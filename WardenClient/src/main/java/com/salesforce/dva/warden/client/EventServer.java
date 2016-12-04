@@ -1,73 +1,92 @@
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+ * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
-import com.salesforce.dva.warden.dto.Infraction;
+import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
-
-import java.net.SocketException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import io.netty.channel.socket.oio.OioServerSocketChannel;
+import io.netty.handler.codec.json.JsonObjectDecoder;
+import java.net.InetSocketAddress;
 
 /**
  * Created by jbhatt on 11/21/16.
+ *
+ * @author  Tom Valine (tvaline@salesforce.com)
  */
 public class EventServer {
 
-    private int _port;
-    private Map<String, Infraction> _infractions;
+    //~ Instance fields ******************************************************************************************************************************
 
-    private ChannelFuture channelFuture;
-    private ServerBootstrap b = new ServerBootstrap();
-    private EventLoopGroup bossGroup = new NioEventLoopGroup();
-    private EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private int port;
+    private final InfractionCache infractions;
+    EventLoopGroup bossGroup; // (1)
+    EventLoopGroup workerGroup;
 
+    //~ Constructors *********************************************************************************************************************************
 
-    public EventServer (int port, Map<String, Infraction> infractions) {
-        this._port = port;
-        this._infractions = infractions;
+    /**
+     * Creates a new EventServer object.
+     *
+     * @param  port         DOCUMENT ME!
+     * @param  infractions  DOCUMENT ME!
+     */
+    public EventServer(int port, InfractionCache infractions) {
+        this.port = port;
+        this.infractions = infractions;
     }
 
-    public void start() throws Exception {
-        //start listening
-        // Bind and start to accept incoming connections.
-      run();
+    //~ Methods **************************************************************************************************************************************
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public void close() throws Exception {
+        bossGroup.shutdownGracefully().await();
+        workerGroup.shutdownGracefully().await();
     }
 
-    public void stop() throws SocketException{
-        //stop listening
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  InterruptedException  DOCUMENT ME!
+     */
+    public void start() throws InterruptedException {
+        bossGroup = new OioEventLoopGroup(100); // (1)
+        workerGroup = new OioEventLoopGroup(100);
 
-        // Wait until the server socket is closed.
-        // In this example, this does not happen, but you can do that to gracefully
-        // shut down your server.
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+        ServerBootstrap b = new ServerBootstrap(); // (2)
+
+        b.group(bossGroup, workerGroup).channel(OioServerSocketChannel.class).localAddress(new InetSocketAddress(port)) // (3)
+        .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    ch.pipeline().addLast(new JsonObjectDecoder());
+                    ch.pipeline().addLast(new EventServerHandler(infractions));
+                }
+            });
+        b.bind().sync(); // (7)
     }
-
-    public void run() throws Exception {
-            b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 100)
-                    .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new ServerHandler(_infractions));
-                        }
-
-                    })
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
-
-                    channelFuture = b.bind(_port).sync();
-
-                     channelFuture.channel().closeFuture().sync();
-
-    }
-
 }
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
