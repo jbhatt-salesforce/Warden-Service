@@ -42,7 +42,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             String user = "hpotter";
 
             client.modifyMetric(policy, user, 10);
-            assertEquals(10.0, client._values.get(client.createKey(policy.getId(), user)), 0.0);
+            assertEquals(10.0, client._values.get(policy.getId(), user), 0.0);
         }
     }
 
@@ -52,13 +52,14 @@ public class DefaultWardenClientTest extends AbstractTest {
             Infraction infraction = new Infraction();
 
             infraction.setPolicyId(BigInteger.ONE);
+            infraction.setUserName("hpotter");
             infraction.setExpirationTimestamp((long) System.currentTimeMillis() + 600000);
 
             DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
             Policy policy = new Policy();
 
             policy.setId(BigInteger.ONE);
-            client._infractions.put(client.createKey(policy.getId(), "hpotter"), infraction);
+            client._infractions.put(infraction);
             client.modifyMetric(policy, "hpotter", 10);
         }
     }
@@ -75,7 +76,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             String user = "hpotter";
 
             client.updateMetric(policy, user, 10);
-            assertEquals(10.0, client._values.get(client.createKey(policy.getId(), user)), 0.0);
+            assertEquals(10.0, client._values.get(policy.getId(), user), 0.0);
         }
     }
 
@@ -85,13 +86,14 @@ public class DefaultWardenClientTest extends AbstractTest {
             Infraction infraction = new Infraction();
 
             infraction.setPolicyId(BigInteger.ONE);
+            infraction.setUserName("hpotter");
             infraction.setExpirationTimestamp((long) System.currentTimeMillis() + 600000);
 
             DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
             Policy policy = new Policy();
 
             policy.setId(BigInteger.ONE);
-            client._infractions.put(client.createKey(policy.getId(), "hpotter"), infraction);
+            client._infractions.put(infraction);
             client.updateMetric(policy, "hpotter", 10);
         }
     }

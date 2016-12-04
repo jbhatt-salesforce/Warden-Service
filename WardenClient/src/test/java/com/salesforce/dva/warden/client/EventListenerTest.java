@@ -20,71 +20,68 @@
 package com.salesforce.dva.warden.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
 import com.salesforce.dva.warden.dto.Infraction;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 import org.junit.Test;
-import java.io.IOException;
 import java.math.BigInteger;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.LinkedHashMap;
 import java.util.concurrent.CountDownLatch;
-import static org.junit.Assert.assertEquals;
+import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class EventListenerTest {
 
     @Test
-    public void testMultipleEvents() throws IOException, InterruptedException {
-        LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
+    public void testMultipleEvents() throws Exception {
+        InfractionCache infractions = new InfractionCache();
         int[] ports = { 4444, 5555, 6666, 7777 };
         int threadCount = 20;
-        int eventCount = 100;
+        int eventCount = 200;
         Thread[] threads = new Thread[threadCount];
 
         for (int port : ports) {
-            final DatagramSocket socket = new DatagramSocket();
+            EventServer server = new EventServer(port, infractions);
+            EventClient client = new EventClient(port);
             CountDownLatch startingGate = new CountDownLatch(1);
 
             try {
-                EventListener listener = new EventListener(infractions, port);
-
-                listener.setDaemon(true);
-                listener.start();
+                server.start();
+                client.start();
                 for (int i = 0; i < threads.length; i++) {
                     Thread thread = new Thread(new Runnable() {
 
                             @Override
                             public void run() {
                                 try {
-                                    byte[] buf = new byte[1024];
-                                    DatagramPacket packet = new DatagramPacket(buf, 1024);
-
-                                    packet.setAddress(InetAddress.getLocalHost());
-                                    packet.setPort(port);
-
                                     startingGate.await();
-                                    for (int j = 0; j < eventCount; j++) {
-                                        Infraction infraction = new Infraction();
-
-                                        infraction.setPolicyId(BigInteger.ONE);
-                                        infraction.setUserName(Thread.currentThread().getId() + "." + j);
-                                        System.out.println(infraction.getUserName());
-                                        packet.setData(new ObjectMapper().writeValueAsBytes(infraction));
-                                        socket.send(packet);
-                                    }
                                 } catch (InterruptedException ex) {
                                     return;
-                                } catch (IOException ex) {
-                                    throw new RuntimeException(ex);
+                                }
+                                for (int j = 0; j < eventCount; j++) {
+                                    try {
+                                        Thread.sleep(25);
+
+                                        Infraction infraction = new Infraction();
+
+                                        infraction.setPolicyId(BigInteger.valueOf(System.currentTimeMillis()));
+                                        infraction.setUserName(Thread.currentThread().getId() + "." + j);
+                                        infraction.setExpirationTimestamp(System.currentTimeMillis() + 300000);
+                                        client.sendInfraction(infraction);
+                                    } catch (Exception ex) {
+                                        throw new RuntimeException(ex);
+                                    }
                                 }
                             }
                         });
 
-                    thread.setDaemon(true);
                     thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
                             @Override
@@ -99,60 +96,106 @@ public class EventListenerTest {
                 for (int i = 0; i < threads.length; i++) {
                     threads[i].join(10000);
                 }
-                listener.interrupt();
-                listener.join(10000);
-                assertFalse(infractions.isEmpty());
-                assertEquals(threadCount * eventCount, infractions.size());
-                return;
-            } catch (SocketException ex) {
-                assert true : "Try the next port";
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                continue;
             } finally {
-                socket.close();
+                client.close();
+                server.close();
             } // end try-catch-finally
+            assertFalse(infractions.isEmpty());
+            assertEquals(threadCount * eventCount, infractions.size());
+            return;
         } // end for
         fail("No available port found.");
     }
 
     @Test
-    public void testRun() throws IOException, InterruptedException {
-        LinkedHashMap<String, Infraction> infractions = new LinkedHashMap<>();
+    public void testRun() throws Exception {
+        InfractionCache infractions = new InfractionCache();
         int[] ports = { 4444, 5555, 6666, 7777 };
 
         for (int port : ports) {
-            DatagramSocket socket = null;
+            EventServer eventServer = new EventServer(port, infractions);
+            EventClient eventClient = new EventClient(port);
 
             try {
-                EventListener listener = new EventListener(infractions, port);
-
-                listener.setDaemon(true);
-                listener.start();
-                socket = new DatagramSocket();
-
-                byte[] buf = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buf, 1024);
-
-                packet.setAddress(InetAddress.getLocalHost());
-                packet.setPort(port);
+                eventServer.start();
+                eventClient.start();
 
                 Infraction infraction = new Infraction();
 
                 infraction.setPolicyId(BigInteger.ONE);
                 infraction.setUserName("hpotter");
-                packet.setData(new ObjectMapper().writeValueAsBytes(infraction));
-                socket.send(packet);
-                listener.interrupt();
-                listener.join(10000);
-                assertFalse(infractions.isEmpty());
-                return;
-            } catch (SocketException ex) {
-                assert true : "Try the next port";
+                infraction.setExpirationTimestamp(System.currentTimeMillis() + 300000);
+                eventClient.sendInfraction(infraction);
+            } catch (Exception ex) {
+                continue;
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (eventClient != null) {
+                    eventClient.close();
+                }
+                if (eventServer != null) {
+                    eventServer.close();
                 }
             }
+            assertFalse(infractions.isEmpty());
+            assertTrue(infractions.size() == 1);
+            return;
         }
         fail("No available port found.");
+    }
+
+    private static class EventClient {
+
+        private Channel channel;
+        private EventLoopGroup workerGroup;
+        private final int port;
+        private final AtomicLong count = new AtomicLong();
+
+        public EventClient(int port) {
+            this.port = port;
+        }
+
+        public void close() throws Exception {
+            workerGroup.shutdownGracefully().await();
+        }
+
+        public void sendInfraction(Infraction infraction) throws Exception {
+            channel.writeAndFlush(new ObjectMapper().writeValueAsString(infraction));
+        }
+
+        public void start() throws Exception {
+            workerGroup = new NioEventLoopGroup(100);
+
+            Bootstrap b = new Bootstrap();
+
+            b.group(workerGroup).channel(NioSocketChannel.class).remoteAddress(InetAddress.getLocalHost(), port).option(ChannelOption.SO_SNDBUF, 1024)
+            .handler(new ChannelInitializer<SocketChannel>() {
+
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8));
+                        ch.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
+
+                                @Override
+                                public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+                                    if (!ctx.channel().isWritable()) {
+                                        ctx.flush();
+                                    }
+                                    ctx.write(msg);
+                                }
+                            });
+                    }
+
+                    @Override
+                    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                        cause.printStackTrace();
+                        ctx.close();
+                    }
+                });
+            channel = b.connect().sync().channel();
+        }
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

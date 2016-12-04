@@ -19,74 +19,74 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salesforce.dva.warden.dto.Infraction;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.util.*;
+import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.oio.OioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.oio.OioServerSocketChannel;
+import io.netty.handler.codec.json.JsonObjectDecoder;
+import java.net.InetSocketAddress;
 
 /**
- * Created by jbhatt on 10/12/16.
+ * Created by jbhatt on 11/21/16.
  *
  * @author  Tom Valine (tvaline@salesforce.com)
  */
-class EventListener extends Thread {
+public class EventServer {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private Map<String, Infraction> _infractions;
-    private WardenService _wardenService;
-    int _port;
-    DatagramSocket _socket;
+    private int port;
+    private final InfractionCache infractions;
+    EventLoopGroup bossGroup; // (1)
+    EventLoopGroup workerGroup;
 
     //~ Constructors *********************************************************************************************************************************
 
     /**
-     * Creates a new EventListener object.
+     * Creates a new EventServer object.
      *
-     * @param   infractions  DOCUMENT ME!
-     * @param   port         DOCUMENT ME!
-     *
-     * @throws  SocketException  DOCUMENT ME!
+     * @param  port         DOCUMENT ME!
+     * @param  infractions  DOCUMENT ME!
      */
-    EventListener(Map<String, Infraction> infractions, int port) throws SocketException {
-        this._infractions = infractions;
-        this._port = port;
-        this._socket = new DatagramSocket(_port);
+    public EventServer(int port, InfractionCache infractions) {
+        this.port = port;
+        this.infractions = infractions;
     }
 
     //~ Methods **************************************************************************************************************************************
 
-    @Override
-    public void interrupt() {
-        super.interrupt(); // To change body of generated methods, choose Tools | Templates.
-        _socket.close();
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public void close() throws Exception {
+        bossGroup.shutdownGracefully().await();
+        workerGroup.shutdownGracefully().await();
     }
 
-    @Override
-    public void run() {
-        while (!Thread.interrupted()) {
-            Thread.yield();
-            try {
-                byte[] buf = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  InterruptedException  DOCUMENT ME!
+     */
+    public void start() throws InterruptedException {
+        bossGroup = new OioEventLoopGroup(100); // (1)
+        workerGroup = new OioEventLoopGroup(100);
 
-                _socket.receive(packet);
+        ServerBootstrap b = new ServerBootstrap(); // (2)
 
-                ObjectMapper mapper = new ObjectMapper();
-                Infraction infraction = mapper.readValue(packet.getData(), Infraction.class);
-
-                _infractions.put(DefaultWardenClient.createKey(infraction.getPolicyId(), infraction.getUserName()), infraction);
-            } catch (IOException e) {
-                interrupt();
-                throw new RuntimeException(e);
-            }
-        }
-        _infractions = null;
-        _wardenService = null;
-        _socket = null;
+        b.group(bossGroup, workerGroup).channel(OioServerSocketChannel.class).localAddress(new InetSocketAddress(port)) // (3)
+        .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    ch.pipeline().addLast(new JsonObjectDecoder());
+                    ch.pipeline().addLast(new EventServerHandler(infractions));
+                }
+            });
+        b.bind().sync(); // (7)
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
