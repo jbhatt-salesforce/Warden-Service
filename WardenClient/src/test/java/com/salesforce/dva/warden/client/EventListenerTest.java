@@ -33,7 +33,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.*;
 
@@ -132,12 +131,8 @@ public class EventListenerTest {
             } catch (Exception ex) {
                 continue;
             } finally {
-                if (eventClient != null) {
-                    eventClient.close();
-                }
-                if (eventServer != null) {
-                    eventServer.close();
-                }
+                eventClient.close();
+                eventServer.close();
             }
             assertFalse(infractions.isEmpty());
             assertTrue(infractions.size() == 1);
@@ -151,10 +146,11 @@ public class EventListenerTest {
         private Channel channel;
         private EventLoopGroup workerGroup;
         private final int port;
-        private final AtomicLong count = new AtomicLong();
 
         public EventClient(int port) {
             this.port = port;
+            workerGroup = new NioEventLoopGroup(100);
+            channel = null;
         }
 
         public void close() throws Exception {
@@ -162,12 +158,12 @@ public class EventListenerTest {
         }
 
         public void sendInfraction(Infraction infraction) throws Exception {
-            channel.writeAndFlush(new ObjectMapper().writeValueAsString(infraction));
+            if (channel != null) {
+                channel.writeAndFlush(new ObjectMapper().writeValueAsString(infraction));
+            }
         }
 
         public void start() throws Exception {
-            workerGroup = new NioEventLoopGroup(100);
-
             Bootstrap b = new Bootstrap();
 
             b.group(workerGroup).channel(NioSocketChannel.class).remoteAddress(InetAddress.getLocalHost(), port).option(ChannelOption.SO_SNDBUF, 1024)

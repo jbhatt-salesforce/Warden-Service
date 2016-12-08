@@ -28,14 +28,16 @@ import com.salesforce.dva.warden.dto.WardenResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.*;
 
 /**
- * DOCUMENT ME!
+ * Default implementation of the WardenClient interface.
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
+ * @author  Tom Valine (tvaline@salesforce.com)
  */
 class DefaultWardenClient implements WardenClient {
 
@@ -45,11 +47,11 @@ class DefaultWardenClient implements WardenClient {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    final InfractionCache _infractions;
-    final ValueCache _values;
-    final WardenService _service;
-    final String _username;
-    final String _password;
+    final InfractionCache infractions;
+    final ValueCache values;
+    final WardenService service;
+    final String username;
+    final String password;
     private Thread _updater;
     private EventServer _listener;
     private String _hostname;
@@ -58,13 +60,13 @@ class DefaultWardenClient implements WardenClient {
     //~ Constructors *********************************************************************************************************************************
 
     /**
-     * This is how the client talks to the server.
+     * Creates a new DefaultWardenClient.
      *
-     * @param   endpoint  DOCUMENT ME!
-     * @param   username  DOCUMENT ME!
-     * @param   password  DOCUMENT ME!
+     * @param   endpoint  The Warden web service endpoint. Cannot be null or empty.
+     * @param   username  The username to authenticate with. Cannot be null or empty.
+     * @param   password  The password to authenticate with. Cannot be null or empty.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     DefaultWardenClient(String endpoint, String username, String password) throws IOException {
         this(WardenService.getInstance(endpoint, 10), username, password);
@@ -73,37 +75,61 @@ class DefaultWardenClient implements WardenClient {
     /**
      * Creates a new DefaultWardenClient object.
      *
-     * @param  service   DOCUMENT ME!
-     * @param  username  DOCUMENT ME!
-     * @param  password  DOCUMENT ME!
+     * @param  service   The Warden service to use. Cannot be null.
+     * @param  username  The username to authenticate with. Cannot be null or empty.
+     * @param  password  The password to authenticate with. Cannot be null or empty.
      */
     DefaultWardenClient(WardenService service, String username, String password) {
-        _service = service;
-        _infractions = new InfractionCache();
-        _username = username;
-        _password = password;
+        requireThat(service != null, "The warden service cannot be null.");
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat(password != null && !password.isEmpty(), "Password cannot be null or empty.");
+        this.infractions = new InfractionCache();
+        this.values = new ValueCache();
+        this.service = service;
+        this.username = username;
+        this.password = password;
         _hostname = _getHostname();
-        _values = new ValueCache();
+    }
+
+    //~ Methods **************************************************************************************************************************************
+
+    /**
+     * Throws an illegal argument exception if the condition is not met.
+     *
+     * @param   condition  The boolean condition to check.
+     * @param   message    The exception message.
+     *
+     * @throws  IllegalArgumentException  DOCUMENT ME!
+     */
+    static void requireThat(boolean condition, String message) {
+        if (!condition) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
     //~ Methods **************************************************************************************************************************************
 
     @Override
-    public void modifyMetric(Policy policy, String user, double delta) throws SuspendedException {
-        _checkIsSuspended(policy, user);
-        _updateLocalValue(policy, user, delta, false);
+    public void modifyMetric(Policy policy, String username, double delta) throws SuspendedException {
+        requireThat(policy != null, "Policy cannot be null.");
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        _checkIsSuspended(policy, username);
+        _updateLocalValue(policy, username, delta, false);
     }
 
     @Override
     public void register(List<Policy> policies, int port) throws Exception {
-        AuthService authService = _service.getAuthService();
+        requireThat(policies != null, "Policy list cannot be null.");
+        requireThat(port > 0 && port <= 65535, "Invalid port number.");
 
-        _listener = new EventServer(port, _infractions);
-        authService.login(_username, _password);
-        _initializeUpdaterThread(_service);
-        _listener.start();
+        AuthService authService = service.getAuthService();
+
+        authService.login(username, password);
+        _initializeUpdaterThread(service);
         _reconcilePolicies(policies);
-        _subscription = _subscribeToEvents(port);
+        _listener = new EventServer(port, infractions);
+        _listener.start();
+        _subscribeToEvents(port);
     }
 
     @Override
@@ -111,17 +137,19 @@ class DefaultWardenClient implements WardenClient {
         _unsubscribeFromEvents();
         _listener.close();
         _terminateUpdaterThread();
-        _service.getAuthService().logout();
+        service.getAuthService().logout();
     }
 
     @Override
-    public void updateMetric(Policy policy, String user, double value) throws SuspendedException {
-        _checkIsSuspended(policy, user);
-        _updateLocalValue(policy, user, value, true);
+    public void updateMetric(Policy policy, String username, double value) throws SuspendedException {
+        requireThat(policy != null, "Policy cannot be null.");
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        _checkIsSuspended(policy, username);
+        _updateLocalValue(policy, username, value, true);
     }
 
     private void _checkIsSuspended(Policy policy, String user) throws SuspendedException {
-        Infraction infraction = _infractions.get(policy.getId(), user);
+        Infraction infraction = infractions.get(policy.getId(), user);
 
         if (infraction != null && (infraction.getExpirationTimestamp() >= System.currentTimeMillis() || infraction.getExpirationTimestamp() < 0)) {
             throw new SuspendedException(policy, user, infraction.getExpirationTimestamp(), infraction.getValue());
@@ -146,14 +174,14 @@ class DefaultWardenClient implements WardenClient {
     }
 
     private void _initializeUpdaterThread(WardenService service) {
-        _updater = new MetricUpdater(_values, service);
+        _updater = new MetricUpdater(values, service);
         _updater.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
                 @Override
                 public void uncaughtException(Thread t, Throwable e) {
                     LOGGER.warn("Uncaught exception in metric updater thread.  Restarting updater thread.", e);
                     _terminateUpdaterThread();
-                    _initializeUpdaterThread(_service);
+                    _initializeUpdaterThread(service);
                 }
             });
         _updater.setDaemon(true);
@@ -161,10 +189,9 @@ class DefaultWardenClient implements WardenClient {
     }
 
     private List<Policy> _reconcilePolicies(List<Policy> policies) throws IOException {
-        PolicyService policyService = _service.getPolicyService();
+        PolicyService policyService = service.getPolicyService();
         List<Policy> result = new ArrayList<>(policies.size());
 
-        // for each policy in this list, obtain it from the server
         for (Policy clientPolicy : policies) {
             Policy serverPolicy;
             WardenResponse<Policy> response = policyService.getPolicy(clientPolicy.getService(), clientPolicy.getName());
@@ -185,19 +212,18 @@ class DefaultWardenClient implements WardenClient {
             for (WardenResource<Infraction> wardenResponse : suspensionResponses) {
                 Infraction suspension = wardenResponse.getEntity();
 
-                _infractions.put(suspension);
+                infractions.put(suspension);
             }
         }
         return result;
     }
 
-    private Subscription _subscribeToEvents(int port) throws IOException {
+    private void _subscribeToEvents(int port) throws IOException {
         Subscription subscription = new Subscription();
 
         subscription.setHostname(_hostname);
         subscription.setPort(port);
-        subscription = _service.getSubscriptionService().subscribe(subscription).getResources().get(0).getEntity();
-        return subscription;
+        _subscription = service.getSubscriptionService().subscribe(subscription).getResources().get(0).getEntity();
     }
 
     private void _terminateUpdaterThread() {
@@ -210,74 +236,82 @@ class DefaultWardenClient implements WardenClient {
     }
 
     private void _unsubscribeFromEvents() throws IOException {
-        _service.getSubscriptionService().unsubscribe(_subscription);
+        service.getSubscriptionService().unsubscribe(_subscription);
     }
 
     private void _updateLocalValue(Policy policy, String user, Double value, Boolean replace) {
-        Double cachedValue = _values.get(policy.getId(), user);
+        Double cachedValue = values.get(policy.getId(), user);
 
         if (cachedValue == null) {
             cachedValue = replace ? value : policy.getDefaultValue() + value;
         } else {
             cachedValue = replace ? value : cachedValue + value;
         }
-        _values.put(policy.getId(), user, cachedValue);
+        values.put(policy.getId(), user, cachedValue);
     }
 
     //~ Inner Classes ********************************************************************************************************************************
 
     /**
-     * DOCUMENT ME!
+     * Local cache to store currently suspended users.
      *
      * @author  Tom Valine (tvaline@salesforce.com)
      */
-    public static class InfractionCache {
+    public static class InfractionCache implements Serializable {
 
         private static final long serialVersionUID = 1L;
-        Map<String, Infraction> _infractions = Collections.synchronizedMap(new LinkedHashMap<String, Infraction>() {
+        private final Map<String, Infraction> _infractions;
 
-                @Override
-                protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
-                    Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
+        /** Creates a new InfractionCache object. */
+        public InfractionCache() {
+            this._infractions = Collections.synchronizedMap(new LinkedHashMap<String, Infraction>() {
 
-                    return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
-                }
-            });
+                    @Override
+                    protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
+                        Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
 
-        /**
-         * DOCUMENT ME!
-         *
-         * @param   id    DOCUMENT ME!
-         * @param   user  DOCUMENT ME!
-         *
-         * @return  DOCUMENT ME!
-         */
-        public Infraction get(BigInteger id, String user) {
-            return _infractions.get(createKey(id, user));
+                        return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
+                    }
+                });
         }
 
         /**
-         * DOCUMENT ME!
+         * Returns the infraction record for a suspended user.
          *
-         * @return  DOCUMENT ME!
+         * @param   policyId  The ID of the policy to check for. Cannot be null.
+         * @param   username  The username to retrieve the infraction record for. Cannot be null or empty.
+         *
+         * @return  The infraction record or null if the user is not currently suspended.
+         */
+        public Infraction get(BigInteger policyId, String username) {
+            requireThat(policyId != null, "The policy ID cannot be null.");
+            requireThat(username != null && !username.isEmpty(), "The username cannot be null or empty.");
+            return _infractions.get(createKey(policyId, username));
+        }
+
+        /**
+         * Indicates whether the infraction cache is empty.
+         *
+         * @return  True if the cache contains no suspended users.
          */
         public boolean isEmpty() {
             return _infractions.isEmpty();
         }
 
         /**
-         * DOCUMENT ME!
+         * Inserts an infraction into the cache.
          *
-         * @param  infraction  DOCUMENT ME!
+         * @param  infraction  The infraction to insert. Cannot be null.
          */
         public void put(Infraction infraction) {
+            requireThat(infraction != null, "The infraction cannot be null.");
             _infractions.put(createKey(infraction.getPolicyId(), infraction.getUserName()), infraction);
         }
 
         /**
-         * DOCUMENT ME!
+         * Returns the number of records in the cache.
          *
-         * @return  DOCUMENT ME!
+         * @return  The number of records in the cache.
          */
         public int size() {
             return _infractions.size();
@@ -289,37 +323,42 @@ class DefaultWardenClient implements WardenClient {
     }
 
     /**
-     * DOCUMENT ME!
+     * The local cache used to store usage metrics for users until that time the are written to the server.
      *
      * @author  Tom Valine (tvaline@salesforce.com)
      */
     public static class ValueCache extends HashMap<String, Double> {
 
+        private static final long serialVersionUID = 1L;
+
         /**
-         * DOCUMENT ME!
+         * Returns the value for a policy and user combination.
          *
-         * @param   policyId  DOCUMENT ME!
-         * @param   user      DOCUMENT ME!
+         * @param   policyId  The policy ID. Cannot be null.
+         * @param   username  The username. Cannot be null or empty.
          *
-         * @return  DOCUMENT ME!
+         * @return  The value of the policy metric for the policy and username combination or null if no value exists.
          */
-        public Double get(BigInteger policyId, String user) {
-            return get(createKey(policyId, user));
+        public Double get(BigInteger policyId, String username) {
+            return get(createKey(policyId, username));
         }
 
         /**
-         * DOCUMENT ME!
+         * Updates the policy value for a specific user.
          *
-         * @param  policyId  DOCUMENT ME!
-         * @param  user      DOCUMENT ME!
-         * @param  value     DOCUMENT ME!
+         * @param  policyId  The policy ID. Cannot be null.
+         * @param  user      The username. Cannot be null or empty.
+         * @param  value     The new value. Cannot be null.
          */
         public void put(BigInteger policyId, String user, Double value) {
+            requireThat(value != null && !value.equals(Double.NaN), "The value cannot be null and must be a real number.");
             put(createKey(policyId, user), value);
         }
 
-        private String createKey(BigInteger policyId, String user) {
-            return policyId.toString() + ":" + user;
+        private String createKey(BigInteger policyId, String username) {
+            requireThat(policyId != null, "Policy ID cannot be null.");
+            requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+            return policyId.toString() + ":" + username;
         }
     }
 }
