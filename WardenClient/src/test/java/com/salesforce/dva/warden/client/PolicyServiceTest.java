@@ -62,7 +62,7 @@ public class PolicyServiceTest extends AbstractTest {
     public void testDeletePolicies() throws IOException {
         try(WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
             PolicyService policyService = wardenService.getPolicyService();
-            BigInteger[] policyIds = { BigInteger.ONE };
+            Set<BigInteger> policyIds = new HashSet(Arrays.asList(new BigInteger[] { BigInteger.ONE }));
             WardenResponse<Policy> actualResponse = policyService.deletePolicies(policyIds);
             WardenResponse<Policy> expectedResponse = _constructPersistedResponse("DELETE");
 
