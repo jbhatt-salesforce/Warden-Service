@@ -25,6 +25,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+
 /**
  * DOCUMENT ME!
  *
@@ -144,15 +146,10 @@ class WardenService implements AutoCloseable {
         /**
          * Creates a new EndpointService object.
          *
-         * @param   client  The HTTP client for use by the endpoint service.
-         *
-         * @throws  IllegalArgumentException  If the specified client is null.
+         * @param  client  The HTTP client for use by the endpoint service.
          */
         EndpointService(WardenHttpClient client) {
-            if (client == null) {
-                throw new IllegalArgumentException("The HTTP client cannot be null.");
-            }
-            _client = client;
+            requireThat((_client = client) != null, "The HTTP client cannot be null.");
         }
 
         /**

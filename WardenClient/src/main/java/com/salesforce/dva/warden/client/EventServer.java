@@ -53,6 +53,8 @@ public class EventServer {
     public EventServer(int port, InfractionCache infractions) {
         this.port = port;
         this.infractions = infractions;
+        bossGroup = new OioEventLoopGroup(100); // (1)
+        workerGroup = new OioEventLoopGroup(100);
     }
 
     //~ Methods **************************************************************************************************************************************
@@ -73,9 +75,6 @@ public class EventServer {
      * @throws  InterruptedException  DOCUMENT ME!
      */
     public void start() throws InterruptedException {
-        bossGroup = new OioEventLoopGroup(100); // (1)
-        workerGroup = new OioEventLoopGroup(100);
-
         ServerBootstrap b = new ServerBootstrap(); // (2)
 
         b.group(bossGroup, workerGroup).channel(OioServerSocketChannel.class).localAddress(new InetSocketAddress(port)) // (3)

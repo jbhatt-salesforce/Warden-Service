@@ -35,9 +35,9 @@ public class WardenClientBuilderTest {
 
         DefaultWardenClient defaultClient = DefaultWardenClient.class.cast(client);
 
-        assertEquals("https://foo", defaultClient._service._httpClient._endpoint);
-        assertEquals("aPassword", defaultClient._password);
-        assertEquals("aUsername", defaultClient._username);
+        assertEquals("https://foo", defaultClient.service._httpClient._endpoint);
+        assertEquals("aPassword", defaultClient.password);
+        assertEquals("aUsername", defaultClient.username);
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
