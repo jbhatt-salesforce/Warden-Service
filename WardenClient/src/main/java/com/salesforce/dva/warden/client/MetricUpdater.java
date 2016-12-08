@@ -19,21 +19,23 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
+import com.salesforce.dva.warden.client.DefaultWardenClient.ValueCache;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
 /**
- * Created by jbhatt on 10/12/16.
+ * Periodically pushes cached policy values for users to the server..
  *
+ * @author  Jigna Bhatt (jbhatt@salesforce.com)
  * @author  Tom Valine (tvaline@salesforce.com)
  */
 class MetricUpdater extends Thread {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private Map<String, Double> _values;
+    private ValueCache _values;
     private WardenService _wardenService;
 
     //~ Constructors *********************************************************************************************************************************
@@ -41,22 +43,16 @@ class MetricUpdater extends Thread {
     /**
      * Creates a new MetricUpdater object.
      *
-     * @param  values         DOCUMENT ME!
-     * @param  wardenService  DOCUMENT ME!
+     * @param  values         The value cache containing the metric values to push to the server. Cannot be null. Must be thread safe.
+     * @param  wardenService  The warden service to use. Cannot be null.
      */
-    MetricUpdater(Map<String, Double> values, WardenService wardenService) {
-        this._values = values;
-        this._wardenService = wardenService;
+    MetricUpdater(ValueCache values, WardenService wardenService) {
+        _values = values;
+        _wardenService = wardenService;
     }
 
     //~ Methods **************************************************************************************************************************************
 
-    /**
-     * re-evaluate this to do a batch metric update for multiple user-ids and policy ids. psudo code: put this whole thing in a while (!inturrupted)
-     * loop get the current timestamp and truncate it to a whole min copy the results from values to a new Map (temporary) to hold a shorter lock on
-     * the values map do a bulk update to the server For testing: write the values to the client and read it back from the server to verify this
-     * class. Mock it for now.
-     */
     @Override
     public void run() {
         long delta = 0;
@@ -75,12 +71,12 @@ class MetricUpdater extends Thread {
             PolicyService policyService = _wardenService.getPolicyService();
 
             copyOfValues.forEach((String k, Double v) -> {
-                List<String> items = Arrays.asList(k.split(":"));
+                List<Object> items = _values.getKeyComponents(k);
                 Map<Long, Double> metric = new HashMap<>();
 
                 metric.put(time, v);
                 try {
-                    policyService.updateMetricsForUserAndPolicy(new BigInteger(items.get(0)), items.get(1), metric);
+                    policyService.updateMetricsForUserAndPolicy(BigInteger.class.cast(items.get(0)), items.get(1).toString(), metric);
                 } catch (IOException ex) {
                     LoggerFactory.getLogger(getClass()).warn("Failed to update metric.", ex);
                 }

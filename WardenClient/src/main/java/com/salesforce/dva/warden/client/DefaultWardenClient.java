@@ -344,6 +344,24 @@ class DefaultWardenClient implements WardenClient {
         }
 
         /**
+         * Extracts the value cache key into a list containing the policy ID as a BigInteger and the username as String.
+         *
+         * @param   key  The ':' delimited value cache key. Cannot be null and must be of the form "id:username";
+         *
+         * @return  The key components.
+         */
+        public List<Object> getKeyComponents(String key) {
+            requireThat(key != null, "Key cannot be null.");
+
+            String[] components = key.split(":");
+            List<Object> result = new ArrayList<>(2);
+
+            result.add(new BigInteger(components[0]));
+            result.add(components[1]);
+            return result;
+        }
+
+        /**
          * Updates the policy value for a specific user.
          *
          * @param  policyId  The policy ID. Cannot be null.
