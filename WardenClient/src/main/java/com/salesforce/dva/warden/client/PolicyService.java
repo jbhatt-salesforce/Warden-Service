@@ -28,6 +28,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+import jersey.repackaged.com.google.common.base.Objects;
 
 /**
  * Provides methods to manipulate policy objects.
@@ -45,7 +49,7 @@ final class PolicyService extends EndpointService {
     /**
      * Creates a new PolicyService object.
      *
-     * @param  client  The HTTP client to use.  Cannot be null.
+     * @param  client  The HTTP client to use. Cannot be null.
      */
     PolicyService(WardenHttpClient client) {
         super(client);
@@ -54,160 +58,211 @@ final class PolicyService extends EndpointService {
     //~ Methods **************************************************************************************************************************************
 
     /**
-     * Creates new policies on 
+     * Creates new policies.
      *
-     * @param   policies  DOCUMENT ME!
+     * @param   policies  The policies to create. Cannot be null, but may be empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> createPolicies(List<Policy> policies) throws IOException {
+        requireThat(policies != null, "Policies cannot be null.");
+
         String requestUrl = REQUESTURL;
 
         return getClient().executeHttpRequest(RequestType.POST, requestUrl, policies);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param suspensionLevels
-     * @return
-     * @throws IOException 
+     * Creates suspension levels for a policy.
+     *
+     * @param   policyId          The policy ID. Cannot be null.
+     * @param   suspensionLevels  The suspension levels to create. Cannot be null, but may be empty.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<SuspensionLevel> createSuspensionLevels(BigInteger policyId, List<SuspensionLevel> suspensionLevels) throws IOException {
+        requireThat(policyId != null, "Policy ID cannot be null.");
+        requireThat(suspensionLevels != null, "Suspension levels cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level";
 
         return getClient().executeHttpRequest(RequestType.POST, requestUrl, suspensionLevels);
     }
 
     /**
-     * DOCUMENT ME!
+     * Deletes policies.
      *
-     * @param   policyIds  DOCUMENT ME!
+     * @param   policyIds  The IDs of the policies to delete. Cannot be null, but may be empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     /* use a Set<BigInteger> for input */
-    WardenResponse<Policy> deletePolicies(BigInteger[] policyIds) throws IOException {
+    WardenResponse<Policy> deletePolicies(Set<BigInteger> policyIds) throws IOException {
+        requireThat(policyIds != null, "Policy IDs cannot be null.");
+
         String requestUrl = REQUESTURL;
 
         return getClient().executeHttpRequest(RequestType.DELETE, requestUrl, policyIds);
     }
 
     /**
-     * DOCUMENT ME!
+     * Deletes a policy.
      *
-     * @param   policyId  DOCUMENT ME!
+     * @param   policyId  The ID of the policy to delete. Cannot be null.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> deletePolicy(BigInteger policyId) throws IOException {
+        requireThat(policyId != null, "Policy ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString();
 
         return getClient().executeHttpRequest(RequestType.DELETE, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param suspensionLevelId
-     * @return
-     * @throws IOException 
+     * Deletes a suspension level for a policy.
+     *
+     * @param   policyId           The ID of the policy. Cannot be null.
+     * @param   suspensionLevelId  The ID of the suspension level to delete. Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<SuspensionLevel> deleteSuspensionLevel(BigInteger policyId, BigInteger suspensionLevelId) throws IOException {
+        requireThat(policyId != null, "Policy ID cannot be null.");
+        requireThat(suspensionLevelId != null, "The suspension level ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level/" + suspensionLevelId.toString();
 
         return getClient().executeHttpRequest(RequestType.DELETE, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @return
-     * @throws IOException 
+     * Deletes all suspension levels for a policy.
+     *
+     * @param   policyId  The ID of the policy. Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<SuspensionLevel> deleteSuspensionLevels(BigInteger policyId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level";
 
         return getClient().executeHttpRequest(RequestType.DELETE, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @return
-     * @throws IOException 
+     * Deletes all suspensions for a policy.
+     *
+     * @param   policyId  The ID of the policy. Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> deleteSuspensions(BigInteger policyId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.DELETE, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param userName
-     * @return
-     * @throws IOException 
+     * Deletes suspensions for a specify user and policy combination.
+     *
+     * @param   policyId  The ID of the policy. Cannot be null.
+     * @param   username  The username. Cannot be null or empty.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Infraction> deleteSuspensionsForUserAndPolicy(BigInteger policyId, String userName) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/suspension";
+    WardenResponse<Infraction> deleteSuspensionsForUserAndPolicy(BigInteger policyId, String username) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.DELETE, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param infractionId
-     * @return
-     * @throws IOException 
+     * Retrieves an infraction.
+     *
+     * @param   policyId      The policy ID. Cannot be null.
+     * @param   infractionId  The infraction ID. Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> getInfraction(BigInteger policyId, BigInteger infractionId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+        requireThat(infractionId != null, "The infraction ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/infraction/" + infractionId.toString();
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @return
-     * @throws IOException 
+     * Retrieves infractions for a policy.
+     *
+     * @param   policyId  The ID of the policy.  Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> getInfractions(BigInteger policyId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/infraction";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param userName
-     * @param start
-     * @param end
-     * @return
-     * @throws IOException 
+     * Return usage metric data for a policy and username combination.
+     *
+     * @param   policyId  The policy ID.  Cannot be null.
+     * @param   username  The username.  Cannot be null or empty.
+     * @param   start     The start of the time range.  Cannot be null and must occur before the end time.
+     * @param   end       The end of the time range.  If null defaults to current timestamp, otherwise must occur on or after the start time.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(BigInteger policyId, String userName, Long start, Long end) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/metric?start=" + start + "&end=" + end;
+    WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(BigInteger policyId, String username, Long start, Long end) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat(start != null && end == null ? start < System.currentTimeMillis() : true, "Start time cannot be null or occur in the future.");
+        requireThat(start != null && end == null ? true : start <= end, "The start time must occur on or before the end time.");
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/metric?start=" + start + "&end=" + end;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns all policies.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> getPolicies() throws IOException {
         String requestUrl = REQUESTURL;
@@ -216,156 +271,195 @@ final class PolicyService extends EndpointService {
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns a policy for the given ID.
      *
-     * @param   policyId  DOCUMENT ME!
+     * @param   policyId  The policy ID.  Cannot be null.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> getPolicy(BigInteger policyId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
         String requestUrl = REQUESTURL + "/" + policyId.toString();
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param serviceName
-     * @param policyName
-     * @return
-     * @throws IOException 
+     * Retrieves a policy for the given service and policy name.
+     *
+     * @param   serviceName  The service name.  Cannot be null or empty.
+     * @param   policyName   The policy name.  Cannot be null or empty.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> getPolicy(String serviceName, String policyName) throws IOException {
+        requireThat(serviceName != null && !serviceName.isEmpty(), "The service name cannot be null or empty.");
+        requireThat(policyName != null && !policyName.isEmpty(), "The policy name cannot be null or empty.");
         String requestUrl = REQUESTURL + "?serviceName=" + serviceName + "&policyName=" + policyName;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param suspensionLevelId
-     * @return
-     * @throws IOException 
+     * Retrieves a specific suspension level for a given policy.
+     *
+     * @param   policyId           The policy ID.  Cannot be null.
+     * @param   suspensionLevelId  The suspension level ID.  Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<SuspensionLevel> getSuspensionLevel(BigInteger policyId, BigInteger suspensionLevelId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+        requireThat(suspensionLevelId != null, "The suspension level ID cannot be null.");
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level/" + suspensionLevelId.toString();
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @return
-     * @throws IOException 
+     * Retrieves the suspension levels for a policy.
+     *
+     * @param   policyId  The policy ID.  Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<SuspensionLevel> getSuspensionLevels(BigInteger policyId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @return
-     * @throws IOException 
+     * Retrieves suspensions for a specific policy.
+     *
+     * @param   policyId  The policy ID.  Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> getSuspensions(BigInteger policyId) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param userName
-     * @return
-     * @throws IOException 
+     * Retrieves suspensions for a specific user and policy.
+     *
+     * @param   policyId  The policy ID.  Cannot be null.
+     * @param   username  The username.  Cannot be null or empty.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Infraction> getSuspensionsForUserAndPolicy(BigInteger policyId, String userName) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/suspension";
+    WardenResponse<Infraction> getSuspensionsForUserAndPolicy(BigInteger policyId, String username) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param userName
-     * @param values
-     * @return
-     * @throws IOException 
+     * Updates usage metrics for a user and policy.
+     *
+     * @param   policyId  The policy ID.  Cannot be null.
+     * @param   username  The username.  Cannot be null or empty.
+     * @param   values    The timestamp and values of the usage metrics.  Cannot be null, but may be empty.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse updateMetricsForUserAndPolicy(BigInteger policyId, String userName, Map<Long, Double> values) throws IOException {
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + userName + "/metric";
+    WardenResponse updateMetricsForUserAndPolicy(BigInteger policyId, String username, Map<Long, Double> values) throws IOException {
+        requireThat(policyId != null, "The policy ID cannot be null.");
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat(values != null, "Values cannot be null.");
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/metric";
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, values);
     }
 
     /**
-     * DOCUMENT ME!
+     * Updates policies.
      *
-     * @param   policies  DOCUMENT ME!
+     * @param   policies  The policies to update.  Cannot be null, but may be empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> updatePolicies(List<Policy> policies) throws IOException {
+        requireThat(policies != null, "Polcies cannot be null.");
         String requestUrl = REQUESTURL;
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, policies);
     }
 
     /**
-     * DOCUMENT ME!
+     * Updates a policy.
      *
-     * @param   policyId  DOCUMENT ME!
-     * @param   policy    DOCUMENT ME!
+     * @param   policyId  The policy ID.  Cannot be null.
+     * @param   policy    The updated policy.  Cannot be null.
      *
-     * @return  WardenResponse<Policy>
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> updatePolicy(BigInteger policyId, Policy policy) throws IOException {
+        requireThat(policyId != null, "Policy ID cannot be null.");
+        requireThat(policy != null, "The policy cannot be null.");
+        requireThat(Objects.equal(policyId, policy.getId()), "Updates to the policy ID field are not supported.");
         String requestUrl = REQUESTURL + "/" + policyId.toString();
-        /*if (policyId != policy.getId()){
-         *  throw new IOException("The input argument policyId, does not match with the policyId of the input argument policy");}*/
-
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, policy);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param suspensionLevelId
-     * @param suspensionLevel
-     * @return
-     * @throws IOException 
+     * Updates the suspension level for a policy.
+     *
+     * @param   policyId           The policy ID.  Cannot be null.
+     * @param   suspensionLevelId  The suspension level ID.  Cannot be null.
+     * @param   suspensionLevel    The updated suspension level.  Cannot be null.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<SuspensionLevel> updateSuspensionLevel(BigInteger policyId, BigInteger suspensionLevelId, SuspensionLevel suspensionLevel)
     throws IOException {
+        requireThat(policyId != null, "Policy ID cannot be null.");
+        requireThat(suspensionLevelId != null, "Suspension level ID cannot be null.");
+        requireThat(Objects.equal(suspensionLevelId, suspensionLevel.getId()), "Updates to the level ID field are not supported.");
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level/" + suspensionLevelId.toString();
 
-        /*if ( suspensionLevelId != suspensionLevel.getId()) {
-         *  throw new IOException("The input argument suspensionLevelId, does not match with the suspensionLevelId of the input argument
-         * suspensionLevel");}*/
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, suspensionLevel);
     }
 
     /**
-     * 
-     * @param policyId
-     * @param suspensionLevels
-     * @return
-     * @throws IOException 
+     * Updates the suspension levels for a policy.
+     *
+     * @param   policyId          The policy ID.  Cannot be null.
+     * @param   suspensionLevels  The suspension levels to update.  Cannot be null, but may be empty.
+     *
+     * @return  The response object containing relevant details about the operation.
+     *
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<SuspensionLevel> updateSuspensionLevels(BigInteger policyId, List<SuspensionLevel> suspensionLevels) throws IOException {
+        requireThat(policyId != null, "Policy ID cannot be null.");
+        requireThat(suspensionLevels != null, "Suspension levels cannot be null.");
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level";
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, suspensionLevels);
