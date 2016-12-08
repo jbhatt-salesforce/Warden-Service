@@ -28,64 +28,70 @@ import io.netty.channel.socket.oio.OioServerSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 import java.net.InetSocketAddress;
 
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+
 /**
- * Created by jbhatt on 11/21/16.
+ * Receives suspension infraction records from the server and updates the local infraction cache.
  *
+ * @author  Jigna Bhatt (jbhatt@salesforce.com)
  * @author  Tom Valine (tvaline@salesforce.com)
  */
 public class EventServer {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private int port;
-    private final InfractionCache infractions;
-    EventLoopGroup bossGroup; // (1)
-    EventLoopGroup workerGroup;
+    private final int _port;
+    private final InfractionCache _infractions;
+    private final EventLoopGroup _bossGroup; // (1)
+    private final EventLoopGroup _workerGroup;
 
     //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new EventServer object.
      *
-     * @param  port         DOCUMENT ME!
-     * @param  infractions  DOCUMENT ME!
+     * @param  port         The port on which to receive infractions. Must be a valid port number.
+     * @param  infractions  The infraction cache to update when suspension events are received. Must be thread safe.
      */
     public EventServer(int port, InfractionCache infractions) {
-        this.port = port;
-        this.infractions = infractions;
-        bossGroup = new OioEventLoopGroup(100); // (1)
-        workerGroup = new OioEventLoopGroup(100);
+        requireThat(port > 0 && port <= 65535, "Invalid port number.");
+        requireThat(infractions != null, "The infraction cache cannot be null.");
+        _port = port;
+        _infractions = infractions;
+        _bossGroup = new OioEventLoopGroup(100);
+        _workerGroup = new OioEventLoopGroup(100);
     }
 
     //~ Methods **************************************************************************************************************************************
 
     /**
-     * DOCUMENT ME!
+     * Shuts down the server.
      *
-     * @throws  Exception  DOCUMENT ME!
+     * @throws  Exception  If an error occurs.
      */
     public void close() throws Exception {
-        bossGroup.shutdownGracefully().await();
-        workerGroup.shutdownGracefully().await();
+        _bossGroup.shutdownGracefully().await();
+        _workerGroup.shutdownGracefully().await();
     }
 
     /**
-     * DOCUMENT ME!
+     * Starts the server.
      *
-     * @throws  InterruptedException  DOCUMENT ME!
+     * @throws  InterruptedException  If interrupted while starting up.
      */
     public void start() throws InterruptedException {
-        ServerBootstrap b = new ServerBootstrap(); // (2)
+        ServerBootstrap b = new ServerBootstrap();
 
-        b.group(bossGroup, workerGroup).channel(OioServerSocketChannel.class).localAddress(new InetSocketAddress(port)) // (3)
-        .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
+        b.group(_bossGroup, _workerGroup).channel(OioServerSocketChannel.class).localAddress(new InetSocketAddress(_port)).childHandler(
+            new ChannelInitializer<SocketChannel>() {
+
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new JsonObjectDecoder());
-                    ch.pipeline().addLast(new EventServerHandler(infractions));
+                    ch.pipeline().addLast(new EventServerHandler(_infractions));
                 }
             });
-        b.bind().sync(); // (7)
+        b.bind().sync();
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

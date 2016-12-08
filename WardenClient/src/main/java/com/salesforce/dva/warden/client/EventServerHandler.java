@@ -27,44 +27,44 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicLong;
+
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
- * Created by jbhatt on 11/29/16.
+ * Event handler used by the event server to update the infraction cache with newly received events.
  *
+ * @author  Jigna Bhatt (jbhatt@salesforce.com)
  * @author  Tom Valine (tvaline@salesforce.com)
  */
 public class EventServerHandler extends ChannelInboundHandlerAdapter {
 
     //~ Static fields/initializers *******************************************************************************************************************
 
-    private static final AtomicLong count = new AtomicLong();
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventServerHandler.class);
 
     //~ Instance fields ******************************************************************************************************************************
 
-    // A filter will call handleEvent method and send a response to the warden server
-    // update infraction cache
-    // response json
-    // status: 1 or 0
-    private InfractionCache _infractions;
+    private final InfractionCache _infractions;
 
     //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new EventServerHandler object.
      *
-     * @param  infractions  DOCUMENT ME!
+     * @param  infractions  The infraction cache to update with newly received events. Must be thread safe.
      */
     public EventServerHandler(InfractionCache infractions) {
+        requireThat(infractions != null, "The infraction cache cannot be null.");
         _infractions = infractions;
     }
 
     //~ Methods **************************************************************************************************************************************
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException, IOException { // (2)
-
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException, IOException {
         ByteBuf buf = (ByteBuf) msg;
         Infraction infraction = new ObjectMapper().readValue(buf.toString(CharsetUtil.UTF_8), Infraction.class);
 
@@ -74,7 +74,7 @@ public class EventServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        LOGGER.error("An error occurred processing the incoming event.", cause);
         ctx.close();
     }
 }
