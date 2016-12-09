@@ -42,8 +42,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+
 /**
- * DOCUMENT ME!
+ * Warden specific HTTP client.
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
@@ -51,8 +53,6 @@ class WardenHttpClient {
 
     //~ Static fields/initializers *******************************************************************************************************************
 
-    // ~ Static fields/initializers
-    // *******************************************************************************************************************
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(WardenHttpClient.class.getName());
 
@@ -63,8 +63,6 @@ class WardenHttpClient {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    // ~ Instance fields
-    // ******************************************************************************************************************************
     String _endpoint;
     private final CloseableHttpClient _httpClient;
     private final PoolingHttpClientConnectionManager _connMgr;
@@ -73,8 +71,6 @@ class WardenHttpClient {
 
     //~ Constructors *********************************************************************************************************************************
 
-    // ~ Constructors
-    // *********************************************************************************************************************************
     /**
      * Creates a new Argus HTTP client.
      *
@@ -83,9 +79,14 @@ class WardenHttpClient {
      * @param   timeout     The connection timeout in milliseconds. Must be greater than 0.
      * @param   reqTimeout  The connection request timeout in milliseconds. Must be greater than 0.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If a connection cannot be established.
      */
     WardenHttpClient(String endpoint, int maxConn, int timeout, int reqTimeout) throws IOException {
+        requireThat(endpoint != null && !endpoint.isEmpty(), "Invalid endpoint.");
+        requireThat(maxConn > 0, "Maximum connections must be a positive non-zero number.");
+        requireThat(timeout > 0, "Connection timeout must be a positive non-zero number of milliseconds.");
+        requireThat(reqTimeout > 0, "Request timeout must be a positive non-zero number of milliseconds.");
+
         URL url = new URL(endpoint);
         int port = url.getPort();
 
@@ -103,32 +104,31 @@ class WardenHttpClient {
         _httpContext = new BasicHttpContext();
         _httpContext.setAttribute(HttpClientContext.COOKIE_STORE, _cookieStore);
         LOGGER.debug("Argus HTTP Client initialized using " + endpoint);
-        this._endpoint = endpoint;
+        _endpoint = endpoint;
     }
 
     //~ Methods **************************************************************************************************************************************
 
     /**
-     * DOCUMENT ME!
+     * Helper method to convert an object to a JSON string.
      *
-     * @param   <T>   DOCUMENT ME!
-     * @param   type  DOCUMENT ME!
+     * @param   <T>     The object type parameter.
+     * @param   object  The object to convert. Cannot be null.
      *
-     * @return  DOCUMENT ME!
+     * @return  The JSON representation of the object.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If a JSON processing error occurs.
      */
-    protected <T> String toJson(T type) throws IOException {
-        return MAPPER.writeValueAsString(type);
+    protected <T> String toJson(T object) throws IOException {
+        requireThat(object != null, "The object to convert cannot be null.");
+        return MAPPER.writeValueAsString(object);
     }
 
-    // ~ Methods
-    // **************************************************************************************************************************************
     /**
      * Closes the client connections and prepares the client for garbage collection. This method may be invoked on a client which has already been
      * disposed.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs while disposing of the client.
      */
     void dispose() throws IOException {
         _httpClient.close();
@@ -136,7 +136,22 @@ class WardenHttpClient {
         _httpContext.clear();
     }
 
+    /**
+     * Submits a request to the service.
+     *
+     * @param   requestType  The HTTP request type. Cannot be null.
+     * @param   url          The web service URL to receive the request. Cannot be null.
+     * @param   json         The JSON payload to send. May be null.
+     *
+     * @return  The corresponding response. Will never be null.
+     *
+     * @throws  IOException               If an I/O exception occurs.
+     * @throws  IllegalArgumentException  DOCUMENT ME!
+     */
     HttpResponse doHttpRequest(RequestType requestType, String url, String json) throws IOException {
+        requireThat(requestType != null, "The request type cannot be null.");
+        requireThat(url != null && !url.isEmpty(), "The URL cannot be null or empty.");
+
         StringEntity entity = null;
 
         if (json != null) {
@@ -171,7 +186,18 @@ class WardenHttpClient {
         }
     }
 
-    /* Execute a request given by type requestType. */
+    /**
+     * Executes the requests and wraps the response object.
+     *
+     * @param   <T>          The response entity type parameter.
+     * @param   requestType  The request type. Cannot be null.
+     * @param   url          The URL to receive the request. Cannot be null or empty.
+     * @param   payload      The optional payload to send as JSON.
+     *
+     * @return  The wrapped response object.
+     *
+     * @throws  IOException  If an I/O exception occurs.
+     */
     <T> WardenResponse<T> executeHttpRequest(RequestType requestType, String url, Object payload) throws IOException {
         url = _endpoint + url;
 
@@ -184,8 +210,6 @@ class WardenHttpClient {
 
     //~ Enums ****************************************************************************************************************************************
 
-    // ~ Enums
-    // ****************************************************************************************************************************************
     /**
      * The request type to use.
      *
