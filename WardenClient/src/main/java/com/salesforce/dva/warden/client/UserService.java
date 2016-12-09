@@ -19,6 +19,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Infraction;
@@ -29,7 +30,7 @@ import java.math.BigInteger;
 import java.util.Map;
 
 /**
- * DOCUMENT ME!
+ * Provides methods to access data for specific users.
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
@@ -42,9 +43,9 @@ class UserService extends EndpointService {
     //~ Constructors *********************************************************************************************************************************
 
     /**
-     * Creates a new PolicyService object.
+     * Creates a new UserService object.
      *
-     * @param  client  DOCUMENT ME!
+     * @param  client  The HTTP client to use.  Cannot be null.
      */
     UserService(WardenHttpClient client) {
         super(client);
@@ -53,121 +54,133 @@ class UserService extends EndpointService {
     //~ Methods **************************************************************************************************************************************
 
     /**
-     * DOCUMENT ME!
+     * Retrieves infractions for a specific user across all policies.
      *
-     * @param   userName  DOCUMENT ME!
+     * @param   username  The username.  Cannot be null or empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Infraction> getInfractionsForUser(String userName) throws IOException {
-        String requestUrl = REQUESTURL + "/" + userName + "/infraction";
+    WardenResponse<Infraction> getInfractionsForUser(String username) throws IOException {
+        requireThat(username!=null && !username.isEmpty(), "Username cannot be null or empty.");
+        String requestUrl = REQUESTURL + "/" + username + "/infraction";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns all infractions for a user and policy combination.
      *
-     * @param   userName  DOCUMENT ME!
-     * @param   policyId  DOCUMENT ME!
+     * @param   username  The username.  Cannot be null.
+     * @param   policyId  The policy ID.  Cannot be null.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Infraction> getInfractionsForUserAndPolicy(String userName, BigInteger policyId) throws IOException {
-        String requestUrl = REQUESTURL + "/" + userName + "/policy/" + policyId.toString() + "/infraction";
+    WardenResponse<Infraction> getInfractionsForUserAndPolicy(String username, BigInteger policyId) throws IOException {
+        requireThat(username!=null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat(policyId != null, "Policy ID cannot be null.");
+        String requestUrl = REQUESTURL + "/" + username + "/policy/" + policyId.toString() + "/infraction";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Return usage metric data for a policy and username combination.
      *
-     * @param   userName  DOCUMENT ME!
-     * @param   policyId  DOCUMENT ME!
-     * @param   start     DOCUMENT ME!
-     * @param   end       DOCUMENT ME!
+     * @param   policyId  The policy ID. Cannot be null.
+     * @param   username  The username. Cannot be null or empty.
+     * @param   start     The start of the time range. Cannot be null and must occur before the end time.
+     * @param   end       The end of the time range. If null defaults to current timestamp, otherwise must occur on or after the start time.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(String userName, BigInteger policyId, Long start, Long end) throws IOException {
-        String requestUrl = REQUESTURL + "/" + userName + "/policy" + policyId.toString() + "/metric?start=" + start + "&end=" + end;
+    WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(String username, BigInteger policyId, Long start, Long end) throws IOException {
+        requireThat(username!=null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat(policyId != null, "Policy ID cannot be null.");
+        requireThat(start != null && end == null ? start < System.currentTimeMillis() : true, "Start time cannot be null or occur in the future.");
+        requireThat(start != null && end == null ? true : start <= end, "The start time must occur on or before the end time.");
+        String requestUrl = REQUESTURL + "/" + username + "/policy" + policyId.toString() + "/metric?start=" + start + "&end=" + end;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns policies for a user.
      *
-     * @param   userName  DOCUMENT ME!
+     * @param   username  The username.  Cannot be null or empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Policy> getPoliciesForUser(String userName) throws IOException {
-        String requestUrl = REQUESTURL + "/" + userName + "/policy";
+    WardenResponse<Policy> getPoliciesForUser(String username) throws IOException {
+        requireThat(username!=null && !username.isEmpty(), "Username cannot be null or empty.");
+        String requestUrl = REQUESTURL + "/" + username + "/policy";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the suspension specific to a user.
      *
-     * @param   userName      DOCUMENT ME!
-     * @param   suspensionId  DOCUMENT ME!
+     * @param   username      The username.  Cannot be null or empty.
+     * @param   suspensionId  The suspension ID.  Cannot be null.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Infraction> getSuspensionForUser(String userName, BigInteger suspensionId) throws IOException {
-        String requestUrl = REQUESTURL + "/" + userName + "/suspension/" + suspensionId.toString();
+    WardenResponse<Infraction> getSuspensionForUser(String username, BigInteger suspensionId) throws IOException {
+        requireThat(username!=null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat(suspensionId != null, "Suspension ID cannot be null.");
+        String requestUrl = REQUESTURL + "/" + username + "/suspension/" + suspensionId.toString();
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns all suspensions for a specific user.
      *
-     * @param   userName  DOCUMENT ME!
+     * @param   username      The username.  Cannot be null or empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Infraction> getSuspensionsForUser(String userName) throws IOException {
-        String requestUrl = REQUESTURL + "/" + userName + "/suspension";
+    WardenResponse<Infraction> getSuspensionsForUser(String username) throws IOException {
+        requireThat(username!=null && !username.isEmpty(), "Username cannot be null or empty.");
+        String requestUrl = REQUESTURL + "/" + username + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns user detail information.
      *
-     * @param   userName  DOCUMENT ME!
+     * @param   username      The username.  Cannot be null or empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<WardenUser> getUserById(String userName) throws IOException {
-        String requestUrl = REQUESTURL + "/" + userName;
+    WardenResponse<WardenUser> getUserByUsername(String username) throws IOException {
+        requireThat(username!=null && !username.isEmpty(), "Username cannot be null or empty.");
+        String requestUrl = REQUESTURL + "/" + username;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the list of warden users.
      *
-     * @return  DOCUMENT ME!
+     * @return  The response object containing relevant details about the operation.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<WardenUser> getUsers() throws IOException {
         String requestUrl = REQUESTURL;

@@ -91,7 +91,7 @@ public class UserServiceTest extends AbstractTest {
         try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
             UserService userService = wardenService.getUserService();
             WardenResponse<WardenUser> expectedResponse = _constructPersistedResponse("GET");
-            WardenResponse<WardenUser> actualResponse = userService.getUserById("hpotter");
+            WardenResponse<WardenUser> actualResponse = userService.getUserByUsername("hpotter");
 
             assertEquals(expectedResponse, actualResponse);
         }
