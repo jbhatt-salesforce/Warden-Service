@@ -24,6 +24,7 @@ import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
+import jersey.repackaged.com.google.common.base.Objects;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
@@ -31,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
-import jersey.repackaged.com.google.common.base.Objects;
 
 /**
  * Provides methods to manipulate policy objects.
@@ -222,7 +222,7 @@ final class PolicyService extends EndpointService {
     /**
      * Retrieves infractions for a policy.
      *
-     * @param   policyId  The ID of the policy.  Cannot be null.
+     * @param   policyId  The ID of the policy. Cannot be null.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -230,6 +230,7 @@ final class PolicyService extends EndpointService {
      */
     WardenResponse<Infraction> getInfractions(BigInteger policyId) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/infraction";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -238,10 +239,10 @@ final class PolicyService extends EndpointService {
     /**
      * Return usage metric data for a policy and username combination.
      *
-     * @param   policyId  The policy ID.  Cannot be null.
-     * @param   username  The username.  Cannot be null or empty.
-     * @param   start     The start of the time range.  Cannot be null and must occur before the end time.
-     * @param   end       The end of the time range.  If null defaults to current timestamp, otherwise must occur on or after the start time.
+     * @param   policyId  The policy ID. Cannot be null.
+     * @param   username  The username. Cannot be null or empty.
+     * @param   start     The start of the time range. Cannot be null and must occur before the end time.
+     * @param   end       The end of the time range. If null defaults to current timestamp, otherwise must occur on or after the start time.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -252,6 +253,7 @@ final class PolicyService extends EndpointService {
         requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
         requireThat(start != null && end == null ? start < System.currentTimeMillis() : true, "Start time cannot be null or occur in the future.");
         requireThat(start != null && end == null ? true : start <= end, "The start time must occur on or before the end time.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/metric?start=" + start + "&end=" + end;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -273,7 +275,7 @@ final class PolicyService extends EndpointService {
     /**
      * Returns a policy for the given ID.
      *
-     * @param   policyId  The policy ID.  Cannot be null.
+     * @param   policyId  The policy ID. Cannot be null.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -281,6 +283,7 @@ final class PolicyService extends EndpointService {
      */
     WardenResponse<Policy> getPolicy(BigInteger policyId) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString();
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -289,8 +292,8 @@ final class PolicyService extends EndpointService {
     /**
      * Retrieves a policy for the given service and policy name.
      *
-     * @param   serviceName  The service name.  Cannot be null or empty.
-     * @param   policyName   The policy name.  Cannot be null or empty.
+     * @param   serviceName  The service name. Cannot be null or empty.
+     * @param   policyName   The policy name. Cannot be null or empty.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -299,6 +302,7 @@ final class PolicyService extends EndpointService {
     WardenResponse<Policy> getPolicy(String serviceName, String policyName) throws IOException {
         requireThat(serviceName != null && !serviceName.isEmpty(), "The service name cannot be null or empty.");
         requireThat(policyName != null && !policyName.isEmpty(), "The policy name cannot be null or empty.");
+
         String requestUrl = REQUESTURL + "?serviceName=" + serviceName + "&policyName=" + policyName;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -307,8 +311,8 @@ final class PolicyService extends EndpointService {
     /**
      * Retrieves a specific suspension level for a given policy.
      *
-     * @param   policyId           The policy ID.  Cannot be null.
-     * @param   suspensionLevelId  The suspension level ID.  Cannot be null.
+     * @param   policyId           The policy ID. Cannot be null.
+     * @param   suspensionLevelId  The suspension level ID. Cannot be null.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -317,6 +321,7 @@ final class PolicyService extends EndpointService {
     WardenResponse<SuspensionLevel> getSuspensionLevel(BigInteger policyId, BigInteger suspensionLevelId) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
         requireThat(suspensionLevelId != null, "The suspension level ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level/" + suspensionLevelId.toString();
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -325,7 +330,7 @@ final class PolicyService extends EndpointService {
     /**
      * Retrieves the suspension levels for a policy.
      *
-     * @param   policyId  The policy ID.  Cannot be null.
+     * @param   policyId  The policy ID. Cannot be null.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -333,6 +338,7 @@ final class PolicyService extends EndpointService {
      */
     WardenResponse<SuspensionLevel> getSuspensionLevels(BigInteger policyId) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -341,7 +347,7 @@ final class PolicyService extends EndpointService {
     /**
      * Retrieves suspensions for a specific policy.
      *
-     * @param   policyId  The policy ID.  Cannot be null.
+     * @param   policyId  The policy ID. Cannot be null.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -349,6 +355,7 @@ final class PolicyService extends EndpointService {
      */
     WardenResponse<Infraction> getSuspensions(BigInteger policyId) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -357,8 +364,8 @@ final class PolicyService extends EndpointService {
     /**
      * Retrieves suspensions for a specific user and policy.
      *
-     * @param   policyId  The policy ID.  Cannot be null.
-     * @param   username  The username.  Cannot be null or empty.
+     * @param   policyId  The policy ID. Cannot be null.
+     * @param   username  The username. Cannot be null or empty.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -367,6 +374,7 @@ final class PolicyService extends EndpointService {
     WardenResponse<Infraction> getSuspensionsForUserAndPolicy(BigInteger policyId, String username) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
         requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/suspension";
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
@@ -375,9 +383,9 @@ final class PolicyService extends EndpointService {
     /**
      * Updates usage metrics for a user and policy.
      *
-     * @param   policyId  The policy ID.  Cannot be null.
-     * @param   username  The username.  Cannot be null or empty.
-     * @param   values    The timestamp and values of the usage metrics.  Cannot be null, but may be empty.
+     * @param   policyId  The policy ID. Cannot be null.
+     * @param   username  The username. Cannot be null or empty.
+     * @param   values    The timestamp and values of the usage metrics. Cannot be null, but may be empty.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -387,6 +395,7 @@ final class PolicyService extends EndpointService {
         requireThat(policyId != null, "The policy ID cannot be null.");
         requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
         requireThat(values != null, "Values cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/metric";
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, values);
@@ -395,7 +404,7 @@ final class PolicyService extends EndpointService {
     /**
      * Updates policies.
      *
-     * @param   policies  The policies to update.  Cannot be null, but may be empty.
+     * @param   policies  The policies to update. Cannot be null, but may be empty.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -403,6 +412,7 @@ final class PolicyService extends EndpointService {
      */
     WardenResponse<Policy> updatePolicies(List<Policy> policies) throws IOException {
         requireThat(policies != null, "Polcies cannot be null.");
+
         String requestUrl = REQUESTURL;
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, policies);
@@ -411,8 +421,8 @@ final class PolicyService extends EndpointService {
     /**
      * Updates a policy.
      *
-     * @param   policyId  The policy ID.  Cannot be null.
-     * @param   policy    The updated policy.  Cannot be null.
+     * @param   policyId  The policy ID. Cannot be null.
+     * @param   policy    The updated policy. Cannot be null.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -422,16 +432,18 @@ final class PolicyService extends EndpointService {
         requireThat(policyId != null, "Policy ID cannot be null.");
         requireThat(policy != null, "The policy cannot be null.");
         requireThat(Objects.equal(policyId, policy.getId()), "Updates to the policy ID field are not supported.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString();
+
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, policy);
     }
 
     /**
      * Updates the suspension level for a policy.
      *
-     * @param   policyId           The policy ID.  Cannot be null.
-     * @param   suspensionLevelId  The suspension level ID.  Cannot be null.
-     * @param   suspensionLevel    The updated suspension level.  Cannot be null.
+     * @param   policyId           The policy ID. Cannot be null.
+     * @param   suspensionLevelId  The suspension level ID. Cannot be null.
+     * @param   suspensionLevel    The updated suspension level. Cannot be null.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -442,6 +454,7 @@ final class PolicyService extends EndpointService {
         requireThat(policyId != null, "Policy ID cannot be null.");
         requireThat(suspensionLevelId != null, "Suspension level ID cannot be null.");
         requireThat(Objects.equal(suspensionLevelId, suspensionLevel.getId()), "Updates to the level ID field are not supported.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level/" + suspensionLevelId.toString();
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, suspensionLevel);
@@ -450,8 +463,8 @@ final class PolicyService extends EndpointService {
     /**
      * Updates the suspension levels for a policy.
      *
-     * @param   policyId          The policy ID.  Cannot be null.
-     * @param   suspensionLevels  The suspension levels to update.  Cannot be null, but may be empty.
+     * @param   policyId          The policy ID. Cannot be null.
+     * @param   suspensionLevels  The suspension levels to update. Cannot be null, but may be empty.
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -460,6 +473,7 @@ final class PolicyService extends EndpointService {
     WardenResponse<SuspensionLevel> updateSuspensionLevels(BigInteger policyId, List<SuspensionLevel> suspensionLevels) throws IOException {
         requireThat(policyId != null, "Policy ID cannot be null.");
         requireThat(suspensionLevels != null, "Suspension levels cannot be null.");
+
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/level";
 
         return getClient().executeHttpRequest(RequestType.PUT, requestUrl, suspensionLevels);
