@@ -22,8 +22,10 @@ package com.salesforce.dva.warden.client;
 import com.salesforce.dva.warden.WardenClient;
 import java.io.IOException;
 
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+
 /**
- * DOCUMENT ME!
+ * Used to build new instances of the client.
  *
  * @author  Tom Valine (tvaline@salesforce.com)
  */
@@ -31,9 +33,9 @@ public class WardenClientBuilder {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private String endpoint;
-    private String username;
-    private String password;
+    private String _endpoint;
+    private String _username;
+    private String _password;
 
     //~ Constructors *********************************************************************************************************************************
 
@@ -43,49 +45,52 @@ public class WardenClientBuilder {
     //~ Methods **************************************************************************************************************************************
 
     /**
-     * DOCUMENT ME!
+     * Creates a new instance of the client using the configuration specified by the builder.
      *
-     * @return  DOCUMENT ME!
+     * @return  The configured client.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If the Warden web service endpoint is not reachable or invalid.
      */
     public WardenClient build() throws IOException {
-        return new DefaultWardenClient(endpoint, username, password);
+        return new DefaultWardenClient(_endpoint, _username, _password);
     }
 
     /**
-     * DOCUMENT ME!
+     * Specifies the Warden web service endpoint to connect to.
      *
-     * @param   endpoint  DOCUMENT ME!
+     * @param   endpoint  The URL of the web service endpoint. Cannot be null and must be a well formed URL.
      *
-     * @return  DOCUMENT ME!
+     * @return  The updated instance of the builder.
      */
     public WardenClientBuilder forEndpoint(String endpoint) {
-        this.endpoint = endpoint;
+        requireThat(endpoint != null && !endpoint.isEmpty(), "Invalid endpoint.");
+        _endpoint = endpoint;
         return this;
     }
 
     /**
-     * DOCUMENT ME!
+     * Specifies the password with which to connect to the web services.
      *
-     * @param   password  DOCUMENT ME!
+     * @param   password  The password. Cannot be null or empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The updated instance of the builder.
      */
     public WardenClientBuilder withPassword(String password) {
-        this.password = password;
+        requireThat(password != null && !password.isEmpty(), "Password cannot be null or empty.");
+        _password = password;
         return this;
     }
 
     /**
-     * DOCUMENT ME!
+     * Specifies the username with which to connect to the web services.
      *
-     * @param   username  DOCUMENT ME!
+     * @param   username  The username. Cannot be null or empty.
      *
-     * @return  DOCUMENT ME!
+     * @return  The updated instance of the builder.
      */
     public WardenClientBuilder withUsername(String username) {
-        this.username = username;
+        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        _username = username;
         return this;
     }
 }

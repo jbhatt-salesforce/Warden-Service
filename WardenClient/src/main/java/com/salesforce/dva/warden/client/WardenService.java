@@ -28,7 +28,7 @@ import java.io.IOException;
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
- * DOCUMENT ME!
+ * Encapsulates web service operations.
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
@@ -43,9 +43,10 @@ class WardenService implements AutoCloseable {
     /**
      * Creates a new WardenService object.
      *
-     * @param  client  DOCUMENT ME!
+     * @param  client  The HTTP client to use. Cannot be null.
      */
     WardenService(WardenHttpClient client) {
+        requireThat(client != null, "The HTTP client cannot be null.");
         _httpClient = client;
     }
 
@@ -54,12 +55,12 @@ class WardenService implements AutoCloseable {
     /**
      * Returns a new instance of the Argus service configured with 10 second timeouts.
      *
-     * @param   endpoint  The HTTP endpoint for Argus.
+     * @param   endpoint  The HTTP endpoint for Argus. Cannot be null.
      * @param   maxConn   The number of maximum connections. Must be greater than 0.
      *
-     * @return  A new instance of the Argus service.
+     * @return  A new instance of the Warden service.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If the endpoint cannot be reached.
      */
     static WardenService getInstance(String endpoint, int maxConn) throws IOException {
         return getInstance(endpoint, maxConn, 10000, 10000);
@@ -73,9 +74,9 @@ class WardenService implements AutoCloseable {
      * @param   connTimeout         The connection timeout in milliseconds. Must be greater than 0.
      * @param   connRequestTimeout  The connection request timeout in milliseconds. Must be greater than 0.
      *
-     * @return  A new instance of the Argus service.
+     * @return  A new instance of the Warden service.
      *
-     * @throws  IOException  DOCUMENT ME!
+     * @throws  IOException  If the endpoint cannot be reached.
      */
     static WardenService getInstance(String endpoint, int maxConn, int connTimeout, int connRequestTimeout) throws IOException {
         WardenHttpClient client = new WardenHttpClient(endpoint, maxConn, connTimeout, connRequestTimeout);
@@ -85,41 +86,42 @@ class WardenService implements AutoCloseable {
 
     //~ Methods **************************************************************************************************************************************
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @throws  IOException  DOCUMENT ME!
-     */
+    @Override
     public void close() throws IOException {
         _httpClient.dispose();
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns an instance of the authorization service.
      *
-     * @return  DOCUMENT ME!
+     * @return  The authorization service.
      */
     AuthService getAuthService() {
         return new AuthService(_httpClient);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns an instance of the policy service.
      *
-     * @return  DOCUMENT ME!
+     * @return  The policy service.
      */
     PolicyService getPolicyService() {
         return new PolicyService(_httpClient);
     }
 
+    /**
+     * Returns an instance of the subscription service.
+     *
+     * @return  The subscription service.
+     */
     SubscriptionService getSubscriptionService() {
         return new SubscriptionService(_httpClient);
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns an instance of the user service.
      *
-     * @return  DOCUMENT ME!
+     * @return  The user service.
      */
     UserService getUserService() {
         return new UserService(_httpClient);
@@ -141,12 +143,12 @@ class WardenService implements AutoCloseable {
             MAPPER.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.ANY);
         }
 
-        private WardenHttpClient _client;
+        private final WardenHttpClient _client;
 
         /**
          * Creates a new EndpointService object.
          *
-         * @param  client  The HTTP client for use by the endpoint service.
+         * @param  client  The HTTP client for use by the endpoint service. Cannot be null.
          */
         EndpointService(WardenHttpClient client) {
             requireThat((_client = client) != null, "The HTTP client cannot be null.");
@@ -156,14 +158,16 @@ class WardenService implements AutoCloseable {
          * De-serializes JSON into the corresponding Java object.
          *
          * @param   <T>   The type of the Java object.
-         * @param   json  The JSON to de-serialize.
-         * @param   type  The type of the Java object.
+         * @param   json  The JSON to de-serialize. Cannot be null.
+         * @param   type  The type of the Java object. Cannot be null.
          *
          * @return  The resulting Java object.
          *
          * @throws  IOException  If the Java object cannot be constructed from the provided JSON.
          */
         protected <T> T fromJson(String json, Class<T> type) throws IOException {
+            requireThat(json != null && !json.isEmpty(), "The JSON string cannot be null or empty.");
+            requireThat(type != null, "The result type cannot be null.");
             return MAPPER.readValue(json, type);
         }
 
@@ -171,14 +175,16 @@ class WardenService implements AutoCloseable {
          * De-serializes JSON into the corresponding Java object.
          *
          * @param   <T>      The type of the Java object.
-         * @param   json     The JSON to de-serialize.
-         * @param   typeRef  The type of the Java object.
+         * @param   json     The JSON to de-serialize. Cannot be null.
+         * @param   typeRef  The type of the Java object. Cannot be null.
          *
          * @return  The resulting Java object.
          *
          * @throws  IOException  If the Java object cannot be constructed from the provided JSON.
          */
         protected <T> T fromJson(String json, TypeReference typeRef) throws IOException {
+            requireThat(json != null && !json.isEmpty(), "The JSON string cannot be null or empty.");
+            requireThat(typeRef != null, "The result type cannot be null.");
             return (T) MAPPER.readValue(json, typeRef);
         }
 

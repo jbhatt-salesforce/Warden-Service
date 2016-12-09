@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+
 /**
  * The Warden request response object which encapsulates information about a completed request.
  *
@@ -54,7 +56,18 @@ public class WardenResponse<T> {
 
     //~ Methods **************************************************************************************************************************************
 
+    /**
+     * Helper method to create a response from the raw HTTP response.
+     *
+     * @param   <T>       The return entity type parameter.
+     * @param   response  The HTTP response. Cannot be null.
+     *
+     * @return  The wrapped response.
+     *
+     * @throws  IOException  If an I/O exception occurs.
+     */
     static <T> WardenResponse<T> generateResponse(HttpResponse response) throws IOException {
+        requireThat(response != null, "The response cannot be null.");
         EntityUtils.consume(response.getEntity());
 
         int status = response.getStatusLine().getStatusCode();
@@ -118,9 +131,9 @@ public class WardenResponse<T> {
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the list of resources returned in the response.
      *
-     * @return  DOCUMENT ME!
+     * @return  The list of resources. Will never be null, but may be empty.
      */
     public List<WardenResource<T>> getResources() {
         return _resources;
@@ -145,14 +158,30 @@ public class WardenResponse<T> {
         return hash;
     }
 
+    /**
+     * Sets the response message.
+     *
+     * @param  message  The response message. May be null.
+     */
     void setMessage(String message) {
         this._message = message;
     }
 
+    /**
+     * Sets the response resources.
+     *
+     * @param  resources  The response resources. Cannot be null.
+     */
     void setResources(List<WardenResource<T>> resources) {
+        requireThat(resources != null, "Resources cannot be null.");
         this._resources = resources;
     }
 
+    /**
+     * Sets the HTTP status code.
+     *
+     * @param  status  The status code.
+     */
     void setStatus(int status) {
         this._status = status;
     }
