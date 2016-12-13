@@ -9,7 +9,7 @@
     </parent>
     <artifactId>warden-api</artifactId>
     <packaging>jar</packaging>
-    <name>WardenApi</name>
+    <name>WardenAPI</name>
     <description>Interface and Data Model definition for Warden</description>
     <properties>
         <top>${project.basedir}/${project.parent.relativePath}</top>

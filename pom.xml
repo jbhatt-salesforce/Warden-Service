@@ -395,7 +395,7 @@
         <module>WardenWebServices</module>
         <module>ArgusClient</module>
         <module>WardenClient</module>
-        <module>WardenApi</module>
+        <module>WardenAPI</module>
         <module>ArgusSDK</module>
     </modules>
 </project>
