@@ -52,7 +52,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             Infraction infraction = new Infraction();
 
             infraction.setPolicyId(BigInteger.ONE);
-            infraction.setUserName("hpotter");
+            infraction.setUsername("hpotter");
             infraction.setExpirationTimestamp((long) System.currentTimeMillis() + 600000);
 
             DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");
@@ -86,7 +86,7 @@ public class DefaultWardenClientTest extends AbstractTest {
             Infraction infraction = new Infraction();
 
             infraction.setPolicyId(BigInteger.ONE);
-            infraction.setUserName("hpotter");
+            infraction.setUsername("hpotter");
             infraction.setExpirationTimestamp((long) System.currentTimeMillis() + 600000);
 
             DefaultWardenClient client = new DefaultWardenClient(wardenService, "aUsername", "aPassword");

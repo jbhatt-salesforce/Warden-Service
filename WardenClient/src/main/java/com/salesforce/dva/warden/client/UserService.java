@@ -23,7 +23,7 @@ import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
-import com.salesforce.dva.warden.dto.WardenUser;
+import com.salesforce.dva.warden.dto.User;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Map;
@@ -175,7 +175,7 @@ class UserService extends EndpointService {
      *
      * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<WardenUser> getUserByUsername(String username) throws IOException {
+    WardenResponse<User> getUserByUsername(String username) throws IOException {
         requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
 
         String requestUrl = REQUESTURL + "/" + username;
@@ -190,7 +190,7 @@ class UserService extends EndpointService {
      *
      * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<WardenUser> getUsers() throws IOException {
+    WardenResponse<User> getUsers() throws IOException {
         String requestUrl = REQUESTURL;
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);

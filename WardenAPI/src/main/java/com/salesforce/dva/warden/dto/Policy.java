@@ -1,37 +1,27 @@
-/*
- * Copyright (c) 2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of Salesforce.com nor the names of its contributors may
- * be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.math.BigInteger;
@@ -39,89 +29,59 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Policy Dto.
+ * Usage policy record.
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com) Failing to add comment.
+ * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
-@SuppressWarnings("serial")
-@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName("policy")
+@JsonPropertyOrder(alphabetic = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Policy extends Entity {
+
+    //~ Static fields/initializers *******************************************************************************************************************
+
+    private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
 
     private String service;
     private String name;
-    private List<String> owners = new ArrayList<String>();
-    private List<String> users = new ArrayList<String>();
+    private List<String> owners = new ArrayList<>();
+    private List<String> users = new ArrayList<>();
     private String subSystem;
-    private String metricName;
     private TriggerType triggerType;
     private Aggregator aggregator;
     private List<Double> threshold;
     private String timeUnit;
     private Double defaultValue;
     private String cronEntry;
-    private List<BigInteger> suspensionLevelIds = new ArrayList<BigInteger>();
+    private List<BigInteger> suspensionLevelIds = new ArrayList<>();
 
     //~ Methods **************************************************************************************************************************************
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String getService() {
-        return service;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  service  DOCUMENT ME!
-     */
-    public void setService(String service) {
-        this.service = service;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  name  DOCUMENT ME!
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+    public Policy createExample() {
+        Policy result = new Policy();
 
-        result = prime * result + ((aggregator == null) ? 0 : aggregator.hashCode());
-        result = prime * result + ((cronEntry == null) ? 0 : cronEntry.hashCode());
-        result = prime * result + ((defaultValue == null) ? 0 : defaultValue.hashCode());
-        result = prime * result + ((metricName == null) ? 0 : metricName.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((owners == null) ? 0 : owners.hashCode());
-        result = prime * result + ((service == null) ? 0 : service.hashCode());
-        result = prime * result + ((subSystem == null) ? 0 : subSystem.hashCode());
-        result = prime * result + ((suspensionLevelIds == null) ? 0 : suspensionLevelIds.hashCode());
-        result = prime * result + ((threshold == null) ? 0 : threshold.hashCode());
-        result = prime * result + ((timeUnit == null) ? 0 : timeUnit.hashCode());
-        result = prime * result + ((triggerType == null) ? 0 : triggerType.hashCode());
-        result = prime * result + ((users == null) ? 0 : users.hashCode());
+        result.setId(BigInteger.ONE);
+        result.setCreatedById(BigInteger.ONE);
+        result.setCreatedDate(new Date(1451606400000L));
+        result.setModifiedById(BigInteger.TEN);
+        result.setModifiedDate(new Date(1451606400000L));
+        result.setService("example-service");
+        result.setName("example-name");
+        result.setOwners(Arrays.asList("example-owners"));
+        result.setUsers(Arrays.asList("example-users"));
+        result.setSubSystem("example-subSystem");
+        result.setTriggerType(TriggerType.NOT_BETWEEN);
+        result.setAggregator(Aggregator.SUM);
+        result.setThresholds(Arrays.asList(0.0));
+        result.setTimeUnit("5min");
+        result.setDefaultValue(0.0);
+        result.setCronEntry("0 */4 * * *");
         return result;
     }
 
@@ -137,320 +97,290 @@ public class Policy extends Entity {
             return false;
         }
 
-        Policy other = (Policy) obj;
+        final Policy other = (Policy) obj;
 
-        if (aggregator != other.aggregator) {
+        if (!super.equals(other)) {
             return false;
         }
-        if (cronEntry == null) {
-            if (other.cronEntry != null) {
-                return false;
-            }
-        } else if (!cronEntry.equals(other.cronEntry)) {
+        if (!Objects.equals(this.service, other.service)) {
             return false;
         }
-        if (defaultValue == null) {
-            if (other.defaultValue != null) {
-                return false;
-            }
-        } else if (!defaultValue.equals(other.defaultValue)) {
+        if (!Objects.equals(this.name, other.name)) {
             return false;
         }
-        if (metricName == null) {
-            if (other.metricName != null) {
-                return false;
-            }
-        } else if (!metricName.equals(other.metricName)) {
+        if (!Objects.equals(this.subSystem, other.subSystem)) {
             return false;
         }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
+        if (!Objects.equals(this.timeUnit, other.timeUnit)) {
             return false;
         }
-        if (owners == null) {
-            if (other.owners != null) {
-                return false;
-            }
-        } else if (!owners.equals(other.owners)) {
+        if (!Objects.equals(this.cronEntry, other.cronEntry)) {
             return false;
         }
-        if (service == null) {
-            if (other.service != null) {
-                return false;
-            }
-        } else if (!service.equals(other.service)) {
+        if (!Objects.equals(this.owners, other.owners)) {
             return false;
         }
-        if (subSystem == null) {
-            if (other.subSystem != null) {
-                return false;
-            }
-        } else if (!subSystem.equals(other.subSystem)) {
+        if (!Objects.equals(this.users, other.users)) {
             return false;
         }
-        if (suspensionLevelIds == null) {
-            if (other.suspensionLevelIds != null) {
-                return false;
-            }
-        } else if (!suspensionLevelIds.equals(other.suspensionLevelIds)) {
+        if (this.triggerType != other.triggerType) {
             return false;
         }
-        if (threshold == null) {
-            if (other.threshold != null) {
-                return false;
-            }
-        } else if (!threshold.equals(other.threshold)) {
+        if (this.aggregator != other.aggregator) {
             return false;
         }
-        if (timeUnit == null) {
-            if (other.timeUnit != null) {
-                return false;
-            }
-        } else if (!timeUnit.equals(other.timeUnit)) {
+        if (!Objects.equals(this.threshold, other.threshold)) {
             return false;
         }
-        if (triggerType != other.triggerType) {
+        if (!Objects.equals(this.defaultValue, other.defaultValue)) {
             return false;
         }
-        if (users == null) {
-            if (other.users != null) {
-                return false;
-            }
-        } else if (!users.equals(other.users)) {
+        if (!Objects.equals(this.suspensionLevelIds, other.suspensionLevelIds)) {
             return false;
         }
         return true;
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the aggregator to use when combining the policy metric across different sources.
      *
-     * @return  DOCUMENT ME!
-     */
-    public List<String> getOwners() {
-        return owners;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  owner  DOCUMENT ME!
-     */
-    public void setOwners(List<String> owner) {
-        this.owners = owner;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public List<String> getUsers() {
-        return users;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  user  DOCUMENT ME!
-     */
-    public void setUsers(List<String> user) {
-        this.users = user;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String getSubSystem() {
-        return subSystem;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  subSystem  DOCUMENT ME!
-     */
-    public void setSubSystem(String subSystem) {
-        this.subSystem = subSystem;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String getMetricName() {
-        return metricName;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  metricName  DOCUMENT ME!
-     */
-    public void setMetricName(String metricName) {
-        this.metricName = metricName;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public TriggerType getTriggerType() {
-        return triggerType;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  triggerType  DOCUMENT ME!
-     */
-    public void setTriggerType(TriggerType triggerType) {
-        this.triggerType = triggerType;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @return  The aggregator.
      */
     public Aggregator getAggregator() {
         return aggregator;
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the CRON entry describing the frequency of evaluation.
      *
-     * @param  aggregator  DOCUMENT ME!
-     */
-    public void setAggregator(Aggregator aggregator) {
-        this.aggregator = aggregator;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public List<Double> getThresholds() {
-        return threshold;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  threshold  DOCUMENT ME!
-     */
-    public void setThresholds(List<Double> threshold) {
-        this.threshold = threshold;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String getTimeUnit() {
-        return timeUnit;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  timeUnit  DOCUMENT ME!
-     */
-    public void setTimeUnit(String timeUnit) {
-        this.timeUnit = timeUnit;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Double getDefaultValue() {
-        return defaultValue;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  defaultValue  DOCUMENT ME!
-     */
-    public void setDefaultValue(Double defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @return  The CRON entry.
      */
     public String getCronEntry() {
         return cronEntry;
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the default value for the policy metric.
      *
-     * @param  cronEntry  DOCUMENT ME!
+     * @return  The default value.
      */
-    public void setCronEntry(String cronEntry) {
-        this.cronEntry = cronEntry;
+    public Double getDefaultValue() {
+        return defaultValue;
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the policy name.
      *
-     * @return  DOCUMENT ME!
+     * @return  The policy name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the list of owners for the policy.
+     *
+     * @return  The list of owners.
+     */
+    public List<String> getOwners() {
+        return owners;
+    }
+
+    /**
+     * Returns the name of the service with which the policy is associated.
+     *
+     * @return  The service name.
+     */
+    public String getService() {
+        return service;
+    }
+
+    /**
+     * Returns the service subsystem with which the policy is associated.
+     *
+     * @return  The subsystem name.
+     */
+    public String getSubSystem() {
+        return subSystem;
+    }
+
+    /**
+     * Returns the suspension levels IDs associated with the policy.
+     *
+     * @return  The suspension levels IDs.
      */
     public List<BigInteger> getSuspensionLevels() {
         return suspensionLevelIds;
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the thresholds that determine an infraction has occurred.
      *
-     * @param  suspensionLevelIds  DOCUMENT ME!
+     * @return  The policy thresholds.
+     */
+    public List<Double> getThresholds() {
+        return threshold;
+    }
+
+    /**
+     * Returns the time window used to evaluate the policy for an infraction.
+     *
+     * @return  The time window.
+     */
+    public String getTimeUnit() {
+        return timeUnit;
+    }
+
+    /**
+     * Returns the trigger type used to evaluate the policy for an infraction.
+     *
+     * @return  The trigger type.
+     */
+    public TriggerType getTriggerType() {
+        return triggerType;
+    }
+
+    /**
+     * Returns the list of users to which the policy applies.
+     *
+     * @return  The list of users.
+     */
+    public List<String> getUsers() {
+        return users;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+
+        hash = 13 * hash + super.hashCode();
+        hash = 13 * hash + Objects.hashCode(this.service);
+        hash = 13 * hash + Objects.hashCode(this.name);
+        hash = 13 * hash + Objects.hashCode(this.owners);
+        hash = 13 * hash + Objects.hashCode(this.users);
+        hash = 13 * hash + Objects.hashCode(this.subSystem);
+        hash = 13 * hash + Objects.hashCode(this.triggerType);
+        hash = 13 * hash + Objects.hashCode(this.aggregator);
+        hash = 13 * hash + Objects.hashCode(this.threshold);
+        hash = 13 * hash + Objects.hashCode(this.timeUnit);
+        hash = 13 * hash + Objects.hashCode(this.defaultValue);
+        hash = 13 * hash + Objects.hashCode(this.cronEntry);
+        hash = 13 * hash + Objects.hashCode(this.suspensionLevelIds);
+        return hash;
+    }
+
+    /**
+     * Sets the aggregator to use when combining the policy metric from different sources.
+     *
+     * @param  aggregator  The aggregator.
+     */
+    public void setAggregator(Aggregator aggregator) {
+        this.aggregator = aggregator;
+    }
+
+    /**
+     * Sets the CRON entry used to evaluate the policy.
+     *
+     * @param  cronEntry  The CRON entry.
+     */
+    public void setCronEntry(String cronEntry) {
+        this.cronEntry = cronEntry;
+    }
+
+    /**
+     * Sets the default value for the policy metric.
+     *
+     * @param  defaultValue  The default value.
+     */
+    public void setDefaultValue(Double defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    /**
+     * Sets the name of the policy.
+     *
+     * @param  name  The name of the policy.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Sets the list of owners to which the policy applies.
+     *
+     * @param  owner  The list of owners to which the policy applies.
+     */
+    public void setOwners(List<String> owner) {
+        this.owners = owner;
+    }
+
+    /**
+     * Sets the service name.
+     *
+     * @param  service  The service name.
+     */
+    public void setService(String service) {
+        this.service = service;
+    }
+
+    /**
+     * Sets the service subsystem name.
+     *
+     * @param  subSystem  The service subsystem name.
+     */
+    public void setSubSystem(String subSystem) {
+        this.subSystem = subSystem;
+    }
+
+    /**
+     * Sets the suspension level IDs for the policy.
+     *
+     * @param  suspensionLevelIds  The suspension level IDs.
      */
     public void setSuspensionLevels(List<BigInteger> suspensionLevelIds) {
         this.suspensionLevelIds = suspensionLevelIds;
     }
 
-    @Override
-    public Object createExample() {
-        Policy result = new Policy();
+    /**
+     * Sets the policy thresholds.
+     *
+     * @param  threshold  The policy thresholds.
+     */
+    public void setThresholds(List<Double> threshold) {
+        this.threshold = threshold;
+    }
 
-        result.setId(BigInteger.ONE);
-        result.setCreatedById(BigInteger.ONE);
-        result.setCreatedDate(new Date());
-        result.setModifiedById(BigInteger.TEN);
-        result.setModifiedDate(new Date());
-        result.setService("example-service");
-        result.setName("example-name");
-        result.setOwners(Arrays.asList("example-owners"));
-        result.setUsers(Arrays.asList("example-users"));
-        result.setSubSystem("example-subSystem");
-        result.setMetricName("example-metricName");
-        result.setTriggerType(TriggerType.NOT_BETWEEN);
-        result.setAggregator(Aggregator.SUM);
-        result.setThresholds(Arrays.asList(0.0));
-        result.setTimeUnit("5min");
-        result.setDefaultValue(0.0);
-        result.setCronEntry("0 */4 * * *");
-        return result;
+    /**
+     * Sets the time window over which the policy will be evaluated.
+     *
+     * @param  timeUnit  The time unit.
+     */
+    public void setTimeUnit(String timeUnit) {
+        this.timeUnit = timeUnit;
+    }
+
+    /**
+     * Sets the trigger type used to evaluate the policy.
+     *
+     * @param  triggerType  The trigger type.
+     */
+    public void setTriggerType(TriggerType triggerType) {
+        this.triggerType = triggerType;
+    }
+
+    /**
+     * Sets the list of user to which the policy applies.
+     *
+     * @param  user  The list of users.
+     */
+    public void setUsers(List<String> user) {
+        this.users = user;
     }
 
     //~ Enums ****************************************************************************************************************************************
 
     /**
-     * The supported methods for aggregation and downsampling.
+     * The supported methods for aggregation and down sampling.
      *
      * @author  Tom Valine (tvaline@salesforce.com)
      */
@@ -553,4 +483,4 @@ public class Policy extends Entity {
         }
     }
 }
-/* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

@@ -1,184 +1,231 @@
-/*
- * Copyright (c) 2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.
  * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of Salesforce.com nor the names of its contributors may
- * be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.math.BigInteger;
+import java.util.Date;
+import java.util.Objects;
 
 /**
- * Infraction History Dto.
+ * Infraction record.
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
-@SuppressWarnings("serial")
 @JsonTypeName("infraction")
+@JsonPropertyOrder(alphabetic = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Infraction extends Entity {
+
+    //~ Static fields/initializers *******************************************************************************************************************
+
+    private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private BigInteger policy_id;
-    private BigInteger user_id;
-    private String userName;
-    private Long infraction_timestamp;
-    private Long expiration_timestamp;
+    private BigInteger policyId;
+    private BigInteger userId;
+    private String username;
+    private Long infractionTimestamp;
+    private Long expirationTimestamp;
     private Double value;
 
     //~ Methods **************************************************************************************************************************************
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public BigInteger getPolicyId() {
-        return policy_id;
-    }
+    @Override
+    public Infraction createExample() {
+        Infraction result = new Infraction();
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  policy_id  DOCUMENT ME!
-     */
-    public void setPolicyId(BigInteger policy_id) {
-        this.policy_id = policy_id;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public BigInteger getUserId() {
-        return user_id;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  user_id  DOCUMENT ME!
-     */
-    public void setUserId(BigInteger user_id) {
-        this.user_id = user_id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Long getInfractionTimestamp() {
-        return infraction_timestamp;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  infraction_timestamp  DOCUMENT ME!
-     */
-    public void setInfractionTimestamp(Long infraction_timestamp) {
-        this.infraction_timestamp = infraction_timestamp;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Long getExpirationTimestamp() {
-        return expiration_timestamp;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  expiration_timestamp  DOCUMENT ME!
-     */
-    public void setExpirationTimestamp(Long expiration_timestamp) {
-        this.expiration_timestamp = expiration_timestamp;
+        result.setCreatedById(BigInteger.ONE);
+        result.setCreatedDate(new Date(1451606400000L));
+        result.setModifiedById(BigInteger.ONE);
+        result.setModifiedDate(new Date(1451606400000L));
+        result.setPolicyId(BigInteger.ONE);
+        result.setUserId(BigInteger.ONE);
+        result.setUsername("hpotter");
+        result.setInfractionTimestamp(1L);
+        result.setExpirationTimestamp(10L);
+        result.setValue(1.00);
+        return result;
     }
 
     @Override
-    public Object createExample() {
-        Infraction result = new Infraction();
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
 
-        result.setPolicyId(BigInteger.ONE);
-        result.setUserId(BigInteger.ONE);
-        result.setUserName("hpotter");
-        result.setInfractionTimestamp((long) 1);
-        result.setExpirationTimestamp((long) 10);
-        result.setValue(1.00);
-        return null;
+        final Infraction other = (Infraction) obj;
+
+        if (!super.equals(other)) {
+            return false;
+        }
+        if (!Objects.equals(this.username, other.username)) {
+            return false;
+        }
+        if (!Objects.equals(this.policyId, other.policyId)) {
+            return false;
+        }
+        if (!Objects.equals(this.userId, other.userId)) {
+            return false;
+        }
+        if (!Objects.equals(this.infractionTimestamp, other.infractionTimestamp)) {
+            return false;
+        }
+        if (!Objects.equals(this.expirationTimestamp, other.expirationTimestamp)) {
+            return false;
+        }
+        if (!Objects.equals(this.value, other.value)) {
+            return false;
+        }
+        return true;
     }
 
+    /**
+     * Returns the timestamp for when the suspension expires.
+     *
+     * @return  The expiration timestamp.
+     */
+    public Long getExpirationTimestamp() {
+        return expirationTimestamp;
+    }
+
+    /**
+     * Returns the timestamp for when the suspension began.
+     *
+     * @return  The infraction timestamp.
+     */
+    public Long getInfractionTimestamp() {
+        return infractionTimestamp;
+    }
+
+    /**
+     * Returns the ID of the policy that was violated.
+     *
+     * @return  The policy ID.
+     */
+    public BigInteger getPolicyId() {
+        return policyId;
+    }
+
+    /**
+     * Returns the ID of the user that violated policy.
+     *
+     * @return  The user ID.
+     */
+    public BigInteger getUserId() {
+        return userId;
+    }
+
+    /**
+     * Returns the username of the user that violated policy.
+     *
+     * @return  The username.
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * Returns the value of the policy metric at the time of suspension.
+     *
+     * @return  The value of the policy metric.
+     */
     public Double getValue() {
         return value;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+
+        hash = 11 * hash + super.hashCode();
+        hash = 11 * hash + Objects.hashCode(this.policyId);
+        hash = 11 * hash + Objects.hashCode(this.userId);
+        hash = 11 * hash + Objects.hashCode(this.username);
+        hash = 11 * hash + Objects.hashCode(this.infractionTimestamp);
+        hash = 11 * hash + Objects.hashCode(this.expirationTimestamp);
+        hash = 11 * hash + Objects.hashCode(this.value);
+        return hash;
+    }
+
+    /**
+     * Sets the timestamp for when the suspension expires.
+     *
+     * @param  expirationTimestamp  The expiration timestamp.
+     */
+    public void setExpirationTimestamp(Long expirationTimestamp) {
+        this.expirationTimestamp = expirationTimestamp;
+    }
+
+    /**
+     * Sets the timestamp for when the suspension began.
+     *
+     * @param  infractionTimestamp  The infraction timestamp.
+     */
+    public void setInfractionTimestamp(Long infractionTimestamp) {
+        this.infractionTimestamp = infractionTimestamp;
+    }
+
+    /**
+     * Sets the policy ID for the policy that was violated.
+     *
+     * @param  policyId  The policy ID.
+     */
+    public void setPolicyId(BigInteger policyId) {
+        this.policyId = policyId;
+    }
+
+    /**
+     * Sets the user ID for the user that violated policy.
+     *
+     * @param  userId  The user ID.
+     */
+    public void setUserId(BigInteger userId) {
+        this.userId = userId;
+    }
+
+    /**
+     * Sets the username for the user that violated policy.
+     *
+     * @param  username  The username.
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
+     * Sets the value of the policy metric at the time the infraction was incurred.
+     *
+     * @param  value  The value.
+     */
     public void setValue(Double value) {
         this.value = value;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Infraction that = (Infraction) o;
-
-        if (!policy_id.equals(that.policy_id)) return false;
-        if (!user_id.equals(that.user_id)) return false;
-        if (!getUserName().equals(that.getUserName())) return false;
-        if (!infraction_timestamp.equals(that.infraction_timestamp)) return false;
-        if (!expiration_timestamp.equals(that.expiration_timestamp)) return false;
-        return getValue().equals(that.getValue());
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = policy_id.hashCode();
-        result = 31 * result + user_id.hashCode();
-        result = 31 * result + getUserName().hashCode();
-        result = 31 * result + infraction_timestamp.hashCode();
-        result = 31 * result + expiration_timestamp.hashCode();
-        result = 31 * result + getValue().hashCode();
-        return result;
-    }
 }
-/* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
+/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

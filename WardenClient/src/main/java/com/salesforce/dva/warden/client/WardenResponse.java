@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salesforce.dva.warden.dto.WardenResource;
+import com.salesforce.dva.warden.dto.Resource;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -45,7 +45,7 @@ public class WardenResponse<T> {
     //~ Instance fields ******************************************************************************************************************************
 
     @JsonInclude(Include.NON_NULL)
-    private List<WardenResource<T>> _resources;
+    private List<Resource<T>> _resources;
     private int _status;
     private String _message;
 
@@ -73,7 +73,7 @@ public class WardenResponse<T> {
         int status = response.getStatusLine().getStatusCode();
         String message = response.getStatusLine().getReasonPhrase();
         HttpEntity entity = response.getEntity();
-        List<WardenResource<T>> resources = new ArrayList<>();
+        List<Resource<T>> resources = new ArrayList<>();
 
         if (entity != null) {
             try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -81,7 +81,7 @@ public class WardenResponse<T> {
 
                 String payload = baos.toString("UTF-8");
 
-                resources.addAll(new ObjectMapper().readValue(payload, new TypeReference<List<WardenResource<T>>>() { }));
+                resources.addAll(new ObjectMapper().readValue(payload, new TypeReference<List<Resource<T>>>() { }));
             }
         }
 
@@ -135,7 +135,7 @@ public class WardenResponse<T> {
      *
      * @return  The list of resources. Will never be null, but may be empty.
      */
-    public List<WardenResource<T>> getResources() {
+    public List<Resource<T>> getResources() {
         return _resources;
     }
 
@@ -172,7 +172,7 @@ public class WardenResponse<T> {
      *
      * @param  resources  The response resources. Cannot be null.
      */
-    void setResources(List<WardenResource<T>> resources) {
+    void setResources(List<Resource<T>> resources) {
         requireThat(resources != null, "Resources cannot be null.");
         this._resources = resources;
     }

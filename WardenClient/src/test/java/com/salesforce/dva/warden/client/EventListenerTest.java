@@ -71,7 +71,7 @@ public class EventListenerTest {
                                         Infraction infraction = new Infraction();
 
                                         infraction.setPolicyId(BigInteger.valueOf(System.currentTimeMillis()));
-                                        infraction.setUserName(Thread.currentThread().getId() + "." + j);
+                                        infraction.setUsername(Thread.currentThread().getId() + "." + j);
                                         infraction.setExpirationTimestamp(System.currentTimeMillis() + 300000);
                                         client.sendInfraction(infraction);
                                     } catch (Exception ex) {
@@ -125,7 +125,7 @@ public class EventListenerTest {
                 Infraction infraction = new Infraction();
 
                 infraction.setPolicyId(BigInteger.ONE);
-                infraction.setUserName("hpotter");
+                infraction.setUsername("hpotter");
                 infraction.setExpirationTimestamp(System.currentTimeMillis() + 300000);
                 eventClient.sendInfraction(infraction);
             } catch (Exception ex) {

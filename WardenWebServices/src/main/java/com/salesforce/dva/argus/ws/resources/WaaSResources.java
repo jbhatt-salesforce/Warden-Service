@@ -41,9 +41,9 @@ import com.salesforce.dva.warden.dto.Metric;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.Subscription;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
-import com.salesforce.dva.warden.dto.WardenUser;
-import com.salesforce.dva.warden.dto.WardenResource.MetaKey;
-import com.salesforce.dva.warden.dto.WardenResource;
+import com.salesforce.dva.warden.dto.User;
+import com.salesforce.dva.warden.dto.Resource.MetaKey;
+import com.salesforce.dva.warden.dto.Resource;
 
 import java.math.BigInteger;
 import java.net.URI;
@@ -104,10 +104,10 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/policy")
     @Description("Returns all policies.")
-    public List<WardenResource<Policy>> getPolicies(@Context HttpServletRequest req, 
+    public List<Resource<Policy>> getPolicies(@Context HttpServletRequest req, 
     @QueryParam("username") String username) {
     	
-        List<WardenResource<Policy>> result = new ArrayList<WardenResource<Policy>>();
+        List<Resource<Policy>> result = new ArrayList<Resource<Policy>>();
         List<com.salesforce.dva.argus.entity.Policy> policies = null;
         PrincipalUser remoteUser = getRemoteUser(req);
         
@@ -143,7 +143,7 @@ public class WaaSResources extends AbstractResource {
             meta.put(MetaKey.DEV_MESSAGE, message);              
                 	       	
         	Policy policyDto = (p == null) ? null : WaaSObjectConverter.convertToPolicyDto(p);
-        	WardenResource<Policy> res = new WardenResource<>();
+        	Resource<Policy> res = new Resource<>();
         	res.setEntity(policyDto);
         	res.setMeta(meta);
         	result.add(res);
@@ -167,12 +167,12 @@ public class WaaSResources extends AbstractResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/policy")
     @Description("Creates policies.")
-    public List<WardenResource<Policy>> createPolicies(@Context HttpServletRequest req, List<Policy> policies) {
+    public List<Resource<Policy>> createPolicies(@Context HttpServletRequest req, List<Policy> policies) {
     	if(policies == null || policies.isEmpty()){
     		throw new WebApplicationException("Null policy objects cannot be created.", Status.BAD_REQUEST);
     	}
     	
-    	List<WardenResource<Policy>> result = new ArrayList<WardenResource<Policy>>();
+    	List<Resource<Policy>> result = new ArrayList<Resource<Policy>>();
     	
         PrincipalUser remoteUser = getRemoteUser(req);   
                 
@@ -212,7 +212,7 @@ public class WaaSResources extends AbstractResource {
                 	       	
         	Policy policyDto = (policyEntity == null) ? null : WaaSObjectConverter.convertToPolicyDto(policyEntity);
             
-        	WardenResource<Policy> res = new WardenResource<>();
+        	Resource<Policy> res = new Resource<>();
         	res.setEntity(policyDto);
         	res.setMeta(meta);
         	result.add(res);
@@ -234,11 +234,11 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/policy")
     @Description("Deletes selected policies owned by this user.")
-    public List<WardenResource<Policy>> deletePolicies(@Context HttpServletRequest req,@QueryParam("id") List<BigInteger> policyIds) {
+    public List<Resource<Policy>> deletePolicies(@Context HttpServletRequest req,@QueryParam("id") List<BigInteger> policyIds) {
     	if(policyIds == null || policyIds.isEmpty()){
     		throw new WebApplicationException("Policy ids are needed for deletion.", Status.BAD_REQUEST);
     	}
-    	List<WardenResource<Policy>> result = new ArrayList<WardenResource<Policy>>();
+    	List<Resource<Policy>> result = new ArrayList<Resource<Policy>>();
 		PrincipalUser remoteUser = getRemoteUser(req);
 		
 		boolean unauthorized = false;
@@ -274,7 +274,7 @@ public class WaaSResources extends AbstractResource {
                             
             Policy policyDto = (delPolicy == null || unauthorized == true) ? null : WaaSObjectConverter.convertToPolicyDto(delPolicy);
             
-            WardenResource<Policy> res = new WardenResource<>();
+            Resource<Policy> res = new Resource<>();
             res.setEntity(policyDto);
             res.setMeta(meta);
             result.add(res);
@@ -298,12 +298,12 @@ public class WaaSResources extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/policy")
 	@Description("Updates policy objects")
-	public List<WardenResource<Policy>> updatePolicies(@Context HttpServletRequest req, List<Policy> policies) {
+	public List<Resource<Policy>> updatePolicies(@Context HttpServletRequest req, List<Policy> policies) {
 		if (policies == null || policies.isEmpty()) {
 			throw new WebApplicationException("Null policy objects cannot be updated.", Status.BAD_REQUEST);
 		}
 
-		List<WardenResource<Policy>> result = new ArrayList<WardenResource<Policy>>();
+		List<Resource<Policy>> result = new ArrayList<Resource<Policy>>();
 
 		PrincipalUser remoteUser = getRemoteUser(req);
 
@@ -348,7 +348,7 @@ public class WaaSResources extends AbstractResource {
 			
 			com.salesforce.dva.argus.entity.Policy updatedOldPolicy = waaSService.updatePolicy(oldPolicy);
 			Policy policyDto = (updatedOldPolicy == null) ? null : WaaSObjectConverter.convertToPolicyDto(updatedOldPolicy);
-        	WardenResource<Policy> res = new WardenResource<>();
+        	Resource<Policy> res = new Resource<>();
         	res.setEntity(policyDto);
         	res.setMeta(meta);
         	result.add(res);
@@ -372,13 +372,13 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/policy/{pid}")
     @Description("Returns a policy by its ID.")
-	public WardenResource<Policy> getPolicyById(@Context HttpServletRequest req, @PathParam("pid") BigInteger pid) {
+	public Resource<Policy> getPolicyById(@Context HttpServletRequest req, @PathParam("pid") BigInteger pid) {
 		if (pid == null || pid.compareTo(BigInteger.ZERO) < 1) {
 			throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.",
 					Status.BAD_REQUEST);
 		}
 
-		WardenResource<Policy> result = null;
+		Resource<Policy> result = null;
 		com.salesforce.dva.argus.entity.Policy policy = null;
 		PrincipalUser remoteUser = getRemoteUser(req);
 
@@ -409,7 +409,7 @@ public class WaaSResources extends AbstractResource {
         meta.put(MetaKey.DEV_MESSAGE, message);              
             	       	
     	Policy policyDto = (policy == null) ? null : WaaSObjectConverter.convertToPolicyDto(policy);
-    	result = new WardenResource<Policy>();
+    	result = new Resource<Policy>();
     	result.setEntity(policyDto);
     	result.setMeta(meta);
 		
@@ -431,9 +431,9 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/policy")
     @Description("Returns a policy by its ID.")
-	public WardenResource<Policy> getPolicyById(@Context HttpServletRequest req, @QueryParam("service") String service, @QueryParam("name") String name) {
+	public Resource<Policy> getPolicyById(@Context HttpServletRequest req, @QueryParam("service") String service, @QueryParam("name") String name) {
 
-		WardenResource<Policy> result = null;
+		Resource<Policy> result = null;
 		com.salesforce.dva.argus.entity.Policy policy = null;
 		PrincipalUser remoteUser = getRemoteUser(req);
 
@@ -464,7 +464,7 @@ public class WaaSResources extends AbstractResource {
         meta.put(MetaKey.DEV_MESSAGE, message);              
             	       	
     	Policy policyDto = (policy == null) ? null : WaaSObjectConverter.convertToPolicyDto(policy);
-    	result = new WardenResource<Policy>();
+    	result = new Resource<Policy>();
     	result.setEntity(policyDto);
     	result.setMeta(meta);
 		
@@ -485,7 +485,7 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/policy/{pid}")
     @Description("Deletes the policy having the given ID.")
-    public WardenResource<Policy> deletePolicy(@Context HttpServletRequest req,
+    public Resource<Policy> deletePolicy(@Context HttpServletRequest req,
         @PathParam("pid") BigInteger pid) {
         if (pid == null || pid.compareTo(BigInteger.ZERO) < 1) {
             throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
@@ -532,7 +532,7 @@ public class WaaSResources extends AbstractResource {
                         
         Policy policyDto = (existingPolicy == null || unauthorized == true) ? null : WaaSObjectConverter.convertToPolicyDto(existingPolicy);
         
-        WardenResource<Policy> res = new WardenResource<>();
+        Resource<Policy> res = new Resource<>();
         res.setEntity(policyDto);
         res.setMeta(meta);
         return res;				
@@ -555,7 +555,7 @@ public class WaaSResources extends AbstractResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/policy/{pid}")
     @Description("Updates an policy having the given ID.")
-    public WardenResource<Policy> updatePolicy(@Context HttpServletRequest req,
+    public Resource<Policy> updatePolicy(@Context HttpServletRequest req,
         @PathParam("pid") BigInteger pid, Policy policy) {
         if (pid == null || pid.compareTo(BigInteger.ZERO) < 1) {
             throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
@@ -572,7 +572,7 @@ public class WaaSResources extends AbstractResource {
         	throw new WebApplicationException("Remote user doesn't own this policy and has no priviledge to access it.", Status.BAD_REQUEST);
         }
         
-        WardenResource<Policy> result = null;
+        Resource<Policy> result = null;
         com.salesforce.dva.argus.entity.Policy existingPolicy = waaSService.getPolicy(pid);        
        
         if(existingPolicy == null)
@@ -608,7 +608,7 @@ public class WaaSResources extends AbstractResource {
 		
 		com.salesforce.dva.argus.entity.Policy updatedOldPolicy = waaSService.updatePolicy(existingPolicy);
 		Policy policyDto = (updatedOldPolicy == null) ? null : WaaSObjectConverter.convertToPolicyDto(updatedOldPolicy);
-    	result = new WardenResource<Policy>();
+    	result = new Resource<Policy>();
     	result.setEntity(policyDto);
     	result.setMeta(meta);
     	return result;
@@ -627,7 +627,7 @@ public class WaaSResources extends AbstractResource {
      @Produces(MediaType.APPLICATION_JSON)
      @Path("/policy/{pid}/level")
      @Description("Returns all levels with policy id.")
-     public List<WardenResource<SuspensionLevel>> getLevels(@Context HttpServletRequest req,
+     public List<Resource<SuspensionLevel>> getLevels(@Context HttpServletRequest req,
     		 @PathParam("pid") BigInteger policyId,
     		 @QueryParam("username") String username) {
     	 
@@ -649,7 +649,7 @@ public class WaaSResources extends AbstractResource {
     		 throw new WebApplicationException("Query user doesn't subject to this policy!", Status.BAD_REQUEST);
     	 }
     	 
-         List<WardenResource<SuspensionLevel>> result = new ArrayList<WardenResource<SuspensionLevel>>();
+         List<Resource<SuspensionLevel>> result = new ArrayList<Resource<SuspensionLevel>>();
     	 List<com.salesforce.dva.argus.entity.SuspensionLevel> levels = null;
          
          levels = waaSService.getLevels(existingPolicy);
@@ -674,7 +674,7 @@ public class WaaSResources extends AbstractResource {
              meta.put(MetaKey.DEV_MESSAGE, message);              
                  	       	
          	SuspensionLevel levelDto = (l == null) ? null : WaaSObjectConverter.convertToLevelDto(l);
-         	WardenResource<SuspensionLevel> res = new WardenResource<>();
+         	Resource<SuspensionLevel> res = new Resource<>();
          	res.setEntity(levelDto);
          	res.setMeta(meta);
          	result.add(res);        	 
@@ -699,7 +699,7 @@ public class WaaSResources extends AbstractResource {
      @Consumes(MediaType.APPLICATION_JSON)
      @Path("/policy/{pid}/level")
      @Description("Creates levels for a specific policy.")
-     public List<WardenResource<SuspensionLevel>> createLevels(@Context HttpServletRequest req, 
+     public List<Resource<SuspensionLevel>> createLevels(@Context HttpServletRequest req, 
     		 @PathParam("pid") BigInteger policyId,
     		 List<SuspensionLevel> levels) {
 		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -715,7 +715,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy doesn't exist for querying levels!", Status.BAD_REQUEST);
 		}
 
-		List<WardenResource<SuspensionLevel>> result = new ArrayList<WardenResource<SuspensionLevel>>();
+		List<Resource<SuspensionLevel>> result = new ArrayList<Resource<SuspensionLevel>>();
 
 		PrincipalUser remoteUser = getRemoteUser(req);
 		if (!remoteUser.isPrivileged() && !existingPolicy.getOwners().contains(remoteUser.getUserName())) {
@@ -752,7 +752,7 @@ public class WaaSResources extends AbstractResource {
 
 			SuspensionLevel levelDto = (levelEntity == null) ? null	: WaaSObjectConverter.convertToLevelDto(levelEntity);
 
-			WardenResource<SuspensionLevel> res = new WardenResource<>();
+			Resource<SuspensionLevel> res = new Resource<>();
 			res.setEntity(levelDto);
 			res.setMeta(meta);
 			result.add(res);
@@ -775,7 +775,7 @@ public class WaaSResources extends AbstractResource {
      @Produces(MediaType.APPLICATION_JSON)
      @Path("/policy/{pid}/level")
      @Description("Deletes the all the policies owned by this user.")
-     public List<WardenResource<SuspensionLevel>> deleteLevels(@Context HttpServletRequest req,
+     public List<Resource<SuspensionLevel>> deleteLevels(@Context HttpServletRequest req,
     		 @PathParam("pid") BigInteger policyId,
     		 @QueryParam("id") List<BigInteger> levelIds) {
     	 if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -791,7 +791,7 @@ public class WaaSResources extends AbstractResource {
     		 throw new WebApplicationException("Level ids are needed for deletion.", Status.BAD_REQUEST);
     	 }
     	 
-    	 List<WardenResource<SuspensionLevel>> result = new ArrayList<WardenResource<SuspensionLevel>>();
+    	 List<Resource<SuspensionLevel>> result = new ArrayList<Resource<SuspensionLevel>>();
     	 PrincipalUser remoteUser = getRemoteUser(req);
     	 
          boolean unauthorized = false;
@@ -829,7 +829,7 @@ public class WaaSResources extends AbstractResource {
                              
              SuspensionLevel levelDto = (delLevel == null || unauthorized == true) ? null : WaaSObjectConverter.convertToLevelDto(delLevel);
              
-             WardenResource<SuspensionLevel> res = new WardenResource<>();
+             Resource<SuspensionLevel> res = new Resource<>();
              res.setEntity(levelDto);
              res.setMeta(meta);
              result.add(res);
@@ -853,7 +853,7 @@ public class WaaSResources extends AbstractResource {
      @Consumes(MediaType.APPLICATION_JSON)
      @Path("/policy/{pid}/level")
      @Description("Updates policy objects")
-     public List<WardenResource<SuspensionLevel>> updateLevels(@Context HttpServletRequest req, 
+     public List<Resource<SuspensionLevel>> updateLevels(@Context HttpServletRequest req, 
     		 @PathParam("pid") BigInteger policyId,
      		List<SuspensionLevel> levels){
     	 
@@ -869,7 +869,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Policy doesn't exist for updating levels!", Status.BAD_REQUEST);
 		}
 
-		List<WardenResource<SuspensionLevel>> result = new ArrayList<WardenResource<SuspensionLevel>>();
+		List<Resource<SuspensionLevel>> result = new ArrayList<Resource<SuspensionLevel>>();
 
 		PrincipalUser remoteUser = getRemoteUser(req);
 
@@ -907,7 +907,7 @@ public class WaaSResources extends AbstractResource {
 
 			com.salesforce.dva.argus.entity.SuspensionLevel updatedOldLevel = waaSService.updateLevel(oldLevel);
 			SuspensionLevel levelDto = (updatedOldLevel == null) ? null : WaaSObjectConverter.convertToLevelDto(updatedOldLevel);
-			WardenResource<SuspensionLevel> res = new WardenResource<>();
+			Resource<SuspensionLevel> res = new Resource<>();
 			res.setEntity(levelDto);
 			res.setMeta(meta);
 			result.add(res);
@@ -931,7 +931,7 @@ public class WaaSResources extends AbstractResource {
      @Produces(MediaType.APPLICATION_JSON)
      @Path("/policy/{pid}/level/{levelid}")
      @Description("Returns a policy by its ID.")
-     public WardenResource<SuspensionLevel> getLevel(@Context HttpServletRequest req,
+     public Resource<SuspensionLevel> getLevel(@Context HttpServletRequest req,
          @PathParam("pid") BigInteger policyId,
          @PathParam("levelid") BigInteger levelId) {
     	 if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -952,7 +952,7 @@ public class WaaSResources extends AbstractResource {
     		 throw new WebApplicationException("Remote user doesn't have priveilege to query suspension levels for this policy!", Status.BAD_REQUEST);
     	 }
     	 
-    	 WardenResource<SuspensionLevel> result = null;
+    	 Resource<SuspensionLevel> result = null;
     	 com.salesforce.dva.argus.entity.SuspensionLevel level = waaSService.getLevel(existingPolicy, levelId);
     	 if(level == null) {
     		 throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
@@ -974,7 +974,7 @@ public class WaaSResources extends AbstractResource {
          meta.put(MetaKey.DEV_MESSAGE, message);              
                          
          SuspensionLevel levelDto = (level == null) ? null : WaaSObjectConverter.convertToLevelDto(level);
-         result = new WardenResource<SuspensionLevel>();
+         result = new Resource<SuspensionLevel>();
          result.setEntity(levelDto);
          result.setMeta(meta);
          return result;
@@ -995,7 +995,7 @@ public class WaaSResources extends AbstractResource {
      @Produces(MediaType.APPLICATION_JSON)
      @Path("/policy/{pid}/level/{levelid}")
      @Description("Deletes the suspension level with policy id and level id.")
-     public WardenResource<SuspensionLevel> deleteLevel(@Context HttpServletRequest req,
+     public Resource<SuspensionLevel> deleteLevel(@Context HttpServletRequest req,
          @PathParam("pid") BigInteger policyId,
          @PathParam("levelid") BigInteger levelId) {
     	 if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -1048,7 +1048,7 @@ public class WaaSResources extends AbstractResource {
                          
          SuspensionLevel levelDto = (existingLevel == null || unauthorized == true) ? null : WaaSObjectConverter.convertToLevelDto(existingLevel);
          
-         WardenResource<SuspensionLevel> res = new WardenResource<>();
+         Resource<SuspensionLevel> res = new Resource<>();
          res.setEntity(levelDto);
          res.setMeta(meta);
          return res;
@@ -1071,7 +1071,7 @@ public class WaaSResources extends AbstractResource {
      @Consumes(MediaType.APPLICATION_JSON)
      @Path("/policy/{pid}/level/{levelid}")
      @Description("Updates an suspension level having the given policy ID and level ID.")
-     public WardenResource<SuspensionLevel> updateLevel(@Context HttpServletRequest req,
+     public Resource<SuspensionLevel> updateLevel(@Context HttpServletRequest req,
          @PathParam("pid") BigInteger policyId, 
          @PathParam("levelid") BigInteger levelId,
          SuspensionLevel level) {
@@ -1093,7 +1093,7 @@ public class WaaSResources extends AbstractResource {
     		 throw new WebApplicationException("Remote user doesn't have priveilege to update suspension levels for this policy!", Status.BAD_REQUEST);
     	 }
     	 
-    	 WardenResource<SuspensionLevel> result = null;
+    	 Resource<SuspensionLevel> result = null;
     	 com.salesforce.dva.argus.entity.SuspensionLevel oldLevel = waaSService.getLevel(existingPolicy, levelId);
     	 if(oldLevel == null) {
     		 throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
@@ -1124,7 +1124,7 @@ public class WaaSResources extends AbstractResource {
          
          com.salesforce.dva.argus.entity.SuspensionLevel updatedOldLevel = waaSService.updateLevel(oldLevel);         
          SuspensionLevel levelDto = (level == null) ? null : WaaSObjectConverter.convertToLevelDto(updatedOldLevel);
-         result = new WardenResource<SuspensionLevel>();
+         result = new Resource<SuspensionLevel>();
          result.setEntity(levelDto);
          result.setMeta(meta);
          return result; 	
@@ -1144,7 +1144,7 @@ public class WaaSResources extends AbstractResource {
       @Produces(MediaType.APPLICATION_JSON)
       @Path("/policy/{pid}/infraction")
       @Description("Returns all infractions with policy id.")
-      public List<WardenResource<Infraction>> getInfractions(@Context HttpServletRequest req,
+      public List<Resource<Infraction>> getInfractions(@Context HttpServletRequest req,
      		 @PathParam("pid") BigInteger policyId,
      		 @QueryParam("username") String username) {
 		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -1165,7 +1165,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Query user doesn't subject to this policy!", Status.BAD_REQUEST);
 		}
 
-		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+		List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
 		List<com.salesforce.dva.argus.entity.Infraction> infractions = null;
 
 		if (username != null && !username.isEmpty()) {
@@ -1194,7 +1194,7 @@ public class WaaSResources extends AbstractResource {
 			meta.put(MetaKey.DEV_MESSAGE, message);
 
 			Infraction infDto = (inf == null) ? null : WaaSObjectConverter.convertToInfractionDto(inf);
-			WardenResource<Infraction> res = new WardenResource<>();
+			Resource<Infraction> res = new Resource<>();
 			res.setEntity(infDto);
 			res.setMeta(meta);
 			result.add(res);
@@ -1217,7 +1217,7 @@ public class WaaSResources extends AbstractResource {
       @Produces(MediaType.APPLICATION_JSON)
       @Path("/policy/{pid}/infraction/{iid}")
       @Description("Returns an infraction by policy ID and its ID.")
-      public WardenResource<Infraction> getInfraction(@Context HttpServletRequest req,
+      public Resource<Infraction> getInfraction(@Context HttpServletRequest req,
           @PathParam("pid") BigInteger policyId,
           @PathParam("iid") BigInteger infractionId) {
      	 if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -1238,7 +1238,7 @@ public class WaaSResources extends AbstractResource {
      		 throw new WebApplicationException("Remote user doesn't have priveilege to query any infraction for this policy!", Status.BAD_REQUEST);
      	 }
      	 
-     	 WardenResource<Infraction> result = null;
+     	 Resource<Infraction> result = null;
      	 com.salesforce.dva.argus.entity.Infraction infraction = waaSService.getInfraction(existingPolicy, infractionId);
      	 if(infraction == null) {
      		 throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
@@ -1260,7 +1260,7 @@ public class WaaSResources extends AbstractResource {
          meta.put(MetaKey.DEV_MESSAGE, message);              
                          
          Infraction infractionDto = (infraction == null) ? null : WaaSObjectConverter.convertToInfractionDto(infraction);
-         result = new WardenResource<Infraction>();
+         result = new Resource<Infraction>();
          result.setEntity(infractionDto);
          result.setMeta(meta);
          return result;
@@ -1281,7 +1281,7 @@ public class WaaSResources extends AbstractResource {
     	@Produces(MediaType.APPLICATION_JSON)
     	@Path("/policy/{pid}/user/{uname}/suspension")
     	@Description("Returns all infractions with policy id and user name if suspension happens.")
-    	public List<WardenResource<Infraction>> getSuspensionForUserAndPolicy(@Context HttpServletRequest req, 
+    	public List<Resource<Infraction>> getSuspensionForUserAndPolicy(@Context HttpServletRequest req, 
     			@PathParam("pid") BigInteger policyId,
     			@PathParam("uname") String userName) {
     		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -1317,7 +1317,7 @@ public class WaaSResources extends AbstractResource {
     			throw new WebApplicationException("Query user doesn't subject to this policy!", Status.BAD_REQUEST);
     		}
 
-    		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+    		List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
     		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractionsByPolicyAndUserName(existingPolicy, existingUser.getUserName());
 
     		if(infractions == null || infractions.isEmpty())
@@ -1348,7 +1348,7 @@ public class WaaSResources extends AbstractResource {
               meta.put(MetaKey.DEV_MESSAGE, message);              
                              
              Infraction suspensionDto = (s == null) ? null : WaaSObjectConverter.convertToInfractionDto(s);
-             WardenResource<Infraction> res = new WardenResource<>();
+             Resource<Infraction> res = new Resource<>();
              res.setEntity(suspensionDto);
              res.setMeta(meta);
              result.add(res);
@@ -1372,7 +1372,7 @@ public class WaaSResources extends AbstractResource {
       @Produces(MediaType.APPLICATION_JSON)
       @Path("/policy/{pid}/user/{uname}/suspension")
       @Description("Deletes all infractions with policy id and user id if suspension happens.")
-      public List<WardenResource<Infraction>> deleteSuspensionForUser(@Context HttpServletRequest req,
+      public List<Resource<Infraction>> deleteSuspensionForUser(@Context HttpServletRequest req,
      		 @PathParam("pid") BigInteger policyId,
      		 @PathParam("uname") String userName,
      		 @QueryParam("id") List<BigInteger> infractionIds) {
@@ -1400,7 +1400,7 @@ public class WaaSResources extends AbstractResource {
               throw new WebApplicationException("Infraction ids are needed for deletion.", Status.BAD_REQUEST);
           }
           
-          List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+          List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
           PrincipalUser remoteUser = getRemoteUser(req);
           
           boolean unauthorized = false;
@@ -1438,7 +1438,7 @@ public class WaaSResources extends AbstractResource {
                               
               Infraction infractionDto = (delInfraction == null || unauthorized == true) ? null : WaaSObjectConverter.convertToInfractionDto(delInfraction);
               
-              WardenResource<Infraction> res = new WardenResource<>();
+              Resource<Infraction> res = new Resource<>();
               res.setEntity(infractionDto);
               res.setMeta(meta);
               result.add(res);
@@ -1459,7 +1459,7 @@ public class WaaSResources extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/policy/{pid}/suspension")
 	@Description("Returns all infractions with policy id and user id if suspension happens.")
-	public List<WardenResource<Infraction>> getSuspension(@Context HttpServletRequest req, 
+	public List<Resource<Infraction>> getSuspension(@Context HttpServletRequest req, 
 			@PathParam("pid") BigInteger policyId) {
 
 		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -1477,7 +1477,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Remote user doesn't have priveilege to query infraction for this policy!", Status.BAD_REQUEST);
 		}     	
 
-		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+		List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
 		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractions(existingPolicy);
 		
 		if(infractions == null || infractions.isEmpty())
@@ -1507,7 +1507,7 @@ public class WaaSResources extends AbstractResource {
           meta.put(MetaKey.DEV_MESSAGE, message);              
                          
          Infraction suspensionDto = (s == null) ? null : WaaSObjectConverter.convertToInfractionDto(s);
-         WardenResource<Infraction> res = new WardenResource<>();
+         Resource<Infraction> res = new Resource<>();
          res.setEntity(suspensionDto);
          res.setMeta(meta);
          result.add(res);
@@ -1530,7 +1530,7 @@ public class WaaSResources extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/policy/{pid}/suspension")
 	@Description("Deletes all infractions with policy id and user id if suspension happens.")
-	public List<WardenResource<Infraction>> deleteSuspension(@Context HttpServletRequest req, @PathParam("pid") BigInteger policyId,
+	public List<Resource<Infraction>> deleteSuspension(@Context HttpServletRequest req, @PathParam("pid") BigInteger policyId,
 			@QueryParam("id") List<BigInteger> infractionIds) {
 		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
             throw new WebApplicationException("Policy Id cannot be null and must be a positive non-zero number.", Status.BAD_REQUEST);
@@ -1545,7 +1545,7 @@ public class WaaSResources extends AbstractResource {
             throw new WebApplicationException("Infraction ids are needed for deletion.", Status.BAD_REQUEST);
         }
         
-        List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+        List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
         PrincipalUser remoteUser = getRemoteUser(req);
         
         boolean unauthorized = false;
@@ -1582,7 +1582,7 @@ public class WaaSResources extends AbstractResource {
                             
             Infraction infractionDto = (delInfraction == null || unauthorized == true) ? null : WaaSObjectConverter.convertToInfractionDto(delInfraction);
             
-            WardenResource<Infraction> res = new WardenResource<>();
+            Resource<Infraction> res = new Resource<>();
             res.setEntity(infractionDto);
             res.setMeta(meta);
             result.add(res);
@@ -1605,13 +1605,13 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user")
     @Description("Returns the user having the given ID.")
-    public List<WardenResource<WardenUser>> getUsers(@Context HttpServletRequest req) {
+    public List<Resource<User>> getUsers(@Context HttpServletRequest req) {
     	PrincipalUser remoteUser = getRemoteUser(req);
       	 if(!remoteUser.isPrivileged() ){
       		 throw new WebApplicationException("Remote user doesn't have privilege to query all principal users!", Status.BAD_REQUEST);
       	 }
        
-      	 List<WardenResource<WardenUser>> result = new ArrayList<WardenResource<WardenUser>>();
+      	 List<Resource<User>> result = new ArrayList<Resource<User>>();
       	 List<PrincipalUser> users = userService.getPrincipalUsers();
       	 
       	 if(users == null || users.isEmpty()){
@@ -1634,8 +1634,8 @@ public class WaaSResources extends AbstractResource {
             meta.put(MetaKey.UI_MESSAGE, message);
             meta.put(MetaKey.DEV_MESSAGE, message);              
                             
-            WardenUser userDto = (user == null) ? null : WaaSObjectConverter.convertToWardenUserDto(user);
-            WardenResource<WardenUser> res = new WardenResource<>();
+            User userDto = (user == null) ? null : WaaSObjectConverter.convertToWardenUserDto(user);
+            Resource<User> res = new Resource<>();
             res.setEntity(userDto);
             res.setMeta(meta);
             result.add(res);
@@ -1657,7 +1657,7 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user/{uname}")
     @Description("Returns the user having the given ID.")
-    public WardenResource<WardenUser> getUserByName(@Context HttpServletRequest req,
+    public Resource<User> getUserByName(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
         if (userName == null || userName.isEmpty()) {
             throw new WebApplicationException("User name cannot be null or empty string.", Status.BAD_REQUEST);
@@ -1669,7 +1669,7 @@ public class WaaSResources extends AbstractResource {
       		throw new WebApplicationException("Remote user doesn't have priveilege to query this user with id!", Status.BAD_REQUEST);
       	}
       	 
-      	WardenResource<WardenUser> result = null;
+      	Resource<User> result = null;
      	PrincipalUser user = userService.findUserByUsername(userName);
      	if (user == null) {
      		throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);     	
@@ -1690,8 +1690,8 @@ public class WaaSResources extends AbstractResource {
         meta.put(MetaKey.UI_MESSAGE, message);
         meta.put(MetaKey.DEV_MESSAGE, message);              
                         
-        WardenUser userDto = (user == null) ? null : WaaSObjectConverter.convertToWardenUserDto(user);
-        result = new WardenResource<WardenUser>();
+        User userDto = (user == null) ? null : WaaSObjectConverter.convertToWardenUserDto(user);
+        result = new Resource<User>();
         result.setEntity(userDto);
         result.setMeta(meta);
         
@@ -1713,7 +1713,7 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user/{uname}/policy")
     @Description("Returns the policies for this user.")
-    public List<WardenResource<Policy>> getPoliciesForUser(@Context HttpServletRequest req,
+    public List<Resource<Policy>> getPoliciesForUser(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
 		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User name cannot be null or an empty string.", Status.BAD_REQUEST);
@@ -1746,7 +1746,7 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user/{uname}/policy/{pid}/infraction")
     @Description("Returns the policies for this user.")
-    public List<WardenResource<Infraction>> getInfractionsForUserAndPolicy(@Context HttpServletRequest req,
+    public List<Resource<Infraction>> getInfractionsForUserAndPolicy(@Context HttpServletRequest req,
         @PathParam("uanme") final String userName,
         @PathParam("pid") final BigInteger policyId) {
 		if (policyId == null || policyId.compareTo(BigInteger.ZERO) < 1) {
@@ -1779,7 +1779,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException("Query user doesn't subject to this policy!", Status.BAD_REQUEST);
 		}
 
-		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+		List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
 		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService
 				.getInfractionsByPolicyAndUserName(existingPolicy, existingUser.getUserName());
 
@@ -1803,7 +1803,7 @@ public class WaaSResources extends AbstractResource {
 			meta.put(MetaKey.DEV_MESSAGE, message);
 
 			Infraction infDto = (inf == null) ? null : WaaSObjectConverter.convertToInfractionDto(inf);
-			WardenResource<Infraction> res = new WardenResource<>();
+			Resource<Infraction> res = new Resource<>();
 			res.setEntity(infDto);
 			res.setMeta(meta);
 			result.add(res);
@@ -1826,7 +1826,7 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user/{uname}/infraction")
     @Description("Returns the infractions for this user.")
-    public List<WardenResource<Infraction>> getInfractionsForUser(@Context HttpServletRequest req,
+    public List<Resource<Infraction>> getInfractionsForUser(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
 		if (userName == null || userName.isEmpty()) {
 			throw new WebApplicationException("User Id cannot be null or an empty string.", Status.BAD_REQUEST);
@@ -1841,7 +1841,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
 		}
 
-		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+		List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
 		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractionsByUser(user);
 
 		if (infractions == null || infractions.isEmpty())
@@ -1864,7 +1864,7 @@ public class WaaSResources extends AbstractResource {
 			meta.put(MetaKey.DEV_MESSAGE, message);
 
 			Infraction infDto = (inf == null) ? null : WaaSObjectConverter.convertToInfractionDto(inf);
-			WardenResource<Infraction> res = new WardenResource<>();
+			Resource<Infraction> res = new Resource<>();
 			res.setEntity(infDto);
 			res.setMeta(meta);
 			result.add(res);
@@ -2045,7 +2045,7 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user/{uname}/suspension")
     @Description("Returns the infractions for this user.")
-    public List<WardenResource<Infraction>> getSuspensionsForUser(@Context HttpServletRequest req,
+    public List<Resource<Infraction>> getSuspensionsForUser(@Context HttpServletRequest req,
         @PathParam("uname") final String userName) {
 
 		if (userName == null || userName.isEmpty()) {
@@ -2061,7 +2061,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
 		}
 
-		List<WardenResource<Infraction>> result = new ArrayList<WardenResource<Infraction>>();
+		List<Resource<Infraction>> result = new ArrayList<Resource<Infraction>>();
 		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractionsByUser(user);
 
 		if (infractions != null && !infractions.isEmpty()) {
@@ -2089,7 +2089,7 @@ public class WaaSResources extends AbstractResource {
 			meta.put(MetaKey.DEV_MESSAGE, message);
 
 			Infraction infDto = (inf == null) ? null : WaaSObjectConverter.convertToInfractionDto(inf);
-			WardenResource<Infraction> res = new WardenResource<>();
+			Resource<Infraction> res = new Resource<>();
 			res.setEntity(infDto);
 			res.setMeta(meta);
 			result.add(res);
@@ -2113,7 +2113,7 @@ public class WaaSResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user/{uname}/suspension/{sid}")
     @Description("Returns the suspension for this user and suspension id.")
-    public WardenResource<Infraction> getSuspensionForUser(@Context HttpServletRequest req,
+    public Resource<Infraction> getSuspensionForUser(@Context HttpServletRequest req,
         @PathParam("uname") final String userName,
         @PathParam("sid") final BigInteger suspensionId) {     
        
@@ -2134,7 +2134,7 @@ public class WaaSResources extends AbstractResource {
 			throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
 		}
 
-		WardenResource<Infraction> result = null;
+		Resource<Infraction> result = null;
 		com.salesforce.dva.argus.entity.Infraction suspension = null;
 		List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractionsByUser(user);
 
@@ -2172,7 +2172,7 @@ public class WaaSResources extends AbstractResource {
 		meta.put(MetaKey.DEV_MESSAGE, message);
 
 		Infraction infDto = (suspension == null) ? null : WaaSObjectConverter.convertToInfractionDto(suspension);
-		result = new WardenResource<Infraction>();
+		result = new Resource<Infraction>();
 		result.setEntity(infDto);
 		result.setMeta(meta);
 
@@ -2198,7 +2198,7 @@ public class WaaSResources extends AbstractResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/subscription")
 	@Description("Creates a new subscription.")
-	public WardenResource<Subscription> createSubscription(@Context HttpServletRequest req, Subscription subscription) {
+	public Resource<Subscription> createSubscription(@Context HttpServletRequest req, Subscription subscription) {
 		if (subscription == null) {
 			throw new WebApplicationException("Null subscription object cannot be created.", Status.BAD_REQUEST);
 		}
@@ -2235,7 +2235,7 @@ public class WaaSResources extends AbstractResource {
 		Subscription subscriptionDto = (subscriptionEntity == null) ? null
 				: WaaSObjectConverter.convertToSubscriptionDto(Subscription.class, subscriptionEntity);
 
-		WardenResource<Subscription> result = new WardenResource<>();
+		Resource<Subscription> result = new Resource<>();
 		result.setEntity(subscriptionDto);
 		result.setMeta(meta);
 
@@ -2259,7 +2259,7 @@ public class WaaSResources extends AbstractResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/unsubscription")
 	@Description("Deletes selected subscription associated with this client.")
-	public WardenResource<Subscription> deleteSubscription(@Context HttpServletRequest req,
+	public Resource<Subscription> deleteSubscription(@Context HttpServletRequest req,
 			@QueryParam("id") BigInteger subscriptionId) {
 		if (subscriptionId == null) {
 			throw new WebApplicationException("Subscription id is needed for deletion.", Status.BAD_REQUEST);
@@ -2294,7 +2294,7 @@ public class WaaSResources extends AbstractResource {
 		Subscription subscriptionDto = delSubscription == null ? null
 				: WaaSObjectConverter.convertToSubscriptionDto(Subscription.class, delSubscription);
 
-		WardenResource<Subscription> result = new WardenResource<>();
+		Resource<Subscription> result = new Resource<>();
 		result.setEntity(subscriptionDto);
 		result.setMeta(meta);
 

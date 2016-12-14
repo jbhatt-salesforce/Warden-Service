@@ -74,7 +74,6 @@ public class MetricUpdaterTest extends AbstractTest {
         result.setOwners(Arrays.asList("TestOwner"));
         result.setUsers(Arrays.asList("TestUser"));
         result.setSubSystem("TestSubSystem");
-        result.setMetricName("TestMetricName");
         result.setTriggerType(Policy.TriggerType.BETWEEN);
         result.setAggregator(Policy.Aggregator.AVG);
         result.setThresholds(Arrays.asList(0.0));

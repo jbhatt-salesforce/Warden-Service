@@ -22,9 +22,9 @@ package com.salesforce.dva.warden.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
+import com.salesforce.dva.warden.dto.Resource;
+import com.salesforce.dva.warden.dto.Resource.MetaKey;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
-import com.salesforce.dva.warden.dto.WardenResource;
-import com.salesforce.dva.warden.dto.WardenResource.MetaKey;
 import org.junit.Test;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -234,12 +234,12 @@ public class PolicyServiceTest extends AbstractTest {
             WardenResponse<Policy> policyWardenResponse = policyService.getPolicy(BigInteger.ONE);
             Policy policy = policyWardenResponse.getResources().get(0).getEntity();
 
-            policy.setMetricName("UpdatedMetric");
+            policy.setAggregator(Policy.Aggregator.ZIMSUM);
 
             WardenResponse<Policy> actualResponse = policyService.updatePolicy(BigInteger.ONE, policy);
             WardenResponse<Policy> expectedResponse = _constructPersistedResponse("PUT");
 
-            expectedResponse.getResources().get(0).getEntity().setMetricName("UpdatedMetric");
+            expectedResponse.getResources().get(0).getEntity().setAggregator(Policy.Aggregator.ZIMSUM);
             assertEquals(expectedResponse, actualResponse);
         }
     }
@@ -281,7 +281,7 @@ public class PolicyServiceTest extends AbstractTest {
 
         result.setPolicyId(BigInteger.ONE);
         result.setUserId(BigInteger.ONE);
-        result.setUserName("hpotter");
+        result.setUsername("hpotter");
         result.setInfractionTimestamp(100000L);
         result.setExpirationTimestamp(-1L);
         result.setValue(Double.valueOf(10.0));
@@ -306,8 +306,8 @@ public class PolicyServiceTest extends AbstractTest {
     private WardenResponse<Policy> _constructPersistedResponse(String httpVerb) throws JsonProcessingException {
         Policy persistedPolicy = _constructPersistedPolicy();
         WardenResponse<Policy> result = new WardenResponse<>();
-        WardenResource<Policy> resource = new WardenResource<>();
-        List<WardenResource<Policy>> resources = new ArrayList<>(1);
+        Resource<Policy> resource = new Resource<>();
+        List<Resource<Policy>> resources = new ArrayList<>(1);
         EnumMap<MetaKey, String> meta = new EnumMap<>(MetaKey.class);
 
         meta.put(MetaKey.HREF, "TestHref");
@@ -337,13 +337,13 @@ public class PolicyServiceTest extends AbstractTest {
         meta.put(MetaKey.UI_MESSAGE, "TestUIMessage");
         meta.put(MetaKey.VERB, httpVerb);
 
-        WardenResource<Infraction> resource = new WardenResource<>();
+        Resource<Infraction> resource = new Resource<>();
         Infraction infraction = _constructPersistedInfraction();
 
         resource.setEntity(infraction);
         resource.setMeta(meta);
 
-        List<WardenResource<Infraction>> resources = new ArrayList<>(1);
+        List<Resource<Infraction>> resources = new ArrayList<>(1);
 
         infraction.setId(BigInteger.ONE);
         resources.add(resource);
@@ -364,13 +364,13 @@ public class PolicyServiceTest extends AbstractTest {
         meta.put(MetaKey.UI_MESSAGE, "TestUIMessage");
         meta.put(MetaKey.VERB, httpVerb);
 
-        WardenResource<SuspensionLevel> resource = new WardenResource<>();
+        Resource<SuspensionLevel> resource = new Resource<>();
         SuspensionLevel level = _constructPersistedSuspensionLevel();
 
         resource.setEntity(level);
         resource.setMeta(meta);
 
-        List<WardenResource<SuspensionLevel>> resources = new ArrayList<>(1);
+        List<Resource<SuspensionLevel>> resources = new ArrayList<>(1);
 
         level.setId(BigInteger.ONE);
         resources.add(resource);
@@ -399,7 +399,6 @@ public class PolicyServiceTest extends AbstractTest {
         result.setOwners(Arrays.asList("TestOwner"));
         result.setUsers(Arrays.asList("TestUser"));
         result.setSubSystem("TestSubSystem");
-        result.setMetricName("TestMetricName");
         result.setTriggerType(Policy.TriggerType.BETWEEN);
         result.setAggregator(Policy.Aggregator.AVG);
         result.setThresholds(Arrays.asList(0.0));

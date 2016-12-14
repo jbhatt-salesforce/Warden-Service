@@ -23,8 +23,8 @@ import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.WardenClient;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
+import com.salesforce.dva.warden.dto.Resource;
 import com.salesforce.dva.warden.dto.Subscription;
-import com.salesforce.dva.warden.dto.WardenResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -207,9 +207,9 @@ class DefaultWardenClient implements WardenClient {
             }
             result.add(serverPolicy);
 
-            List<WardenResource<Infraction>> suspensionResponses = policyService.getSuspensions(serverPolicy.getId()).getResources();
+            List<Resource<Infraction>> suspensionResponses = policyService.getSuspensions(serverPolicy.getId()).getResources();
 
-            for (WardenResource<Infraction> wardenResponse : suspensionResponses) {
+            for (Resource<Infraction> wardenResponse : suspensionResponses) {
                 Infraction suspension = wardenResponse.getEntity();
 
                 infractions.put(suspension);
@@ -305,7 +305,7 @@ class DefaultWardenClient implements WardenClient {
          */
         public void put(Infraction infraction) {
             requireThat(infraction != null, "The infraction cannot be null.");
-            _infractions.put(createKey(infraction.getPolicyId(), infraction.getUserName()), infraction);
+            _infractions.put(createKey(infraction.getPolicyId(), infraction.getUsername()), infraction);
         }
 
         /**

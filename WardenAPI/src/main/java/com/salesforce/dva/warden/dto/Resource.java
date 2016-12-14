@@ -21,16 +21,19 @@ package com.salesforce.dva.warden.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.util.EnumMap;
 import java.util.Objects;
 
 /**
- * Authentication credentials.
+ * Encapsulates web service resource and associated meta-data.
  *
  * @author  Tom Valine (tvaline@salesforce.com)
  */
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Credentials extends Base {
+public class Resource<T> extends Base {
 
     //~ Static fields/initializers *******************************************************************************************************************
 
@@ -38,17 +41,19 @@ public class Credentials extends Base {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private String username;
-    private String password;
+    private T entity;
+    private EnumMap<MetaKey, String> meta;
 
     //~ Methods **************************************************************************************************************************************
 
     @Override
-    public Credentials createExample() {
-        Credentials result = new Credentials();
+    public Resource createExample() {
+        Resource result = new Resource();
+        EnumMap<MetaKey, String> metamap = new EnumMap<>(MetaKey.class);
 
-        result.setPassword("aPassword");
-        result.setUsername("aUsername");
+        metamap.put(MetaKey.HREF, "http://localhost:8080");
+        result.setEntity(new User().createExample());
+        result.setMeta(metamap);
         return result;
     }
 
@@ -64,60 +69,90 @@ public class Credentials extends Base {
             return false;
         }
 
-        final Credentials other = (Credentials) obj;
+        final Resource<?> other = (Resource<?>) obj;
 
-        if (!Objects.equals(this.username, other.username)) {
+        if (!Objects.equals(this.entity, other.entity)) {
             return false;
         }
-        if (!Objects.equals(this.password, other.password)) {
+        if (!Objects.equals(this.meta, other.meta)) {
             return false;
         }
         return true;
     }
 
     /**
-     * Returns the password.
+     * Returns the entity associated with the resource.
      *
-     * @return  The password.
+     * @return  The associated entity.
      */
-    public String getPassword() {
-        return password;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    @JsonSubTypes(
+        {
+            @JsonSubTypes.Type(Policy.class), @JsonSubTypes.Type(Infraction.class), @JsonSubTypes.Type(SuspensionLevel.class),
+            @JsonSubTypes.Type(User.class), @JsonSubTypes.Type(Subscription.class)
+        }
+    )
+    public T getEntity() {
+        return entity;
     }
 
     /**
-     * Returns the username.
+     * Returns the meta-data for the resource.
      *
-     * @return  The username.
+     * @return  The meta-data.
      */
-    public String getUsername() {
-        return username;
+    public EnumMap<MetaKey, String> getMeta() {
+        return meta;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
+        int hash = 3;
 
-        hash = 13 * hash + Objects.hashCode(this.username);
-        hash = 13 * hash + Objects.hashCode(this.password);
+        hash = 89 * hash + Objects.hashCode(this.entity);
+        hash = 89 * hash + Objects.hashCode(this.meta);
         return hash;
     }
 
     /**
-     * Sets the password.
+     * Sets the entity associated with the resource.
      *
-     * @param  password  The password.
+     * @param  entity  The associated entity.
      */
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEntity(T entity) {
+        this.entity = entity;
     }
 
     /**
-     * Sets the username.
+     * Sets the meta-data for the resource.
      *
-     * @param  username  The username.
+     * @param  meta  The meta-data.
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public void setMeta(EnumMap<MetaKey, String> meta) {
+        this.meta = meta;
+    }
+
+    //~ Enums ****************************************************************************************************************************************
+
+    /**
+     * Meta-data keys.
+     *
+     * @author  Tom Valine (tvaline@salesforce.com)
+     */
+    public enum MetaKey {
+
+        /** The HREF link for the resource. */
+        HREF,
+        /** The status of the associated operation. */
+        STATUS,
+        /** The requested operation. */
+        VERB,
+        /** The informational message for consumption by API users. */
+        MESSAGE,
+        /** The informational message for consumption by UI users. */
+        UI_MESSAGE,
+        /** The informational message for consumption by Developers users. */
+        DEV_MESSAGE
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

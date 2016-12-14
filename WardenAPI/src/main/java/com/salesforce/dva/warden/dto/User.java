@@ -21,16 +21,20 @@ package com.salesforce.dva.warden.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.math.BigInteger;
+import java.util.Date;
 import java.util.Objects;
 
 /**
- * Authentication credentials.
+ * Principal user.
  *
- * @author  Tom Valine (tvaline@salesforce.com)
+ * @author  Jigna Bhatt (jbhatt@salesforce.com) Failing to add comment.
  */
-@JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Credentials extends Base {
+@JsonTypeName("user")
+@JsonPropertyOrder(alphabetic = true)
+public class User extends Entity {
 
     //~ Static fields/initializers *******************************************************************************************************************
 
@@ -38,18 +42,23 @@ public class Credentials extends Base {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private String username;
-    private String password;
+    private String userName;
+    private String email;
 
     //~ Methods **************************************************************************************************************************************
 
     @Override
-    public Credentials createExample() {
-        Credentials result = new Credentials();
+    public User createExample() {
+        User user = new User();
 
-        result.setPassword("aPassword");
-        result.setUsername("aUsername");
-        return result;
+        user.setEmail("user@user.com");
+        user.setUsername("exampleuser");
+        user.setCreatedById(BigInteger.ONE);
+        user.setCreatedDate(new Date(1472847819167L));
+        user.setModifiedById(BigInteger.TEN);
+        user.setModifiedDate(new Date(1472847819167L));
+        user.setId(BigInteger.ONE);
+        return user;
     }
 
     @Override
@@ -64,60 +73,64 @@ public class Credentials extends Base {
             return false;
         }
 
-        final Credentials other = (Credentials) obj;
+        final User other = (User) obj;
 
-        if (!Objects.equals(this.username, other.username)) {
+        if (!super.equals(other)) {
             return false;
         }
-        if (!Objects.equals(this.password, other.password)) {
+        if (!Objects.equals(this.userName, other.userName)) {
+            return false;
+        }
+        if (!Objects.equals(this.email, other.email)) {
             return false;
         }
         return true;
     }
 
     /**
-     * Returns the password.
+     * Returns the email.
      *
-     * @return  The password.
+     * @return  The email.
      */
-    public String getPassword() {
-        return password;
+    public String getEmail() {
+        return email;
     }
 
     /**
-     * Returns the username.
+     * Returns the user name.
      *
-     * @return  The username.
+     * @return  The user name.
      */
     public String getUsername() {
-        return username;
+        return userName;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
+        int hash = 3;
 
-        hash = 13 * hash + Objects.hashCode(this.username);
-        hash = 13 * hash + Objects.hashCode(this.password);
+        hash = 53 * hash + super.hashCode();
+        hash = 53 * hash + Objects.hashCode(this.userName);
+        hash = 53 * hash + Objects.hashCode(this.email);
         return hash;
     }
 
     /**
-     * Sets the password.
+     * Sets the email.
      *
-     * @param  password  The password.
+     * @param  email  The email.
      */
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     /**
-     * Sets the username.
+     * Sets the user name.
      *
-     * @param  username  The username.
+     * @param  userName  The user name.
      */
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUsername(String userName) {
+        this.userName = userName;
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
