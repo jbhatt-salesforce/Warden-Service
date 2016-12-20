@@ -99,7 +99,7 @@ class DefaultWardenClient implements WardenClient {
      * @param   condition  The boolean condition to check.
      * @param   message    The exception message.
      *
-     * @throws  IllegalArgumentException  DOCUMENT ME!
+     * @throws  IllegalArgumentException  If the condition is not met.
      */
     static void requireThat(boolean condition, String message) {
         if (!condition) {
