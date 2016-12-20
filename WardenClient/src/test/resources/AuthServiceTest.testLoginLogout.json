@@ -1,14 +1,14 @@
 [{
   "type": "POST",
   "endpoint": "/auth/login",
-  "jsonInput" :"{\"username\":\"aUsername\",\"password\":\"aPassword\"}",
+  "jsonInput" :"{\"password\":\"aPassword\",\"username\":\"aUsername\"}",
   "status": 200,
   "message": "success",
   "jsonOutput" : "[]"
 },{
   "type": "POST",
   "endpoint": "/auth/login",
-  "jsonInput" :"{\"username\":\"aBadUsername\",\"password\":\"aBadPassword\"}",
+  "jsonInput" :"{\"password\":\"aBadPassword\",\"username\":\"aBadUsername\"}",
   "status": 403,
   "message": "unauthorized",
   "jsonOutput" : "[]"

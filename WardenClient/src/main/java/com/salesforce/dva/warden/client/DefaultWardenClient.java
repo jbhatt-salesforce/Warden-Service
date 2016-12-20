@@ -197,7 +197,9 @@ class DefaultWardenClient implements WardenClient {
             WardenResponse<Policy> response = policyService.getPolicy(clientPolicy.getService(), clientPolicy.getName());
 
             if (response.getResources().isEmpty()) {
-                serverPolicy = policyService.createPolicies(Arrays.asList(new Policy[] { clientPolicy })).getResources().get(0).getEntity();
+                List<Policy> toCreate = Arrays.asList(new Policy[] { clientPolicy });
+
+                serverPolicy = policyService.createPolicies(toCreate).getResources().get(0).getEntity();
             } else {
                 serverPolicy = response.getResources().get(0).getEntity();
                 if (!clientPolicy.equals(serverPolicy)) {
