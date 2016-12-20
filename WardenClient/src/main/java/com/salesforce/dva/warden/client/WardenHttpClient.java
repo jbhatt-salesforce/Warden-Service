@@ -146,7 +146,7 @@ class WardenHttpClient {
      * @return  The corresponding response. Will never be null.
      *
      * @throws  IOException               If an I/O exception occurs.
-     * @throws  IllegalArgumentException  DOCUMENT ME!
+     * @throws  IllegalArgumentException  If an unsupported request type is specified.
      */
     HttpResponse doHttpRequest(RequestType requestType, String url, String json) throws IOException {
         requireThat(requestType != null, "The request type cannot be null.");
