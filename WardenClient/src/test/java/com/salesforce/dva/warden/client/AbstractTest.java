@@ -28,6 +28,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.StringEntity;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.slf4j.LoggerFactory;
 
 import static org.mockito.Mockito.*;
 
@@ -38,6 +39,10 @@ public abstract class AbstractTest {
     static {
         MAPPER.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
         MAPPER.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.ANY);
+
+        ch.qos.logback.classic.Logger nettyLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("io.netty");
+
+        nettyLogger.setLevel(ch.qos.logback.classic.Level.OFF);
     }
 
     protected void processRequest(HttpRequestResponse step) { }

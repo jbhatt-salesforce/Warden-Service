@@ -4,13 +4,13 @@
   "jsonInput" :null,
   "status": 200,
   "message": "success",
-  "jsonOutput" :"[{\"entity\":{\"type\":\"wardenuser\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"userName\":\"exampleuser\",\"email\":\"user@user.com\"},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
+  "jsonOutput" :"[{\"entity\":{\"type\":\"user\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"username\":\"exampleuser\",\"email\":\"user@user.com\"},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
 },{"type": "GET",
     "endpoint": "/user/hpotter",
     "jsonInput" :null,
     "status": 200,
     "message": "success",
-    "jsonOutput" :"[{\"entity\":{\"type\":\"wardenuser\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"userName\":\"exampleuser\",\"email\":\"user@user.com\"},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
+    "jsonOutput" :"[{\"entity\":{\"type\":\"user\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"username\":\"exampleuser\",\"email\":\"user@user.com\"},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
  },{"type": "GET",
   "endpoint": "/user/hpotter/policy",
   "jsonInput" :null,
@@ -22,24 +22,24 @@
   "jsonInput" :null,
   "status": 200,
   "message": "success",
-  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"userName\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
+  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"username\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
  },{"type": "GET",
   "endpoint": "/user/hpotter/infraction",
   "jsonInput" :null,
   "status": 200,
   "message": "success",
-  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"userName\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
+  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"username\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
  },{"type": "GET",
   "endpoint": "/user/hpotter/suspension",
   "jsonInput" :null,
   "status": 200,
   "message": "success",
-  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"userName\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
+  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"username\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
  },{"type": "GET",
   "endpoint": "/user/hpotter/suspension/1",
   "jsonInput" :null,
   "status": 200,
   "message": "success",
-  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"userName\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
+  "jsonOutput": "[{\"entity\":{\"type\":\"infraction\",\"id\":1,\"createdById\":1,\"createdDate\":1472847819167,\"modifiedById\":10,\"modifiedDate\":1472847819167,\"value\":10.0,\"policyId\":1,\"userId\":1,\"username\":\"hpotter\",\"infractionTimestamp\":100000,\"expirationTimestamp\":-1},\"meta\":{\"HREF\":\"TestHref\",\"STATUS\":\"200\",\"VERB\":\"GET\",\"MESSAGE\":\"TestMessage\",\"UI_MESSAGE\":\"TestUIMessage\",\"DEV_MESSAGE\":\"TestDevMessage\"}}]"
 }
 ]
