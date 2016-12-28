@@ -17,27 +17,31 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
-package com.salesforce.dva.warden.dto;
+package com.salesforce.dva.warden.ws.resources;
 
-import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import javax.ws.rs.Path;
 
 /**
- * The base DTO object class.
+ * The context root resource.
  *
- * @param   <B>  The concrete subclass type.
- *
- * @author  Jigna Bhatt (jbhatt@salesfoce.com)
+ * @author  Tom Valine (tvaline@salesforce.com)
  */
-public abstract class Base<B extends Base<B>> implements Serializable {
+@Path("/")
+public class RootResource extends AbstractResource {
 
     //~ Methods **************************************************************************************************************************************
 
-    /**
-     * Implementations of this method are required to generate an instance of the DTO object containing sample data that can be serialized and
-     * included in documentation.
-     *
-     * @return  An instance of the object populated with sample data.
-     */
-    public abstract B createExample();
+    @Override
+    public List<Class<? extends AbstractResource>> getEndpoints() {
+        List<Class<? extends AbstractResource>> result = new LinkedList<>();
+
+        result.add(AuthResource.class);
+        result.add(ManagementResource.class);
+        result.add(PolicyResource.class);
+        result.add(UserResource.class);
+        return result;
+    }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

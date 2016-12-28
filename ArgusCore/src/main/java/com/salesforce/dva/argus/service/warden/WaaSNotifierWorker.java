@@ -2,7 +2,6 @@ package com.salesforce.dva.argus.service.warden;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import com.salesforce.dva.warden.dto.ChangeRequest;
 
 
 
@@ -74,7 +72,7 @@ public class WaaSNotifierWorker implements Runnable {
 				// Process any pending changes
 				synchronized (this.pendingChanges) {
 					Iterator changes = this.pendingChanges.iterator();
-					while (changes.hasNext()) {
+					/*while (changes.hasNext()) {
 						ChangeRequest change = (ChangeRequest) changes.next();
 						switch (change.type) {
 						case ChangeRequest.CHANGEOPS:
@@ -85,7 +83,7 @@ public class WaaSNotifierWorker implements Runnable {
 							change.socket.register(this.selector, change.ops);
 							break;
 						}
-					}
+					}*/
 					this.pendingChanges.clear();
 				}
 
@@ -224,9 +222,10 @@ public class WaaSNotifierWorker implements Runnable {
 		// selecting thread. As part of the registration we'll register
 		// an interest in connection events. These are raised when a channel
 		// is ready to complete connection establishment.
+                /*
 		synchronized(this.pendingChanges) {
 			this.pendingChanges.add(new ChangeRequest(socketChannel, ChangeRequest.REGISTER, SelectionKey.OP_CONNECT));
-		}
+		}*/
 		
 		return socketChannel;
 	}
