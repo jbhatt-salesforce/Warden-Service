@@ -125,7 +125,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/infraction/{infractionId}")
+    @Path("/{username}/infraction/{infractionId}")
     @Description("Returns the specified infraction for this user.")
     public List<Resource<Infraction>> getInfractionForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -152,7 +152,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/infraction")
+    @Path("/{username}/infraction")
     @Description("Returns the infractions for this user.")
     public List<Resource<Infraction>> getInfractionsForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
@@ -200,7 +200,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/policy/{policyId}/infraction")
+    @Path("/{username}/policy/{policyId}/infraction")
     @Description("Returns the users infractions for the given policy.")
     public List<Resource<Infraction>> getInfractionsForUserAndPolicy(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -253,7 +253,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/policy/{policyId}/metric")
+    @Path("/{username}/policy/{policyId}/metric")
     @Description("Returns the metric for this user and policy.")
     public List<Resource<Metric>> getMetricsForUserAndPolicy(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -314,7 +314,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/policy")
+    @Path("/{username}/policy")
     @Description("Returns the policies that apply to this user.")
     public List<Resource<Policy>> getPoliciesForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
@@ -363,7 +363,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/suspension/{suspensionId}")
+    @Path("/{username}/suspension/{suspensionId}")
     @Description("Returns the suspension for this user and suspension id.")
     public List<Resource<Infraction>> getSuspensionForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -388,7 +388,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/suspension")
+    @Path("/{username}/suspension")
     @Description("Returns the infractions for this user.")
     public List<Resource<Infraction>> getSuspensionsForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
@@ -435,7 +435,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}")
+    @Path("/{username}")
     @Description("Returns the user having the given ID.")
     public List<Resource<User>> getUserByUsername(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
@@ -453,7 +453,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user")
+    @Path("/")
     @Description("Returns the user having the given ID.")
     public List<Resource<User>> getUsers(@Context HttpServletRequest req,
         @QueryParam("username") String username) {

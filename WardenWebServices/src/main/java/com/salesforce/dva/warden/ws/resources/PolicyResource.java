@@ -378,7 +378,7 @@ public class PolicyResource extends AbstractResource {
      *
      * @throws  WebApplicationException  The exception with 404 status will be thrown if a policy does not exist.
      */
-    @GET
+/*    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/policy/{pid}")
     @Description("Returns a policy by its ID.")
@@ -425,7 +425,7 @@ public class PolicyResource extends AbstractResource {
 		
 		return result;
 	}
-    
+    */
     /**
      * Finds a policy by policy service and name.
      *
@@ -439,7 +439,7 @@ public class PolicyResource extends AbstractResource {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy")
+    @Path("/policy/{pid}")
     @Description("Returns a policy by its ID.")
 	public Resource<Policy> getPolicyById(@Context HttpServletRequest req, @QueryParam("service") String service, @QueryParam("name") String name) {
 
