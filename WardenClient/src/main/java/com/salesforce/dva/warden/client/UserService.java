@@ -22,11 +22,11 @@ package com.salesforce.dva.warden.client;
 import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Infraction;
+import com.salesforce.dva.warden.dto.Metric;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.User;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Map;
 
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
@@ -102,11 +102,15 @@ class UserService extends EndpointService {
      *
      * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(String username, BigInteger policyId, Long start, Long end) throws IOException {
+    WardenResponse<Metric> getMetricForUserAndPolicy(String username, BigInteger policyId, String start, String end) throws IOException {
         requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
         requireThat(policyId != null, "Policy ID cannot be null.");
-        requireThat(start != null && end == null ? start < System.currentTimeMillis() : true, "Start time cannot be null or occur in the future.");
-        requireThat(start != null && end == null ? true : start <= end, "The start time must occur on or before the end time.");
+        if (start == null) {
+            start = "-30d";
+        }
+        if (end == null) {
+            end = "-0d";
+        }
 
         String requestUrl = REQUESTURL + "/" + username + "/policy" + policyId.toString() + "/metric?start=" + start + "&end=" + end;
 

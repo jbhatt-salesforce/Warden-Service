@@ -1,7 +1,6 @@
 package com.salesforce.dva.argus.util;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,15 +11,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.beanutils.BeanUtils;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesforce.dva.argus.entity.*;
 import com.salesforce.dva.warden.dto.Entity;
-import com.salesforce.dva.warden.dto.WardenResource;
-import com.salesforce.dva.warden.dto.WardenResource.MetaKey;
-import java.util.Arrays;
+import com.salesforce.dva.warden.dto.Resource;
+import com.salesforce.dva.warden.dto.Resource.MetaKey;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class WaaSObjectConverter implements Serializable {
 
@@ -86,7 +84,6 @@ public class WaaSObjectConverter implements Serializable {
     	result.setCronEntry(policy.getCronEntry());
     	result.setDefaultValue(policy.getDefaultValue());
     	result.setId(policy.getId());
-    	result.setMetricName(policy.getMetricName());
         result.setModifiedById(policy.getModifiedBy() != null ? policy.getModifiedBy().getId() : null);
     	result.setModifiedDate(policy.getModifiedDate());
     	result.setName(policy.getName());
@@ -191,12 +188,12 @@ public class WaaSObjectConverter implements Serializable {
     /*
      * map infraction entity to infraction dto
      */
-    public static com.salesforce.dva.warden.dto.WardenUser convertToWardenUserDto(PrincipalUser principalUser) {
+    public static com.salesforce.dva.warden.dto.User convertToWardenUserDto(PrincipalUser principalUser) {
     	if (principalUser == null) {
             throw new WebApplicationException("Null entity object cannot be converted to Dto object.", Status.INTERNAL_SERVER_ERROR);
         }
-    	com.salesforce.dva.warden.dto.WardenUser result = new com.salesforce.dva.warden.dto.WardenUser();
-    	result.setUserName(principalUser.getUserName());
+    	com.salesforce.dva.warden.dto.User result = new com.salesforce.dva.warden.dto.User();
+    	result.setUsername(principalUser.getUserName());
     	result.setEmail(principalUser.getEmail());
     	
     	result.setCreatedById(principalUser.getCreatedBy() != null ? principalUser.getCreatedBy().getId() : null);
@@ -207,53 +204,29 @@ public class WaaSObjectConverter implements Serializable {
     	
     	return result;
     }
-    public static List<com.salesforce.dva.warden.dto.WardenUser> convertToWardenUserDtos(
+    public static List<com.salesforce.dva.warden.dto.User> convertToWardenUserDtos(
 			List<com.salesforce.dva.argus.entity.PrincipalUser> principalUsers) {
     	if(principalUsers == null || principalUsers.isEmpty()){
     		throw new WebApplicationException("Null principal Users object cannot be converted to infraction Dto object.", Status.INTERNAL_SERVER_ERROR);
     	}
-    	List<com.salesforce.dva.warden.dto.WardenUser>  result = new ArrayList<com.salesforce.dva.warden.dto.WardenUser>();
+    	List<com.salesforce.dva.warden.dto.User>  result = new ArrayList<com.salesforce.dva.warden.dto.User>();
     	for(PrincipalUser p : principalUsers){
     		result.add(convertToWardenUserDto(p));
     	}
     	return result;
 	}
     
-  /**
-  * Converts a metric entity to a DTO. it is extend from tsdbEntity instead of jpaEntity, convert it seperately
-  *
-  * @param   metric  The metric to convert.
-  *
-  * @return  The corresponding DTO.
-  *
-  * @throws  WebApplicationException  If an error occurs.
-  */
 
- public static com.salesforce.dva.warden.dto.Metric  convertToMetricDto(Class<com.salesforce.dva.warden.dto.Metric> clazz, Metric entity) {
-	 if (entity == null) {
-         throw new WebApplicationException("Null entity object cannot be converted to Dto object.", Status.INTERNAL_SERVER_ERROR);
-     }
-	 com.salesforce.dva.warden.dto.Metric result = null;
-
-     try {
-         result = clazz.newInstance();
-         BeanUtils.copyProperties(result, entity);
-
-     } catch (Exception ex) {
-         throw new WebApplicationException("Metric DTO transformation failed.", Status.INTERNAL_SERVER_ERROR);
-     }
-     return result;
- }
-
-
- public static List<com.salesforce.dva.warden.dto.Metric> convertToMetricDtos(
+ public static Map<Long, Double> convertToMetricDtos(
 			List<com.salesforce.dva.argus.entity.Metric> metrics) {
  	if(metrics == null || metrics.isEmpty()){
  		throw new WebApplicationException("Null metrics object cannot be converted to infraction Dto object.", Status.INTERNAL_SERVER_ERROR);
  	}
- 	List<com.salesforce.dva.warden.dto.Metric>  result = new ArrayList<com.salesforce.dva.warden.dto.Metric>();
+ 	Map<Long, Double>  result = new TreeMap<>();
  	for(Metric m : metrics){
- 		result.add(convertToMetricDto(com.salesforce.dva.warden.dto.Metric.class,m));
+ 		         for (Map.Entry<Long,String> datapoint : m.getDatapoints().entrySet()) {
+                result.put(datapoint.getKey(), Double.valueOf(datapoint.getValue()));
+            }
  	}
  	return result;
 	}
@@ -365,9 +338,9 @@ public class WaaSObjectConverter implements Serializable {
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
-	public static <T> WardenResource<T> convertToResource(T entity, EnumMap<MetaKey, String> meta) {
+	public static <T> Resource<T> convertToResource(T entity, EnumMap<MetaKey, String> meta) {
 		
-		WardenResource<T> resource = new WardenResource<T>();
+		Resource<T> resource = new Resource<T>();
 		resource.setEntity(entity);
 		resource.setMeta(meta);
 		

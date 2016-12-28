@@ -31,7 +31,6 @@ import com.salesforce.dva.argus.entity.PrincipalUser;
 import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
 import com.salesforce.dva.argus.entity.Trigger;
-import com.salesforce.dva.warden.dto.Policy.TriggerType;
 import com.salesforce.dva.argus.inject.SLF4JTypeListener;
 import com.salesforce.dva.argus.service.AlertService;
 import com.salesforce.dva.argus.service.AnnotationService;
@@ -42,7 +41,6 @@ import com.salesforce.dva.argus.service.MetricService;
 import com.salesforce.dva.argus.service.ServiceManagementService;
 import com.salesforce.dva.argus.service.TSDBService;
 import com.salesforce.dva.argus.service.UserService;
-import com.salesforce.dva.argus.service.WaaSMonitorService;
 //import com.salesforce.dva.argus.service.WaaSMonitorService;
 import com.salesforce.dva.argus.service.WaaSService;
 //import com.salesforce.dva.argus.service.collect.DefaultCollectionService.WaaSCollectionThread;
@@ -499,6 +497,11 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 		return WAAS_ALERT_NAME_PREFIX + user + "-" + policy.getMetricName();
 	}
+
+    @Override
+    public List<Infraction> getSuspensionsByUser(PrincipalUser user) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 	public enum TimeUnit {
 
@@ -958,7 +961,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	 * @return	list of metrics
 	 */
 	@Override
-	public List<com.salesforce.dva.argus.entity.Metric> getMetrics(Policy policy, PrincipalUser user) {
+	public List<com.salesforce.dva.argus.entity.Metric> getMetrics(Policy policy, PrincipalUser user, String start, String end) {
 		requireArgument(policy != null, "Policy cannot be null or empty");
 		requireArgument(user != null, "User cannot be null or empty");
 		List<com.salesforce.dva.argus.entity.Metric> metrics = new ArrayList<com.salesforce.dva.argus.entity.Metric>();

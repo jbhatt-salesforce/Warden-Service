@@ -27,7 +27,7 @@ import static org.junit.Assert.assertFalse;
 public class IdentityTest {
 
     private static final Class[] classes = new Class[] {
-            Credentials.class, Infraction.class, Policy.class, Resource.class, Subscription.class, SuspensionLevel.class, User.class
+            Credentials.class, Infraction.class, Policy.class, Resource.class, Subscription.class, SuspensionLevel.class, User.class, Metric.class
         };
 
     @Test

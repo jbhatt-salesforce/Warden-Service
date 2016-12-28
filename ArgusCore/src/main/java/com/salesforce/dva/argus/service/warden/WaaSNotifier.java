@@ -31,6 +31,7 @@
 	 
 package com.salesforce.dva.argus.service.warden;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.salesforce.dva.argus.entity.Alert;
@@ -44,17 +45,11 @@ import com.salesforce.dva.argus.service.AnnotationService;
 import com.salesforce.dva.argus.service.MetricService;
 import com.salesforce.dva.argus.service.TSDBService;
 import com.salesforce.dva.argus.service.WaaSService;
-import com.salesforce.dva.argus.service.MonitorService.Counter;
 import com.salesforce.dva.argus.service.alert.DefaultAlertService.NotificationContext;
 import com.salesforce.dva.argus.service.alert.notifier.DefaultNotifier;
 import com.salesforce.dva.argus.system.SystemConfiguration;
-import com.salesforce.dva.warden.dto.WardenEvent;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +59,7 @@ import java.util.TreeMap;
 import javax.persistence.EntityManager;
 
 import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
+import io.netty.buffer.ByteBufUtil;
 
 /**
  * Default implementation of the warden as a service notifier. This WaaS
@@ -131,10 +127,10 @@ public  class WaaSNotifier extends DefaultNotifier {
     	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUserName(), policy);
     	
     	//wrap warden event data
-    	WardenEvent wardenEvent = new WardenEvent();
+/*    	WardenEvent wardenEvent = new WardenEvent();
     	//byte[] data = wardenEvent.getWardenEventData(Infraction.transformToDto(newInfraction), WardenEvent.WardenEventType.NEW_INFRACTION);
-    	ByteBuf data = wardenEvent.getWardenEventData(Infraction.transformToDto(newInfraction));
-    	
+    	ByteBuf data = ByteBufUtil.writeUtf8(buf, new ObjectMapper().writeValueAsString(infraction));
+        
     	//send out warden event
     	try {
     		//WaaSNotifierWorker.doStart(InetAddress.getByName("localhost"),9090, data);
@@ -143,7 +139,7 @@ public  class WaaSNotifier extends DefaultNotifier {
     		WaaSNotifierClient.doStart(subscriptions, data);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
     	addAnnotationSuspendedUser(context, policy);
     }
 

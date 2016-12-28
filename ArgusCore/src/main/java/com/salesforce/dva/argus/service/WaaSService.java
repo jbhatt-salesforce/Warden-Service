@@ -3,7 +3,6 @@ package com.salesforce.dva.argus.service;
 import java.math.BigInteger;
 import java.util.List;
 
-import com.google.inject.persist.Transactional;
 import com.salesforce.dva.argus.entity.Infraction;
 import com.salesforce.dva.argus.entity.Metric;
 import com.salesforce.dva.argus.entity.Policy;
@@ -290,7 +289,7 @@ public interface WaaSService {
 	 *            
 	 * @return	list of metrics
 	 */
-	List<com.salesforce.dva.argus.entity.Metric> getMetrics(Policy policy, PrincipalUser user);
+	List<com.salesforce.dva.argus.entity.Metric> getMetrics(Policy policy, PrincipalUser user, String start, String end);
 	
 	/**
 	 * create metrics for a specific user of a policy, called by
@@ -330,6 +329,8 @@ public interface WaaSService {
 	Subscription updateSubscription(Subscription subscription);
 
 	List<Subscription> getSubscriptions();
+
+    public List<Infraction> getSuspensionsByUser(PrincipalUser user);
 	
 	
 	

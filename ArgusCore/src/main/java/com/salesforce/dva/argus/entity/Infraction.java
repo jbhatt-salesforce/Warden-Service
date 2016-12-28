@@ -76,8 +76,8 @@ public class Infraction extends JPAEntity {
 	private Long infractionTimestamp;
 
 	@Basic(optional = false)
-	@Column(name = "expiration_timestamp", nullable = false)
-	private Long expirationTimestamp = 0L;
+	@Column(name = "expiration_timestamp")
+	private Long expirationTimestamp = null;
 
 	// ~ Constructors
 	// *********************************************************************************************************************************
