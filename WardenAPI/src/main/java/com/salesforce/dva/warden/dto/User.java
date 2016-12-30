@@ -42,8 +42,9 @@ public class User extends Entity {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private String userName;
+    private String username;
     private String email;
+    private Boolean privileged;
 
     //~ Methods **************************************************************************************************************************************
 
@@ -78,10 +79,13 @@ public class User extends Entity {
         if (!super.equals(other)) {
             return false;
         }
-        if (!Objects.equals(this.userName, other.userName)) {
+        if (!Objects.equals(this.username, other.username)) {
             return false;
         }
         if (!Objects.equals(this.email, other.email)) {
+            return false;
+        }
+        if (!Objects.equals(this.privileged, other.privileged)) {
             return false;
         }
         return true;
@@ -102,7 +106,7 @@ public class User extends Entity {
      * @return  The user name.
      */
     public String getUsername() {
-        return userName;
+        return username;
     }
 
     @Override
@@ -110,8 +114,9 @@ public class User extends Entity {
         int hash = 3;
 
         hash = 53 * hash + super.hashCode();
-        hash = 53 * hash + Objects.hashCode(this.userName);
+        hash = 53 * hash + Objects.hashCode(this.username);
         hash = 53 * hash + Objects.hashCode(this.email);
+        hash = 53 * hash + Objects.hashCode(this.privileged);
         return hash;
     }
 
@@ -127,10 +132,20 @@ public class User extends Entity {
     /**
      * Sets the user name.
      *
-     * @param  userName  The user name.
+     * @param  username  The user name.
      */
-    public void setUsername(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
+
+    public Boolean getPrivileged() {
+        return privileged;
+    }
+
+    public void setPrivileged(Boolean privileged) {
+        this.privileged = privileged;
+    }
+    
+    
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

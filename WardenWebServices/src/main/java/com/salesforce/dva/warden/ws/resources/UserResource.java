@@ -62,7 +62,7 @@ public class UserResource extends AbstractResource {
 
     private final WaaSService waaSService;
     @Context
-    UriInfo uriInfo;
+    private UriInfo uriInfo;
 
     //~ Constructors *********************************************************************************************************************************
 
@@ -389,7 +389,7 @@ public class UserResource extends AbstractResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{username}/suspension")
-    @Description("Returns the infractions for this user.")
+    @Description("Returns the suspensions for this user.")
     public List<Resource<Infraction>> getSuspensionsForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
         requireThat(username != null && !username.isEmpty(), "User name cannot be null or an empty string.");
@@ -461,9 +461,14 @@ public class UserResource extends AbstractResource {
         String remoteUsername = remoteUser.getUserName();
         List<Resource<User>> result = new ArrayList<>();
         List<PrincipalUser> users = new ArrayList<>();
-
+        BigInteger id;
+        try {
+            id = new BigInteger(username);
+        } catch (NumberFormatException | NullPointerException ex ) {
+            id = null;
+        }
         for (PrincipalUser user : userService.getPrincipalUsers()) {
-            if (remoteUser.isPrivileged() || user.getUserName().equals(remoteUsername) && (username == null || username.equals(user.getUserName()))) {
+            if ((remoteUser.isPrivileged() || user.getUserName().equals(remoteUsername)) && (username == null || username.equals(user.getUserName()) || user.getId().equals(id))) {
                 users.add(user);
             }
         }
@@ -479,8 +484,7 @@ public class UserResource extends AbstractResource {
                 uiMessage = "This is the information associated with another user which you are authorized to view.";
                 devMessage = "This data doesn't represent your identity.  It is only visible as a result of your privileged user status.";
             }
-
-            URI userUri = uriInfo.getAbsolutePathBuilder().path(user.getUserName()).build();
+            URI userUri = uriInfo.getBaseUriBuilder().path("user").path(user.getId().toString()).build();
             Resource<User> res = new Resource<>();
 
             res.setEntity(fromEntity(user));

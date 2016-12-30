@@ -24,6 +24,7 @@ import com.salesforce.dva.warden.dto.Credentials;
 import java.io.IOException;
 
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+import com.salesforce.dva.warden.dto.User;
 
 /**
  * Provides methods to authenticate a user.
@@ -60,7 +61,7 @@ class AuthService extends EndpointService {
      *
      * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse login(String username, String password) throws IOException {
+    WardenResponse<User> login(String username, String password) throws IOException {
         requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
         requireThat(password != null && !password.isEmpty(), "Password cannot be null or empty.");
 
@@ -79,7 +80,7 @@ class AuthService extends EndpointService {
      *
      * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse logout() throws IOException {
+    WardenResponse<User> logout() throws IOException {
         String requestUrl = REQUESTURL + "/logout";
 
         return getClient().executeHttpRequest(WardenHttpClient.RequestType.GET, requestUrl, null);

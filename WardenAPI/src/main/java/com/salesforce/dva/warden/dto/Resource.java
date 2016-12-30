@@ -51,7 +51,7 @@ public class Resource<T> extends Base {
         Resource result = new Resource();
         EnumMap<MetaKey, String> metamap = new EnumMap<>(MetaKey.class);
 
-        metamap.put(MetaKey.HREF, "http://localhost:8080");
+        metamap.put(MetaKey.href, "http://localhost:8080");
         result.setEntity(new User().createExample());
         result.setMeta(metamap);
         return result;
@@ -142,17 +142,17 @@ public class Resource<T> extends Base {
     public enum MetaKey {
 
         /** The HREF link for the resource. */
-        HREF,
+        href,
         /** The status of the associated operation. */
-        STATUS,
+        status,
         /** The requested operation. */
-        VERB,
+        verb,
         /** The informational message for consumption by API users. */
-        MESSAGE,
+        message,
         /** The informational message for consumption by UI users. */
-        UI_MESSAGE,
+        uiMessage,
         /** The informational message for consumption by Developers users. */
-        DEV_MESSAGE
+        devMessage
     }
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

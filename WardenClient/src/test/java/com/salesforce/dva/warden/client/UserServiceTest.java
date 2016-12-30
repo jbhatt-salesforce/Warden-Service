@@ -142,12 +142,12 @@ public class UserServiceTest extends AbstractTest {
         List<Resource<User>> resources = new ArrayList<>(1);
         EnumMap<MetaKey, String> meta = new EnumMap<>(MetaKey.class);
 
-        meta.put(MetaKey.HREF, "TestHref");
-        meta.put(MetaKey.DEV_MESSAGE, "TestDevMessage");
-        meta.put(MetaKey.MESSAGE, "TestMessage");
-        meta.put(MetaKey.STATUS, "200");
-        meta.put(MetaKey.UI_MESSAGE, "TestUIMessage");
-        meta.put(MetaKey.VERB, httpVerb);
+        meta.put(MetaKey.href, "TestHref");
+        meta.put(MetaKey.devMessage, "TestDevMessage");
+        meta.put(MetaKey.message, "TestMessage");
+        meta.put(MetaKey.status, "200");
+        meta.put(MetaKey.uiMessage, "TestUIMessage");
+        meta.put(MetaKey.verb, httpVerb);
         persistedUser.setId(BigInteger.ONE);
         resource.setEntity(persistedUser);
         resource.setMeta(meta);
@@ -162,12 +162,12 @@ public class UserServiceTest extends AbstractTest {
         WardenResponse<Infraction> result = new WardenResponse<>();
         EnumMap<MetaKey, String> meta = new EnumMap<>(MetaKey.class);
 
-        meta.put(MetaKey.HREF, "TestHref");
-        meta.put(MetaKey.DEV_MESSAGE, "TestDevMessage");
-        meta.put(MetaKey.MESSAGE, "TestMessage");
-        meta.put(MetaKey.STATUS, "200");
-        meta.put(MetaKey.UI_MESSAGE, "TestUIMessage");
-        meta.put(MetaKey.VERB, httpVerb);
+        meta.put(MetaKey.href, "TestHref");
+        meta.put(MetaKey.devMessage, "TestDevMessage");
+        meta.put(MetaKey.message, "TestMessage");
+        meta.put(MetaKey.status, "200");
+        meta.put(MetaKey.uiMessage, "TestUIMessage");
+        meta.put(MetaKey.verb, httpVerb);
 
         Resource<Infraction> resource = new Resource<>();
         Infraction infraction = _constructPersistedInfraction();
@@ -192,12 +192,12 @@ public class UserServiceTest extends AbstractTest {
         List<Resource<Policy>> resources = new ArrayList<>(1);
         EnumMap<MetaKey, String> meta = new EnumMap<>(MetaKey.class);
 
-        meta.put(MetaKey.HREF, "TestHref");
-        meta.put(MetaKey.DEV_MESSAGE, "TestDevMessage");
-        meta.put(MetaKey.MESSAGE, "TestMessage");
-        meta.put(MetaKey.STATUS, "200");
-        meta.put(MetaKey.UI_MESSAGE, "TestUIMessage");
-        meta.put(MetaKey.VERB, httpVerb);
+        meta.put(MetaKey.href, "TestHref");
+        meta.put(MetaKey.devMessage, "TestDevMessage");
+        meta.put(MetaKey.message, "TestMessage");
+        meta.put(MetaKey.status, "200");
+        meta.put(MetaKey.uiMessage, "TestUIMessage");
+        meta.put(MetaKey.verb, httpVerb);
         persistedPolicy.setId(BigInteger.ONE);
         resource.setEntity(persistedPolicy);
         resource.setMeta(meta);

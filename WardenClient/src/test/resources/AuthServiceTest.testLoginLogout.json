@@ -4,7 +4,7 @@
   "jsonInput" :"{\"password\":\"aPassword\",\"username\":\"aUsername\"}",
   "status": 200,
   "message": "success",
-  "jsonOutput" : "[]"
+  "jsonOutput" : "[{\"entity\":{\"type\":\"user\",\"createdById\":1,\"createdDate\":1483126631833,\"email\":\"tvaline@salesforce.com\",\"id\":100011,\"modifiedById\":1,\"modifiedDate\":1483126631833,\"privileged\":false,\"username\":\"tvaline\"},\"meta\":{\"href\":\"http://localhost:8080/wardenws/user/100011\",\"status\":\"200\",\"verb\":\"GET\",\"message\":\"This is your user information.\",\"uiMessage\":\"This is the information associated with your user.\",\"devMessage\":\"This data represents your identity.  It is always visible to you and any privileged user.\"}}]"
 },{
   "type": "POST",
   "endpoint": "/auth/login",
@@ -18,5 +18,5 @@
   "jsonInput" :null,
   "status": 200,
   "message": "success",
-  "jsonOutput" : "[]"
+  "jsonOutput" : "[{\"entity\":{\"type\":\"user\",\"createdById\":1,\"createdDate\":1483126631833,\"email\":\"tvaline@salesforce.com\",\"id\":100011,\"modifiedById\":1,\"modifiedDate\":1483126631833,\"privileged\":false,\"username\":\"tvaline\"},\"meta\":{\"href\":\"http://localhost:8080/wardenws/user/100011\",\"status\":\"200\",\"verb\":\"GET\",\"message\":\"This is your user information.\",\"uiMessage\":\"This is the information associated with your user.\",\"devMessage\":\"This data represents your identity.  It is always visible to you and any privileged user.\"}}]"
 }]
