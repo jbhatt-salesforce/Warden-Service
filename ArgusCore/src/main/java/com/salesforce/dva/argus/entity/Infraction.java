@@ -3,7 +3,6 @@ package com.salesforce.dva.argus.entity;
 import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 
 import java.math.BigInteger;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -75,7 +74,6 @@ public class Infraction extends JPAEntity {
 	@Column(name = "infraction_timestamp", nullable = false)
 	private Long infractionTimestamp;
 
-	@Basic(optional = false)
 	@Column(name = "expiration_timestamp")
 	private Long expirationTimestamp = null;
 
