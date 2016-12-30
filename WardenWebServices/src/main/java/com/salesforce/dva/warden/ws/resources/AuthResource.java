@@ -85,6 +85,7 @@ public class AuthResource extends AbstractResource {
     @Description("Authenticates a user session.")
     @Path("/login")
     public List<Resource<User>> login(@Context HttpServletRequest req, final Credentials creds) {
+        requireThat(creds != null, "You must supply login credentials.");
         try {
             User result = null;
             PrincipalUser user = authService.getUser(creds.getUsername(), creds.getPassword());

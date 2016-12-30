@@ -35,8 +35,6 @@ import com.salesforce.dva.argus.service.ManagementService;
 import com.salesforce.dva.warden.dto.Resource;
 import com.salesforce.dva.warden.dto.User;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;

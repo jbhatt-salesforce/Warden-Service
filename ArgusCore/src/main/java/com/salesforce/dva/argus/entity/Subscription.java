@@ -190,13 +190,10 @@ public class Subscription extends JPAEntity implements Serializable {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		Object[] params = { getHostname(), getPort() };
-		String format = "Subscription{ hostname = {0}, port = {1}}";
-
-		return MessageFormat.format(format, params);
-	}
+    @Override
+    public String toString() {
+        return "Subscription{" + "hostname=" + hostname + ", port=" + port + '}';
+    }
 
 	
 
