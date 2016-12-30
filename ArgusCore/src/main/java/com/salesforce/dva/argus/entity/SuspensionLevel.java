@@ -222,9 +222,7 @@ public class SuspensionLevel extends JPAEntity {
 
     @Override
     public String toString() {
-    	Object[] params = { getPolicy(), getLevelNumber(), getInfractionCount(), getSuspensionTime()};
-    	String format = "SuspensionLevel{ policy = {0}, levelNumber = {1,number,#}, infractionCount = {2,number,#}, suspensionTime = {3,number,#}";
-    	
-        return MessageFormat.format(format, params);
+        return "SuspensionLevel{" + "policy=" + policy + ", levelNumber=" + levelNumber + ", infractionCount=" + infractionCount + ", suspensionTime=" + suspensionTime + '}';
     }
+
 }

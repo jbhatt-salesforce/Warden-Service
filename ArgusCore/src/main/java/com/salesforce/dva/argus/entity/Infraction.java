@@ -340,13 +340,10 @@ public class Infraction extends JPAEntity {
         }
         return true;
     }
-    
+
     @Override
     public String toString() {
-    	Object[] params = { getPolicy(), getUser(), getInfractionTimestamp(), getExpirationTimestamp()};
-    	String format = "Infraction{ policy = {0}, user = {1}, infractionTimestamp = {2,number,#}, expirationTimestamp = {3,number,#}";
-    	
-        return MessageFormat.format(format, params);
-       
+        return "Infraction{" + "policy=" + policy + ", user=" + user + ", infractionTimestamp=" + infractionTimestamp + ", expirationTimestamp=" + expirationTimestamp + '}';
     }
+    
 }

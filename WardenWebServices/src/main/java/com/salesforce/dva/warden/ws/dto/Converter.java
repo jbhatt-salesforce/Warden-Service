@@ -18,7 +18,7 @@ public class Converter {
      * @return  BaseDto object.
      *
      * @throws  WebApplicationException  The exception with 500 status will be thrown.
-     */
+     */    
     public static <D extends Entity, E extends JPAEntity> D fromEntity(Class<D> clazz, E entity) {
         D result = null;
 
