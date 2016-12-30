@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Server subscription.
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com)
+ * @author Jigna Bhatt (jbhatt@salesforce.com)
  */
 @JsonTypeName("subscription")
 @JsonPropertyOrder(alphabetic = true)
@@ -37,16 +37,13 @@ import java.util.Objects;
 public class Subscription extends Entity {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private String hostname;
     private Integer port;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public Subscription createExample() {
         Subscription result = new Subscription();
@@ -89,7 +86,7 @@ public class Subscription extends Entity {
     /**
      * Returns the host name.
      *
-     * @return  The host name.
+     * @return The host name.
      */
     public String getHostname() {
         return hostname;
@@ -98,7 +95,7 @@ public class Subscription extends Entity {
     /**
      * Returns the port.
      *
-     * @return  The port.
+     * @return The port.
      */
     public Integer getPort() {
         return port;
@@ -117,7 +114,7 @@ public class Subscription extends Entity {
     /**
      * Sets the host name.
      *
-     * @param  hostname  The host name.
+     * @param hostname The host name.
      */
     public void setHostname(String hostname) {
         this.hostname = hostname;
@@ -126,10 +123,17 @@ public class Subscription extends Entity {
     /**
      * Sets the port.
      *
-     * @param  port  The port.
+     * @param port The port.
      */
     public void setPort(Integer port) {
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return "Subscription{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+                + ", modifiedDate=" + modifiedDate + "hostname=" + hostname + ", port=" + port + '}';
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

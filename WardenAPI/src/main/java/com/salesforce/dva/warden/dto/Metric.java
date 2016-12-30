@@ -29,24 +29,21 @@ import java.util.TreeMap;
 /**
  * Policy usage metric information.
  *
- * @author  Tom Valine (tvaline@salesforce.com)
+ * @author Tom Valine (tvaline@salesforce.com)
  */
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Metric extends Base {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private Map<Long, Double> datapoints = new TreeMap<>();
     private BigInteger policyId;
     private String username;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public Metric createExample() {
         Metric result = new Metric();
@@ -84,7 +81,7 @@ public class Metric extends Base {
     /**
      * Returns the data points for the usage data.
      *
-     * @return  The data points for the usage data.
+     * @return The data points for the usage data.
      */
     public Map<Long, Double> getDatapoints() {
         return datapoints;
@@ -93,7 +90,7 @@ public class Metric extends Base {
     /**
      * Returns the policy ID.
      *
-     * @return  The policy ID.
+     * @return The policy ID.
      */
     public BigInteger getPolicyId() {
         return policyId;
@@ -102,7 +99,7 @@ public class Metric extends Base {
     /**
      * Returns the username.
      *
-     * @return  The username.
+     * @return The username.
      */
     public String getUsername() {
         return username;
@@ -121,7 +118,7 @@ public class Metric extends Base {
     /**
      * Sets the metric usage data points.
      *
-     * @param  datapoints  The data points.
+     * @param datapoints The data points.
      */
     public void setDatapoints(Map<Long, Double> datapoints) {
         this.datapoints = datapoints;
@@ -130,7 +127,7 @@ public class Metric extends Base {
     /**
      * Sets the policy ID.
      *
-     * @param  policyId  The policy ID.
+     * @param policyId The policy ID.
      */
     public void setPolicyId(BigInteger policyId) {
         this.policyId = policyId;
@@ -139,10 +136,16 @@ public class Metric extends Base {
     /**
      * Sets the user name.
      *
-     * @param  username  The user name.
+     * @param username The user name.
      */
     public void setUsername(String username) {
         this.username = username;
     }
+
+    @Override
+    public String toString() {
+        return "Metric{" + "datapoints=" + datapoints + ", policyId=" + policyId + ", username=" + username + '}';
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

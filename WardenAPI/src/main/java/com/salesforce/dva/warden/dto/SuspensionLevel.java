@@ -29,8 +29,8 @@ import java.util.Objects;
 /**
  * Suspension level for a policy.
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com)
- * @author  Tom Valine (tvaline@salesforce.com)
+ * @author Jigna Bhatt (jbhatt@salesforce.com)
+ * @author Tom Valine (tvaline@salesforce.com)
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName("suspensionlevel")
@@ -38,18 +38,15 @@ import java.util.Objects;
 public class SuspensionLevel extends Entity {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private BigInteger policyId;
     private Integer levelNumber;
     private Integer infractionCount;
     private BigInteger suspensionTime;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public SuspensionLevel createExample() {
         SuspensionLevel result = new SuspensionLevel();
@@ -100,7 +97,7 @@ public class SuspensionLevel extends Entity {
     /**
      * Returns the number of infractions required before a suspension is incurred.
      *
-     * @return  The infraction count.
+     * @return The infraction count.
      */
     public Integer getInfractionCount() {
         return infractionCount;
@@ -109,7 +106,7 @@ public class SuspensionLevel extends Entity {
     /**
      * Returns the ordinal of the level used to order the levels for a policy.
      *
-     * @return  The level number.
+     * @return The level number.
      */
     public Integer getLevelNumber() {
         return levelNumber;
@@ -118,7 +115,7 @@ public class SuspensionLevel extends Entity {
     /**
      * Returns the policy ID with which the level is associated.
      *
-     * @return  The policy ID.
+     * @return The policy ID.
      */
     public BigInteger getPolicyId() {
         return policyId;
@@ -127,7 +124,7 @@ public class SuspensionLevel extends Entity {
     /**
      * Returns the duration of a suspension associated with this level.
      *
-     * @return  The suspension duration.
+     * @return The suspension duration.
      */
     public BigInteger getSuspensionTime() {
         return suspensionTime;
@@ -148,7 +145,7 @@ public class SuspensionLevel extends Entity {
     /**
      * Sets the number of infractions required before a suspension is incurred.
      *
-     * @param  infractionCount  The infraction count.
+     * @param infractionCount The infraction count.
      */
     public void setInfractionCount(Integer infractionCount) {
         this.infractionCount = infractionCount;
@@ -157,7 +154,7 @@ public class SuspensionLevel extends Entity {
     /**
      * Sets the level ordinal used to order levels associated with a policy.
      *
-     * @param  levelNumber  The level number.
+     * @param levelNumber The level number.
      */
     public void setLevelNumber(Integer levelNumber) {
         this.levelNumber = levelNumber;
@@ -166,7 +163,7 @@ public class SuspensionLevel extends Entity {
     /**
      * Sets the policy ID with which the level is associated.
      *
-     * @param  policyId  The policy ID.
+     * @param policyId The policy ID.
      */
     public void setPolicyId(BigInteger policyId) {
         this.policyId = policyId;
@@ -175,10 +172,18 @@ public class SuspensionLevel extends Entity {
     /**
      * Sets the suspension duration associated with the level.
      *
-     * @param  suspensionTime  The suspension duration.
+     * @param suspensionTime The suspension duration.
      */
     public void setSuspensionTime(BigInteger suspensionTime) {
         this.suspensionTime = suspensionTime;
     }
+
+    @Override
+    public String toString() {
+        return "SuspensionLevel{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+                + ", modifiedDate=" + modifiedDate + "policyId=" + policyId + ", levelNumber=" + levelNumber + ", infractionCount=" + infractionCount
+                + ", suspensionTime=" + suspensionTime + '}';
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
