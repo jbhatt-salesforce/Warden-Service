@@ -28,69 +28,68 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-	 
 package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
 import com.salesforce.dva.argus.service.ManagementService;
+import com.salesforce.dva.warden.dto.Resource;
+import com.salesforce.dva.warden.dto.User;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Web services for management service.
  *
- * @author  Raj Sarkapally (rsarkapally@salesforce.com)
+ * @author Raj Sarkapally (rsarkapally@salesforce.com)
  */
 @Path("/management")
 @Description("Provides methods to manage the services.")
 public class ManagementResource extends AbstractResource {
 
     //~ Instance fields ******************************************************************************************************************************
+    @Context
+    private UriInfo uriInfo;
+    @Context
+    private ResourceContext rc;
 
     private final ManagementService managementService = system.getServiceFactory().getManagementService();
 
     //~ Methods **************************************************************************************************************************************
-
     /**
      * Updates the administrator privileges for the user.
      *
-     * @param   req         The HTTP request.
-     * @param   userName    Name of the user whom the administrator privileges will be updated. Cannot be null or empty.
-     * @param   privileged  boolean variable indicating administrator privileges.
+     * @param req The HTTP request.
+     * @param userName Name of the user whom the administrator privileges will be updated. Cannot be null or empty.
+     * @param privileged boolean variable indicating administrator privileges.
      *
-     * @return  Response object indicating whether the operation was successful or not.
-     *
-     * @throws  IllegalArgumentException  Throws IllegalArgument exception when the input is not valid.
-     * @throws  WebApplicationException   Throws this exception if the user does not exist or the user is not authorized to carry out this operation.
+     * @return The resulting list of resources.
      */
     @PUT
-    @Path("/administratorprivilege")
+    @Path("/privilege")
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Grants administrative privileges.")
-    public Response setAdministratorPrivilege(@Context HttpServletRequest req,
-        @FormParam("username") String userName,
-        @FormParam("privileged") boolean privileged) {
-        if (userName == null || userName.isEmpty()) {
-            throw new IllegalArgumentException("User name cannot be null or empty.");
-        }
+    public List<Resource<User>> setAdministratorPrivilege(@Context HttpServletRequest req,
+            @FormParam("username") String userName,
+            @FormParam("privileged") boolean privileged) {
+        requireThat(userName != null && !userName.isEmpty(), "User name cannot be null or empty.");
         validatePrivilegedUser(req);
 
         PrincipalUser user = userService.findUserByUsername(userName);
-
-        if (user == null) {
-            throw new WebApplicationException("User does not exist.", Status.NOT_FOUND);
-        }
+        requireThat(user != null, "Requested user doesn't exist.", Status.NOT_FOUND);
         managementService.setAdministratorPrivilege(user, privileged);
-        return Response.status(Status.OK).build();
+        return rc.getResource(UserResource.class).getUserByUsername(req, userName);
     }
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */

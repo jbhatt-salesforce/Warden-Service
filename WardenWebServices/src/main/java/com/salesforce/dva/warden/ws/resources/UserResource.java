@@ -62,7 +62,7 @@ public class UserResource extends AbstractResource {
 
     private final WaaSService waaSService;
     @Context
-    UriInfo uriInfo;
+    private UriInfo uriInfo;
 
     //~ Constructors *********************************************************************************************************************************
 
@@ -125,7 +125,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/infraction/{infractionId}")
+    @Path("/{username}/infraction/{infractionId}")
     @Description("Returns the specified infraction for this user.")
     public List<Resource<Infraction>> getInfractionForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -152,7 +152,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/infraction")
+    @Path("/{username}/infraction")
     @Description("Returns the infractions for this user.")
     public List<Resource<Infraction>> getInfractionsForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
@@ -200,7 +200,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/policy/{policyId}/infraction")
+    @Path("/{username}/policy/{policyId}/infraction")
     @Description("Returns the users infractions for the given policy.")
     public List<Resource<Infraction>> getInfractionsForUserAndPolicy(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -253,7 +253,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/policy/{policyId}/metric")
+    @Path("/{username}/policy/{policyId}/metric")
     @Description("Returns the metric for this user and policy.")
     public List<Resource<Metric>> getMetricsForUserAndPolicy(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -314,7 +314,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/policy")
+    @Path("/{username}/policy")
     @Description("Returns the policies that apply to this user.")
     public List<Resource<Policy>> getPoliciesForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
@@ -363,7 +363,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/suspension/{suspensionId}")
+    @Path("/{username}/suspension/{suspensionId}")
     @Description("Returns the suspension for this user and suspension id.")
     public List<Resource<Infraction>> getSuspensionForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username,
@@ -388,8 +388,8 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}/suspension")
-    @Description("Returns the infractions for this user.")
+    @Path("/{username}/suspension")
+    @Description("Returns the suspensions for this user.")
     public List<Resource<Infraction>> getSuspensionsForUser(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
         requireThat(username != null && !username.isEmpty(), "User name cannot be null or an empty string.");
@@ -435,7 +435,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user/{username}")
+    @Path("/{username}")
     @Description("Returns the user having the given ID.")
     public List<Resource<User>> getUserByUsername(@Context HttpServletRequest req,
         @PathParam("username") final String username) {
@@ -453,7 +453,7 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/user")
+    @Path("/")
     @Description("Returns the user having the given ID.")
     public List<Resource<User>> getUsers(@Context HttpServletRequest req,
         @QueryParam("username") String username) {
@@ -461,9 +461,14 @@ public class UserResource extends AbstractResource {
         String remoteUsername = remoteUser.getUserName();
         List<Resource<User>> result = new ArrayList<>();
         List<PrincipalUser> users = new ArrayList<>();
-
+        BigInteger id;
+        try {
+            id = new BigInteger(username);
+        } catch (NumberFormatException | NullPointerException ex ) {
+            id = null;
+        }
         for (PrincipalUser user : userService.getPrincipalUsers()) {
-            if (remoteUser.isPrivileged() || user.getUserName().equals(remoteUsername) && (username == null || username.equals(user.getUserName()))) {
+            if ((remoteUser.isPrivileged() || user.getUserName().equals(remoteUsername)) && (username == null || username.equals(user.getUserName()) || user.getId().equals(id))) {
                 users.add(user);
             }
         }
@@ -479,8 +484,7 @@ public class UserResource extends AbstractResource {
                 uiMessage = "This is the information associated with another user which you are authorized to view.";
                 devMessage = "This data doesn't represent your identity.  It is only visible as a result of your privileged user status.";
             }
-
-            URI userUri = uriInfo.getAbsolutePathBuilder().path(user.getUserName()).build();
+            URI userUri = uriInfo.getBaseUriBuilder().path("user").path(user.getId().toString()).build();
             Resource<User> res = new Resource<>();
 
             res.setEntity(fromEntity(user));

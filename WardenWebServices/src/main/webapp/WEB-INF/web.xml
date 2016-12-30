@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app id="WebApp_ID" version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    <display-name>argus-webservices</display-name>
+    <display-name>warden-webservices</display-name>
     <filter>
         <filter-name>AuthFilter</filter-name>
         <filter-class>com.salesforce.dva.warden.ws.filter.AuthFilter</filter-class>
@@ -49,7 +49,7 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>com.salesforce.dva.argus.ws.resources;com.salesforce.dva.argus.ws.exception</param-value>
+            <param-value>com.salesforce.dva.warden.ws.resources;com.salesforce.dva.warden.ws.exception</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

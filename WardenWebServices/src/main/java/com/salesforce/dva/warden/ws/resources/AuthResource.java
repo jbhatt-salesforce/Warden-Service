@@ -33,11 +33,13 @@ package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
 import com.salesforce.dva.argus.service.AuthService;
-import com.salesforce.dva.warden.ws.dto.Converter;
 import com.salesforce.dva.warden.ws.filter.AuthFilter;
 import com.salesforce.dva.warden.dto.Credentials;
+import com.salesforce.dva.warden.dto.Resource;
 import com.salesforce.dva.warden.dto.User;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
@@ -46,6 +48,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -61,6 +64,7 @@ public class AuthResource extends AbstractResource {
 
     //~ Instance fields ******************************************************************************************************************************
 
+    @Context private ResourceContext rc;
     private final AuthService authService = system.getServiceFactory().getAuthService();
 
     //~ Methods **************************************************************************************************************************************
@@ -80,7 +84,7 @@ public class AuthResource extends AbstractResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Description("Authenticates a user session.")
     @Path("/login")
-    public User login(@Context HttpServletRequest req, final Credentials creds) {
+    public List<Resource<User>> login(@Context HttpServletRequest req, final Credentials creds) {
         try {
             User result = null;
             PrincipalUser user = authService.getUser(creds.getUsername(), creds.getPassword());
@@ -91,10 +95,10 @@ public class AuthResource extends AbstractResource {
                 throw new WebApplicationException(Response.Status.UNAUTHORIZED.getReasonPhrase(), Response.Status.UNAUTHORIZED);
             }
             req.getSession(true).setAttribute(AuthFilter.USER_ATTRIBUTE_NAME, result);
-            return result;
         } catch (Exception ex) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED.getReasonPhrase(), Response.Status.UNAUTHORIZED);
         }
+        return rc.getResource(UserResource.class).getUserByUsername(req, creds.getUsername());
     }
 
     /**
@@ -105,15 +109,22 @@ public class AuthResource extends AbstractResource {
      * @return  A message stating that the logout was successful.
      */
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Description("Terminates a user session.")
     @Path("/logout")
-    public String logout(@Context HttpServletRequest req) {
+    public List<Resource<User>> logout(@Context HttpServletRequest req) {
+        
         HttpSession session = req.getSession(true);
-
+        String remoteUser = User.class.cast(session.getAttribute(AuthFilter.USER_ATTRIBUTE_NAME)).getUsername();
+        List<Resource<User>> result;
+        if(remoteUser != null) {
+            result = rc.getResource(UserResource.class).getUserByUsername(req, remoteUser);
+        } else {
+            result = new ArrayList<>(0);
+        }
         session.removeAttribute(AuthFilter.USER_ATTRIBUTE_NAME);
         session.invalidate();
-        return "You have logged out.";
+        return result;
     }
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */

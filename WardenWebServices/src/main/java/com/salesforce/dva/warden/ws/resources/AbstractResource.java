@@ -296,12 +296,12 @@ public abstract class AbstractResource {
     }
     protected EnumMap<Resource.MetaKey, String> createMetadata(URI userUri, int statusCode, String method, String message, String uiMessage, String devMessage) {
         EnumMap<Resource.MetaKey, String> meta = new EnumMap<>(Resource.MetaKey.class);
-        meta.put(Resource.MetaKey.HREF, userUri.toString());
-        meta.put(Resource.MetaKey.STATUS, Integer.toString(statusCode));
-        meta.put(Resource.MetaKey.VERB, method);
-        meta.put(Resource.MetaKey.MESSAGE, message);
-        meta.put(Resource.MetaKey.UI_MESSAGE, uiMessage);
-        meta.put(Resource.MetaKey.DEV_MESSAGE, devMessage);
+        meta.put(Resource.MetaKey.href, userUri.toString());
+        meta.put(Resource.MetaKey.status, Integer.toString(statusCode));
+        meta.put(Resource.MetaKey.verb, method);
+        meta.put(Resource.MetaKey.message, message);
+        meta.put(Resource.MetaKey.uiMessage, uiMessage);
+        meta.put(Resource.MetaKey.devMessage, devMessage);
         return meta;
     }
 

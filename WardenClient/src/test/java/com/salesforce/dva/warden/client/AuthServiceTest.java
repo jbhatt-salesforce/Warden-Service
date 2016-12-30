@@ -19,6 +19,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
+import com.salesforce.dva.warden.dto.User;
 import org.junit.Test;
 import java.io.IOException;
 
@@ -30,7 +31,7 @@ public class AuthServiceTest extends AbstractTest {
     public void testBadLogin() throws IOException {
         try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
             AuthService authService = wardenService.getAuthService();
-            WardenResponse loginResult = authService.login("aBadUsername", "aBadPassword");
+            WardenResponse<User> loginResult = authService.login("aBadUsername", "aBadPassword");
 
             assertEquals(403, loginResult.getStatus());
         }
@@ -40,14 +41,16 @@ public class AuthServiceTest extends AbstractTest {
     public void testLoginLogout() throws IOException {
         try(WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
             AuthService authService = wardenService.getAuthService();
-            WardenResponse loginResult = authService.login("aUsername", "aPassword");
-
+            WardenResponse<User> loginResult = authService.login("aUsername", "aPassword");
             assertEquals(200, loginResult.getStatus());
+            User remoteUser = loginResult.getResources().get(0).getEntity();
 
-            WardenResponse logoutResult = authService.logout();
+            WardenResponse<User> logoutResult = authService.logout();
 
             assertEquals(200, logoutResult.getStatus());
+            assertEquals(remoteUser, logoutResult.getResources().get(0).getEntity());
         }
     }
+    
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
