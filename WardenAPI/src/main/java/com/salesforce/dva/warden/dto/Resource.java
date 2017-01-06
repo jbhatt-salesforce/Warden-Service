@@ -29,23 +29,20 @@ import java.util.Objects;
 /**
  * Encapsulates web service resource and associated meta-data.
  *
- * @author  Tom Valine (tvaline@salesforce.com)
+ * @author Tom Valine (tvaline@salesforce.com)
  */
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Resource<T> extends Base {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private T entity;
     private EnumMap<MetaKey, String> meta;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public Resource createExample() {
         Resource result = new Resource();
@@ -83,14 +80,17 @@ public class Resource<T> extends Base {
     /**
      * Returns the entity associated with the resource.
      *
-     * @return  The associated entity.
+     * @return The associated entity.
      */
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     @JsonSubTypes(
-        {
-            @JsonSubTypes.Type(Policy.class), @JsonSubTypes.Type(Infraction.class), @JsonSubTypes.Type(SuspensionLevel.class),
-            @JsonSubTypes.Type(User.class), @JsonSubTypes.Type(Subscription.class)
-        }
+            {
+                @JsonSubTypes.Type(Policy.class),
+                @JsonSubTypes.Type(Infraction.class),
+                @JsonSubTypes.Type(SuspensionLevel.class),
+                @JsonSubTypes.Type(User.class),
+                @JsonSubTypes.Type(Subscription.class)
+            }
     )
     public T getEntity() {
         return entity;
@@ -99,7 +99,7 @@ public class Resource<T> extends Base {
     /**
      * Returns the meta-data for the resource.
      *
-     * @return  The meta-data.
+     * @return The meta-data.
      */
     public EnumMap<MetaKey, String> getMeta() {
         return meta;
@@ -117,7 +117,7 @@ public class Resource<T> extends Base {
     /**
      * Sets the entity associated with the resource.
      *
-     * @param  entity  The associated entity.
+     * @param entity The associated entity.
      */
     public void setEntity(T entity) {
         this.entity = entity;
@@ -126,33 +126,50 @@ public class Resource<T> extends Base {
     /**
      * Sets the meta-data for the resource.
      *
-     * @param  meta  The meta-data.
+     * @param meta The meta-data.
      */
     public void setMeta(EnumMap<MetaKey, String> meta) {
         this.meta = meta;
     }
 
     //~ Enums ****************************************************************************************************************************************
-
     /**
      * Meta-data keys.
      *
-     * @author  Tom Valine (tvaline@salesforce.com)
+     * @author Tom Valine (tvaline@salesforce.com)
      */
     public enum MetaKey {
 
-        /** The HREF link for the resource. */
+        /**
+         * The HREF link for the resource.
+         */
         href,
-        /** The status of the associated operation. */
+        /**
+         * The status of the associated operation.
+         */
         status,
-        /** The requested operation. */
+        /**
+         * The requested operation.
+         */
         verb,
-        /** The informational message for consumption by API users. */
+        /**
+         * The informational message for consumption by API users.
+         */
         message,
-        /** The informational message for consumption by UI users. */
+        /**
+         * The informational message for consumption by UI users.
+         */
         uiMessage,
-        /** The informational message for consumption by Developers users. */
+        /**
+         * The informational message for consumption by Developers users.
+         */
         devMessage
     }
+
+    @Override
+    public String toString() {
+        return "Resource{" + "entity=" + entity + ", meta=" + meta + '}';
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

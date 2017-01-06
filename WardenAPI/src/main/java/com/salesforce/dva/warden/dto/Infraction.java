@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Infraction record.
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com)
+ * @author Jigna Bhatt (jbhatt@salesforce.com)
  */
 @JsonTypeName("infraction")
 @JsonPropertyOrder(alphabetic = true)
@@ -37,11 +37,9 @@ import java.util.Objects;
 public class Infraction extends Entity {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private BigInteger policyId;
     private BigInteger userId;
     private String username;
@@ -50,7 +48,6 @@ public class Infraction extends Entity {
     private Double value;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public Infraction createExample() {
         Infraction result = new Infraction();
@@ -109,7 +106,7 @@ public class Infraction extends Entity {
     /**
      * Returns the timestamp for when the suspension expires.
      *
-     * @return  The expiration timestamp.
+     * @return The expiration timestamp.
      */
     public Long getExpirationTimestamp() {
         return expirationTimestamp;
@@ -118,7 +115,7 @@ public class Infraction extends Entity {
     /**
      * Returns the timestamp for when the suspension began.
      *
-     * @return  The infraction timestamp.
+     * @return The infraction timestamp.
      */
     public Long getInfractionTimestamp() {
         return infractionTimestamp;
@@ -127,7 +124,7 @@ public class Infraction extends Entity {
     /**
      * Returns the ID of the policy that was violated.
      *
-     * @return  The policy ID.
+     * @return The policy ID.
      */
     public BigInteger getPolicyId() {
         return policyId;
@@ -136,7 +133,7 @@ public class Infraction extends Entity {
     /**
      * Returns the ID of the user that violated policy.
      *
-     * @return  The user ID.
+     * @return The user ID.
      */
     public BigInteger getUserId() {
         return userId;
@@ -145,7 +142,7 @@ public class Infraction extends Entity {
     /**
      * Returns the username of the user that violated policy.
      *
-     * @return  The username.
+     * @return The username.
      */
     public String getUsername() {
         return username;
@@ -154,7 +151,7 @@ public class Infraction extends Entity {
     /**
      * Returns the value of the policy metric at the time of suspension.
      *
-     * @return  The value of the policy metric.
+     * @return The value of the policy metric.
      */
     public Double getValue() {
         return value;
@@ -177,7 +174,7 @@ public class Infraction extends Entity {
     /**
      * Sets the timestamp for when the suspension expires.
      *
-     * @param  expirationTimestamp  The expiration timestamp.
+     * @param expirationTimestamp The expiration timestamp.
      */
     public void setExpirationTimestamp(Long expirationTimestamp) {
         this.expirationTimestamp = expirationTimestamp;
@@ -186,7 +183,7 @@ public class Infraction extends Entity {
     /**
      * Sets the timestamp for when the suspension began.
      *
-     * @param  infractionTimestamp  The infraction timestamp.
+     * @param infractionTimestamp The infraction timestamp.
      */
     public void setInfractionTimestamp(Long infractionTimestamp) {
         this.infractionTimestamp = infractionTimestamp;
@@ -195,7 +192,7 @@ public class Infraction extends Entity {
     /**
      * Sets the policy ID for the policy that was violated.
      *
-     * @param  policyId  The policy ID.
+     * @param policyId The policy ID.
      */
     public void setPolicyId(BigInteger policyId) {
         this.policyId = policyId;
@@ -204,7 +201,7 @@ public class Infraction extends Entity {
     /**
      * Sets the user ID for the user that violated policy.
      *
-     * @param  userId  The user ID.
+     * @param userId The user ID.
      */
     public void setUserId(BigInteger userId) {
         this.userId = userId;
@@ -213,7 +210,7 @@ public class Infraction extends Entity {
     /**
      * Sets the username for the user that violated policy.
      *
-     * @param  username  The username.
+     * @param username The username.
      */
     public void setUsername(String username) {
         this.username = username;
@@ -222,10 +219,18 @@ public class Infraction extends Entity {
     /**
      * Sets the value of the policy metric at the time the infraction was incurred.
      *
-     * @param  value  The value.
+     * @param value The value.
      */
     public void setValue(Double value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "Infraction{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+                + ", modifiedDate=" + modifiedDate + "policyId=" + policyId + ", userId=" + userId + ", username=" + username
+                + ", infractionTimestamp=" + infractionTimestamp + ", expirationTimestamp=" + expirationTimestamp + ", value=" + value + '}';
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

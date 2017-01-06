@@ -24,19 +24,18 @@ import java.io.Serializable;
 /**
  * The base DTO object class.
  *
- * @param   <B>  The concrete subclass type.
+ * @param <B> The concrete subclass type.
  *
- * @author  Jigna Bhatt (jbhatt@salesfoce.com)
+ * @author Jigna Bhatt (jbhatt@salesfoce.com)
  */
 public abstract class Base<B extends Base<B>> implements Serializable {
 
     //~ Methods **************************************************************************************************************************************
-
     /**
      * Implementations of this method are required to generate an instance of the DTO object containing sample data that can be serialized and
      * included in documentation.
      *
-     * @return  An instance of the object populated with sample data.
+     * @return An instance of the object populated with sample data.
      */
     public abstract B createExample();
 }

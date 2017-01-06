@@ -26,23 +26,20 @@ import java.util.Objects;
 /**
  * Authentication credentials.
  *
- * @author  Tom Valine (tvaline@salesforce.com)
+ * @author Tom Valine (tvaline@salesforce.com)
  */
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Credentials extends Base {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private String username;
     private String password;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public Credentials createExample() {
         Credentials result = new Credentials();
@@ -78,7 +75,7 @@ public class Credentials extends Base {
     /**
      * Returns the password.
      *
-     * @return  The password.
+     * @return The password.
      */
     public String getPassword() {
         return password;
@@ -87,7 +84,7 @@ public class Credentials extends Base {
     /**
      * Returns the username.
      *
-     * @return  The username.
+     * @return The username.
      */
     public String getUsername() {
         return username;
@@ -105,7 +102,7 @@ public class Credentials extends Base {
     /**
      * Sets the password.
      *
-     * @param  password  The password.
+     * @param password The password.
      */
     public void setPassword(String password) {
         this.password = password;
@@ -114,10 +111,16 @@ public class Credentials extends Base {
     /**
      * Sets the username.
      *
-     * @param  username  The username.
+     * @param username The username.
      */
     public void setUsername(String username) {
         this.username = username;
     }
+
+    @Override
+    public String toString() {
+        return "Credentials{" + "username=" + username + ", password=********}";
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

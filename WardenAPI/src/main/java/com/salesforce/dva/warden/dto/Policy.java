@@ -34,7 +34,7 @@ import java.util.Objects;
 /**
  * Usage policy record.
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com)
+ * @author Jigna Bhatt (jbhatt@salesforce.com)
  */
 @JsonTypeName("policy")
 @JsonPropertyOrder(alphabetic = true)
@@ -42,11 +42,9 @@ import java.util.Objects;
 public class Policy extends Entity {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private String service;
     private String name;
     private List<String> owners = new ArrayList<>();
@@ -61,7 +59,6 @@ public class Policy extends Entity {
     private List<BigInteger> suspensionLevelIds = new ArrayList<>();
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public Policy createExample() {
         Policy result = new Policy();
@@ -144,7 +141,7 @@ public class Policy extends Entity {
     /**
      * Returns the aggregator to use when combining the policy metric across different sources.
      *
-     * @return  The aggregator.
+     * @return The aggregator.
      */
     public Aggregator getAggregator() {
         return aggregator;
@@ -153,7 +150,7 @@ public class Policy extends Entity {
     /**
      * Returns the CRON entry describing the frequency of evaluation.
      *
-     * @return  The CRON entry.
+     * @return The CRON entry.
      */
     public String getCronEntry() {
         return cronEntry;
@@ -162,7 +159,7 @@ public class Policy extends Entity {
     /**
      * Returns the default value for the policy metric.
      *
-     * @return  The default value.
+     * @return The default value.
      */
     public Double getDefaultValue() {
         return defaultValue;
@@ -171,7 +168,7 @@ public class Policy extends Entity {
     /**
      * Returns the policy name.
      *
-     * @return  The policy name.
+     * @return The policy name.
      */
     public String getName() {
         return name;
@@ -180,7 +177,7 @@ public class Policy extends Entity {
     /**
      * Returns the list of owners for the policy.
      *
-     * @return  The list of owners.
+     * @return The list of owners.
      */
     public List<String> getOwners() {
         return owners;
@@ -189,7 +186,7 @@ public class Policy extends Entity {
     /**
      * Returns the name of the service with which the policy is associated.
      *
-     * @return  The service name.
+     * @return The service name.
      */
     public String getService() {
         return service;
@@ -198,7 +195,7 @@ public class Policy extends Entity {
     /**
      * Returns the service subsystem with which the policy is associated.
      *
-     * @return  The subsystem name.
+     * @return The subsystem name.
      */
     public String getSubSystem() {
         return subSystem;
@@ -207,7 +204,7 @@ public class Policy extends Entity {
     /**
      * Returns the suspension levels IDs associated with the policy.
      *
-     * @return  The suspension levels IDs.
+     * @return The suspension levels IDs.
      */
     public List<BigInteger> getSuspensionLevels() {
         return suspensionLevelIds;
@@ -216,7 +213,7 @@ public class Policy extends Entity {
     /**
      * Returns the thresholds that determine an infraction has occurred.
      *
-     * @return  The policy thresholds.
+     * @return The policy thresholds.
      */
     public List<Double> getThresholds() {
         return threshold;
@@ -225,7 +222,7 @@ public class Policy extends Entity {
     /**
      * Returns the time window used to evaluate the policy for an infraction.
      *
-     * @return  The time window.
+     * @return The time window.
      */
     public String getTimeUnit() {
         return timeUnit;
@@ -234,7 +231,7 @@ public class Policy extends Entity {
     /**
      * Returns the trigger type used to evaluate the policy for an infraction.
      *
-     * @return  The trigger type.
+     * @return The trigger type.
      */
     public TriggerType getTriggerType() {
         return triggerType;
@@ -243,7 +240,7 @@ public class Policy extends Entity {
     /**
      * Returns the list of users to which the policy applies.
      *
-     * @return  The list of users.
+     * @return The list of users.
      */
     public List<String> getUsers() {
         return users;
@@ -272,7 +269,7 @@ public class Policy extends Entity {
     /**
      * Sets the aggregator to use when combining the policy metric from different sources.
      *
-     * @param  aggregator  The aggregator.
+     * @param aggregator The aggregator.
      */
     public void setAggregator(Aggregator aggregator) {
         this.aggregator = aggregator;
@@ -281,7 +278,7 @@ public class Policy extends Entity {
     /**
      * Sets the CRON entry used to evaluate the policy.
      *
-     * @param  cronEntry  The CRON entry.
+     * @param cronEntry The CRON entry.
      */
     public void setCronEntry(String cronEntry) {
         this.cronEntry = cronEntry;
@@ -290,7 +287,7 @@ public class Policy extends Entity {
     /**
      * Sets the default value for the policy metric.
      *
-     * @param  defaultValue  The default value.
+     * @param defaultValue The default value.
      */
     public void setDefaultValue(Double defaultValue) {
         this.defaultValue = defaultValue;
@@ -299,7 +296,7 @@ public class Policy extends Entity {
     /**
      * Sets the name of the policy.
      *
-     * @param  name  The name of the policy.
+     * @param name The name of the policy.
      */
     public void setName(String name) {
         this.name = name;
@@ -308,7 +305,7 @@ public class Policy extends Entity {
     /**
      * Sets the list of owners to which the policy applies.
      *
-     * @param  owner  The list of owners to which the policy applies.
+     * @param owner The list of owners to which the policy applies.
      */
     public void setOwners(List<String> owner) {
         this.owners = owner;
@@ -317,7 +314,7 @@ public class Policy extends Entity {
     /**
      * Sets the service name.
      *
-     * @param  service  The service name.
+     * @param service The service name.
      */
     public void setService(String service) {
         this.service = service;
@@ -326,7 +323,7 @@ public class Policy extends Entity {
     /**
      * Sets the service subsystem name.
      *
-     * @param  subSystem  The service subsystem name.
+     * @param subSystem The service subsystem name.
      */
     public void setSubSystem(String subSystem) {
         this.subSystem = subSystem;
@@ -335,7 +332,7 @@ public class Policy extends Entity {
     /**
      * Sets the suspension level IDs for the policy.
      *
-     * @param  suspensionLevelIds  The suspension level IDs.
+     * @param suspensionLevelIds The suspension level IDs.
      */
     public void setSuspensionLevels(List<BigInteger> suspensionLevelIds) {
         this.suspensionLevelIds = suspensionLevelIds;
@@ -344,7 +341,7 @@ public class Policy extends Entity {
     /**
      * Sets the policy thresholds.
      *
-     * @param  threshold  The policy thresholds.
+     * @param threshold The policy thresholds.
      */
     public void setThresholds(List<Double> threshold) {
         this.threshold = threshold;
@@ -353,7 +350,7 @@ public class Policy extends Entity {
     /**
      * Sets the time window over which the policy will be evaluated.
      *
-     * @param  timeUnit  The time unit.
+     * @param timeUnit The time unit.
      */
     public void setTimeUnit(String timeUnit) {
         this.timeUnit = timeUnit;
@@ -362,7 +359,7 @@ public class Policy extends Entity {
     /**
      * Sets the trigger type used to evaluate the policy.
      *
-     * @param  triggerType  The trigger type.
+     * @param triggerType The trigger type.
      */
     public void setTriggerType(TriggerType triggerType) {
         this.triggerType = triggerType;
@@ -371,18 +368,17 @@ public class Policy extends Entity {
     /**
      * Sets the list of user to which the policy applies.
      *
-     * @param  user  The list of users.
+     * @param user The list of users.
      */
     public void setUsers(List<String> user) {
         this.users = user;
     }
 
     //~ Enums ****************************************************************************************************************************************
-
     /**
      * The supported methods for aggregation and down sampling.
      *
-     * @author  Tom Valine (tvaline@salesforce.com)
+     * @author Tom Valine (tvaline@salesforce.com)
      */
     public enum Aggregator {
 
@@ -404,9 +400,9 @@ public class Policy extends Entity {
         /**
          * Returns the element corresponding to the given name.
          *
-         * @param   name  The aggregator name.
+         * @param name The aggregator name.
          *
-         * @return  The corresponding aggregator element.
+         * @return The corresponding aggregator element.
          */
         public static Aggregator fromString(String name) {
             if ((name != null) && !name.isEmpty()) {
@@ -422,7 +418,7 @@ public class Policy extends Entity {
         /**
          * Returns the short hand description of the method.
          *
-         * @return  The method description.
+         * @return The method description.
          */
         public String getDescription() {
             return _description;
@@ -432,35 +428,51 @@ public class Policy extends Entity {
     /**
      * The type of trigger.
      *
-     * @author  Tom Valine (tvaline@salesforce.com)
+     * @author Tom Valine (tvaline@salesforce.com)
      */
     public enum TriggerType {
 
-        /** Greater than. */
+        /**
+         * Greater than.
+         */
         GREATER_THAN,
-        /** Greater than or equal to. */
+        /**
+         * Greater than or equal to.
+         */
         GREATER_THAN_OR_EQ,
-        /** Less than. */
+        /**
+         * Less than.
+         */
         LESS_THAN,
-        /** Less than or equal to. */
+        /**
+         * Less than or equal to.
+         */
         LESS_THAN_OR_EQ,
-        /** Equal to. */
+        /**
+         * Equal to.
+         */
         EQUAL,
-        /** Not equal to. */
+        /**
+         * Not equal to.
+         */
         NOT_EQUAL,
-        /** Between. */
+        /**
+         * Between.
+         */
         BETWEEN,
-        /** Not between. */
+        /**
+         * Not between.
+         */
         NOT_BETWEEN;
 
         /**
          * Converts a string to a trigger type.
          *
-         * @param   name  The trigger type name.
+         * @param name The trigger type name.
          *
-         * @return  The corresponding trigger type.
+         * @return The corresponding trigger type.
          *
-         * @throws  IllegalArgumentException  If no corresponding trigger type is found.
+         * @throws IllegalArgumentException If no corresponding trigger type is found.
          */
         @JsonCreator
         public static TriggerType fromString(String name) {
@@ -475,12 +487,22 @@ public class Policy extends Entity {
         /**
          * Returns the name of the trigger type.
          *
-         * @return  The name of the trigger type.
+         * @return The name of the trigger type.
          */
         @JsonValue
         public String value() {
             return this.toString();
         }
     }
+
+    @Override
+    public String toString() {
+        return "Policy{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+                + ", modifiedDate=" + modifiedDate + "service=" + service + ", name=" + name + ", owners=" + owners + ", users=" + users
+                + ", subSystem=" + subSystem + ", triggerType=" + triggerType + ", aggregator=" + aggregator + ", threshold=" + threshold
+                + ", timeUnit=" + timeUnit + ", defaultValue=" + defaultValue + ", cronEntry=" + cronEntry + ", suspensionLevelIds="
+                + suspensionLevelIds + '}';
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

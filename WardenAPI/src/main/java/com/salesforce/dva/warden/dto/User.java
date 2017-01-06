@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Principal user.
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com) Failing to add comment.
+ * @author Jigna Bhatt (jbhatt@salesforce.com) Failing to add comment.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName("user")
@@ -37,17 +37,14 @@ import java.util.Objects;
 public class User extends Entity {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
     private String username;
     private String email;
     private Boolean privileged;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public User createExample() {
         User user = new User();
@@ -94,7 +91,7 @@ public class User extends Entity {
     /**
      * Returns the email.
      *
-     * @return  The email.
+     * @return The email.
      */
     public String getEmail() {
         return email;
@@ -103,7 +100,7 @@ public class User extends Entity {
     /**
      * Returns the user name.
      *
-     * @return  The user name.
+     * @return The user name.
      */
     public String getUsername() {
         return username;
@@ -123,7 +120,7 @@ public class User extends Entity {
     /**
      * Sets the email.
      *
-     * @param  email  The email.
+     * @param email The email.
      */
     public void setEmail(String email) {
         this.email = email;
@@ -132,7 +129,7 @@ public class User extends Entity {
     /**
      * Sets the user name.
      *
-     * @param  username  The user name.
+     * @param username The user name.
      */
     public void setUsername(String username) {
         this.username = username;
@@ -145,7 +142,12 @@ public class User extends Entity {
     public void setPrivileged(Boolean privileged) {
         this.privileged = privileged;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "User{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+                + ", modifiedDate=" + modifiedDate + "username=" + username + ", email=" + email + ", privileged=" + privileged + '}';
+    }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

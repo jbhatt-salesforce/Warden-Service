@@ -26,24 +26,21 @@ import java.util.Objects;
 /**
  * The base entity.
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com)
+ * @author Jigna Bhatt (jbhatt@salesforce.com)
  */
 public abstract class Entity extends Base {
 
     //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
 
     //~ Instance fields ******************************************************************************************************************************
-
-    private BigInteger id;
-    private BigInteger createdById;
-    private Date createdDate;
-    private BigInteger modifiedById;
-    private Date modifiedDate;
+    protected BigInteger id;
+    protected BigInteger createdById;
+    protected Date createdDate;
+    protected BigInteger modifiedById;
+    protected Date modifiedDate;
 
     //~ Methods **************************************************************************************************************************************
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -79,7 +76,7 @@ public abstract class Entity extends Base {
     /**
      * Returns the ID of the creator.
      *
-     * @return  The ID of the creator.
+     * @return The ID of the creator.
      */
     public BigInteger getCreatedById() {
         return createdById;
@@ -88,7 +85,7 @@ public abstract class Entity extends Base {
     /**
      * Returns the created date.
      *
-     * @return  The created date.
+     * @return The created date.
      */
     public Date getCreatedDate() {
         return createdDate == null ? null : new Date(createdDate.getTime());
@@ -97,7 +94,7 @@ public abstract class Entity extends Base {
     /**
      * Returns the entity ID.
      *
-     * @return  The entity ID.
+     * @return The entity ID.
      */
     public BigInteger getId() {
         return id;
@@ -106,7 +103,7 @@ public abstract class Entity extends Base {
     /**
      * Returns the ID of the last person who modified the entity.
      *
-     * @return  The ID of the last person who modified the entity.
+     * @return The ID of the last person who modified the entity.
      */
     public BigInteger getModifiedById() {
         return modifiedById;
@@ -115,7 +112,7 @@ public abstract class Entity extends Base {
     /**
      * Returns the modified on date.
      *
-     * @return  The modified on date.
+     * @return The modified on date.
      */
     public Date getModifiedDate() {
         return modifiedDate == null ? null : new Date(modifiedDate.getTime());
@@ -136,7 +133,7 @@ public abstract class Entity extends Base {
     /**
      * Specifies the ID of the creator.
      *
-     * @param  createdById  The ID of the creator.
+     * @param createdById The ID of the creator.
      */
     public void setCreatedById(BigInteger createdById) {
         this.createdById = createdById;
@@ -145,7 +142,7 @@ public abstract class Entity extends Base {
     /**
      * Specifies the created date.
      *
-     * @param  createdDate  The created date.
+     * @param createdDate The created date.
      */
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate == null ? null : new Date(createdDate.getTime());
@@ -154,7 +151,7 @@ public abstract class Entity extends Base {
     /**
      * Specifies the entity ID.
      *
-     * @param  id  The entity ID.
+     * @param id The entity ID.
      */
     public void setId(BigInteger id) {
         this.id = id;
@@ -163,7 +160,7 @@ public abstract class Entity extends Base {
     /**
      * Specifies the ID of the person who most recently modified the entity.
      *
-     * @param  modifiedById  The ID of the person who most recently modified the entity.
+     * @param modifiedById The ID of the person who most recently modified the entity.
      */
     public void setModifiedById(BigInteger modifiedById) {
         this.modifiedById = modifiedById;
@@ -172,10 +169,11 @@ public abstract class Entity extends Base {
     /**
      * Specifies the modified on date.
      *
-     * @param  modifiedDate  The modified on date.
+     * @param modifiedDate The modified on date.
      */
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate == null ? null : new Date(modifiedDate.getTime());
     }
+
 }
 /* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */

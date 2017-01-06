@@ -454,7 +454,7 @@ public class UserResource extends AbstractResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/")
-    @Description("Returns the user having the given ID.")
+    @Description("Returns the requested users.")
     public List<Resource<User>> getUsers(@Context HttpServletRequest req,
         @QueryParam("username") String username) {
         PrincipalUser remoteUser = getRemoteUser(req);
