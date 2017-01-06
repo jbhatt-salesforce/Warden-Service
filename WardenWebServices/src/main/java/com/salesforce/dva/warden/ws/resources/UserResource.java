@@ -272,33 +272,30 @@ public class UserResource extends AbstractResource {
         com.salesforce.dva.argus.entity.Policy policy = waaSService.getPolicy(policyId);
 
         requireThat(policy != null, "Policy not found.", Status.NOT_FOUND);
-
         List<Resource<Metric>> result = new ArrayList<>();
-        List<com.salesforce.dva.argus.entity.Metric> metrics = waaSService.getMetrics(policy, user, start, end);
+        URI userUri = uriInfo.getRequestUri();
+        String message, uiMessage, devMessage;
+        if (remoteUser.isPrivileged() || username.equals(remoteUsername)) {
+            List<com.salesforce.dva.argus.entity.Metric> metrics = waaSService.getMetrics(policy, user, start, end);
 
-        for (com.salesforce.dva.argus.entity.Metric metric : metrics) {
-            String message, uiMessage, devMessage;
+            for (com.salesforce.dva.argus.entity.Metric metric : metrics) {
 
-            if (username.equals(remoteUsername)) {
-                message = uiMessage = devMessage = "This usage metric data was incurred by you.";
-            } else {
-                message = uiMessage = devMessage = "This usage metric data was incurred by the specified user.";
+                if (username.equals(remoteUsername)) {
+                    message = uiMessage = devMessage = "This usage metric data was incurred by you.";
+                } else {
+                    message = uiMessage = devMessage = "This usage metric data was incurred by the specified user.";
+                }
+
+                Resource<Metric> res = new Resource<>();
+
+                res.setEntity(fromEntity(metric, username, policyId));
+                res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
+                result.add(res);
             }
-
-            UriBuilder path = uriInfo.getAbsolutePathBuilder();
-
-            if (start != null) {
-                path.queryParam("start", start);
-            }
-            if (end != null) {
-                path.queryParam("end", end);
-            }
-
-            URI userUri = path.build();
+        } else {
+            message = uiMessage = devMessage = "You are not authorized to view the metric data for this user.";
             Resource<Metric> res = new Resource<>();
-
-            res.setEntity(fromEntity(metric, username, policyId));
-            res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
+            res.setMeta(createMetadata(userUri, Status.UNAUTHORIZED.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
             result.add(res);
         }
         return result;
