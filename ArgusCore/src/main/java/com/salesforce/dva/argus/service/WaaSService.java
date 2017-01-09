@@ -9,6 +9,7 @@ import com.salesforce.dva.argus.entity.Policy;
 import com.salesforce.dva.argus.entity.PrincipalUser;
 import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
+import java.util.Map;
 
 public interface WaaSService {
 	/**
@@ -331,6 +332,8 @@ public interface WaaSService {
 	List<Subscription> getSubscriptions();
 
     public List<Infraction> getSuspensionsByUser(PrincipalUser user);
+
+    public void updateMetric(BigInteger policyId, String userName, Map<Long, Double> datapoints);
 	
 	
 	

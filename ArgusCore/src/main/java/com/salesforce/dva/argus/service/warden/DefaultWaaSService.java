@@ -503,6 +503,11 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public void updateMetric(BigInteger policyId, String userName, Map<Long, Double> datapoints) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 	public enum TimeUnit {
 
 		SECOND("s", 1000), MINUTE("m", 60 * SECOND.getValue()), HOUR("h", 60 * MINUTE.getValue()), DAY("d",
