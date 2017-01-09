@@ -93,7 +93,6 @@ public class SubscriptionResource extends AbstractResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/")
     @Description("Creates a new subscription.")
     public List<Resource<Subscription>> createSubscription(@Context HttpServletRequest req, Subscription subscription) {
         requireThat(subscription != null, "The subscription cannot be null.");

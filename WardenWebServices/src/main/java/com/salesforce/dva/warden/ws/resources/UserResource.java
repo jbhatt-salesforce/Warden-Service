@@ -44,7 +44,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import static javax.ws.rs.core.Response.Status.OK;
@@ -450,7 +449,6 @@ public class UserResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/")
     @Description("Returns the requested users.")
     public List<Resource<User>> getUsers(@Context HttpServletRequest req,
         @QueryParam("username") String username) {

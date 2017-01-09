@@ -124,7 +124,6 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/")
     @Description("Returns all policies.")
     public List<Resource<Policy>> getPolicies(@Context HttpServletRequest req,
             @QueryParam("username") String username, @QueryParam("pid") BigInteger policyId, @QueryParam("service") String service, @QueryParam("name") String name) {
@@ -178,7 +177,6 @@ public class PolicyResource extends AbstractResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/")
     @Description("Creates policies.")
     public List<Resource<Policy>> createPolicies(@Context HttpServletRequest req, List<Policy> policies) {
         requireThat(policies != null, "The list of policies to create cannot be null.");
@@ -236,7 +234,6 @@ public class PolicyResource extends AbstractResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/")
     @Description("Deletes selected policies owned by this user.")
     public List<Resource<Policy>> deletePolicies(@Context HttpServletRequest req, @QueryParam("id") List<BigInteger> policyIds) {
         requireThat(policyIds != null, "The list of policies to delete cannot be null.");
@@ -289,7 +286,6 @@ public class PolicyResource extends AbstractResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/")
     @Description("Updates policy objects")
     public List<Resource<Policy>> updatePolicies(@Context HttpServletRequest req, List<Policy> policies) {
         requireThat(policies != null, "The list of policies to create cannot be null.");
@@ -354,25 +350,6 @@ public class PolicyResource extends AbstractResource {
     public List<Resource<Policy>> getPolicyById(@Context HttpServletRequest req, @PathParam("pid") BigInteger pid) {
         requireThat(pid != null, "The policy ID cannot be null.");
         return getPolicies(req, null, pid, null, null);
-    }
-
-    /**
-     * Finds a policy by policy service and name.
-     *
-     * @param req The HttpServlet request object. Cannot be null.
-     * @param service The service name. Cannot be null.
-     * @param name The policy name. Cannot be null.
-     *
-     * @return The resulting list of resources.
-     */
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/")
-    @Description("Returns a policy by its name and service.")
-    public List<Resource<Policy>> getPolicyByServiceAndName(@Context HttpServletRequest req, @QueryParam("service") String service, @QueryParam("name") String name) {
-        requireThat(service != null, "The service name cannot be null.");
-        requireThat(name != null, "The policy name cannot be null.");
-        return getPolicies(req, null, null, service, name);
     }
 
     /**
