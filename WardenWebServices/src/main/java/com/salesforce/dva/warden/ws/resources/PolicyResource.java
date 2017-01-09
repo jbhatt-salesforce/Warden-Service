@@ -124,7 +124,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy")
+    @Path("/")
     @Description("Returns all policies.")
     public List<Resource<Policy>> getPolicies(@Context HttpServletRequest req,
             @QueryParam("username") String username, @QueryParam("pid") BigInteger policyId, @QueryParam("service") String service, @QueryParam("name") String name) {
@@ -178,7 +178,7 @@ public class PolicyResource extends AbstractResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/policy")
+    @Path("/")
     @Description("Creates policies.")
     public List<Resource<Policy>> createPolicies(@Context HttpServletRequest req, List<Policy> policies) {
         requireThat(policies != null, "The list of policies to create cannot be null.");
@@ -236,7 +236,7 @@ public class PolicyResource extends AbstractResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy")
+    @Path("/")
     @Description("Deletes selected policies owned by this user.")
     public List<Resource<Policy>> deletePolicies(@Context HttpServletRequest req, @QueryParam("id") List<BigInteger> policyIds) {
         requireThat(policyIds != null, "The list of policies to delete cannot be null.");
@@ -289,7 +289,7 @@ public class PolicyResource extends AbstractResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/policy")
+    @Path("/")
     @Description("Updates policy objects")
     public List<Resource<Policy>> updatePolicies(@Context HttpServletRequest req, List<Policy> policies) {
         requireThat(policies != null, "The list of policies to create cannot be null.");
@@ -349,7 +349,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}")
+    @Path("/{pid}")
     @Description("Returns a policy by its ID.")
     public List<Resource<Policy>> getPolicyById(@Context HttpServletRequest req, @PathParam("pid") BigInteger pid) {
         requireThat(pid != null, "The policy ID cannot be null.");
@@ -367,7 +367,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy")
+    @Path("/")
     @Description("Returns a policy by its name and service.")
     public List<Resource<Policy>> getPolicyByServiceAndName(@Context HttpServletRequest req, @QueryParam("service") String service, @QueryParam("name") String name) {
         requireThat(service != null, "The service name cannot be null.");
@@ -385,7 +385,7 @@ public class PolicyResource extends AbstractResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}")
+    @Path("/{pid}")
     @Description("Deletes the policy having the given ID.")
     public List<Resource<Policy>> deletePolicy(@Context HttpServletRequest req, @PathParam("pid") BigInteger pid) {
         requireThat(pid != null && pid.signum() >= 0, "Policy ID must be a positive integer.");
@@ -404,7 +404,7 @@ public class PolicyResource extends AbstractResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}")
+    @Path("/{pid}")
     @Description("Updates an policy having the given ID.")
     public List<Resource<Policy>> updatePolicy(@Context HttpServletRequest req, @PathParam("pid") BigInteger pid, Policy policy) {
         requireThat(pid != null && pid.signum() >= 0, "Policy ID must be a positive integer.");
@@ -424,7 +424,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/level")
+    @Path("/{pid}/level")
     @Description("Returns all levels with policy id.")
     public List<Resource<SuspensionLevel>> getLevels(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -467,7 +467,7 @@ public class PolicyResource extends AbstractResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/level")
+    @Path("/{pid}/level")
     @Description("Creates levels for a specific policy.")
     public List<Resource<SuspensionLevel>> createLevels(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -535,7 +535,7 @@ public class PolicyResource extends AbstractResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/level")
+    @Path("/{pid}/level")
     @Description("Deletes the specified levels for a policy.")
     public List<Resource<SuspensionLevel>> deleteLevels(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -597,7 +597,7 @@ public class PolicyResource extends AbstractResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/level")
+    @Path("/{pid}/level")
     @Description("Updates policy objects")
     public List<Resource<SuspensionLevel>> updateLevels(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -659,7 +659,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/level/{lid}")
+    @Path("/{pid}/level/{lid}")
     @Description("Returns a policy by its ID.")
     public List<Resource<SuspensionLevel>> getLevel(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -680,7 +680,7 @@ public class PolicyResource extends AbstractResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/level/{levelid}")
+    @Path("/{pid}/level/{levelid}")
     @Description("Deletes the suspension level with policy ID and level ID.")
     public List<Resource<SuspensionLevel>> deleteLevel(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -703,7 +703,7 @@ public class PolicyResource extends AbstractResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/level/{levelid}")
+    @Path("/{pid}/level/{levelid}")
     @Description("Updates an suspension level having the given policy ID and level ID.")
     public List<Resource<SuspensionLevel>> updateLevel(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -727,7 +727,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/infraction")
+    @Path("/{pid}/infraction")
     @Description("Returns all infractions with policy id.")
     public List<Resource<Infraction>> getInfractions(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -776,7 +776,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/infraction/{iid}")
+    @Path("/{pid}/infraction/{iid}")
     @Description("Returns an infraction by policy ID and its ID.")
     public List<Resource<Infraction>> getInfraction(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -799,7 +799,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uname}/suspension")
+    @Path("/{pid}/user/{uname}/suspension")
     @Description("Returns all infractions with policy id and user name if suspension happens.")
     public List<Resource<Infraction>> getSuspensionForUserAndPolicy(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -822,7 +822,7 @@ public class PolicyResource extends AbstractResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uname}/suspension")
+    @Path("/{pid}/user/{uname}/suspension")
     @Description("Deletes all infractions with policy id and user id if suspension happens.")
     public List<Resource<Infraction>> deleteSuspensionForUser(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId,
@@ -868,7 +868,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/suspension")
+    @Path("/{pid}/suspension")
     @Description("Returns all infractions with policy id and user id if suspension happens.")
     public List<Resource<Infraction>> getSuspension(@Context HttpServletRequest req,
             @PathParam("pid") BigInteger policyId) {
@@ -886,7 +886,7 @@ public class PolicyResource extends AbstractResource {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/suspension")
+    @Path("/{pid}/suspension")
     @Description("Deletes all infractions with policy id and user id if suspension happens.")
     public List<Resource<Infraction>> deleteSuspension(@Context HttpServletRequest req, @PathParam("pid") BigInteger policyId,
             @QueryParam("id") List<BigInteger> suspensionIds) {
@@ -906,7 +906,7 @@ public class PolicyResource extends AbstractResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uname}/metric")
+    @Path("/{pid}/user/{uname}/metric")
     @Description("Submits externally collected metric data.")
     public List<Resource<Metric>> createMetrics(@Context HttpServletRequest req,
             @PathParam("pid") final BigInteger policyId,
@@ -938,7 +938,7 @@ public class PolicyResource extends AbstractResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/policy/{pid}/user/{uname}/metric")
+    @Path("/{pid}/user/{uname}/metric")
     @Description("Returns the metric for this user and policy.")
     public List<Resource<Metric>> getMetricsForPolicyAndUser(@Context HttpServletRequest req,
         @PathParam("username") final String username,
