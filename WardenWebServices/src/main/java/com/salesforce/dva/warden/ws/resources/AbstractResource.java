@@ -31,7 +31,10 @@
 package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
+import com.salesforce.dva.argus.service.AuthService;
+import com.salesforce.dva.argus.service.ManagementService;
 import com.salesforce.dva.argus.service.UserService;
+import com.salesforce.dva.argus.service.WaaSService;
 import com.salesforce.dva.argus.system.SystemMain;
 import com.salesforce.dva.warden.ws.dto.EndpointHelp;
 import com.salesforce.dva.warden.ws.dto.MethodHelp;
@@ -54,14 +57,26 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
 import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
+import com.salesforce.dva.warden.dto.Infraction;
+import com.salesforce.dva.warden.dto.Metric;
+import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.Resource;
+import com.salesforce.dva.warden.dto.Subscription;
+import com.salesforce.dva.warden.dto.SuspensionLevel;
 import com.salesforce.dva.warden.dto.User;
+import com.salesforce.dva.warden.ws.dto.Converter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.math.BigInteger;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.TreeMap;
+import javax.ws.rs.container.ResourceContext;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Abstract base class for web service resource.
@@ -72,6 +87,12 @@ import java.util.EnumMap;
  * @author Raj Sarkapally (rsarkapally@salesforce.com)
  */
 public abstract class AbstractResource {
+
+    @Context
+    protected UriInfo uriInfo;
+    @Context 
+    protected ResourceContext rc;
+    
 
     /**
      * Used to provide description information about web service endpoints and methods.
@@ -87,7 +108,12 @@ public abstract class AbstractResource {
 
     //~ Instance fields ******************************************************************************************************************************
     protected final SystemMain system = WebServletListener.getSystem();
-    protected UserService userService = system.getServiceFactory().getUserService();
+    protected final UserService userService = system.getServiceFactory().getUserService();
+    protected final WaaSService waaSService = system.getServiceFactory().getWaaSService();
+    protected final AuthService authService = system.getServiceFactory().getAuthService();
+    protected final ManagementService managementService = system.getServiceFactory().getManagementService();
+
+
 
     //~ Methods **************************************************************************************************************************************
     /**
@@ -133,36 +159,35 @@ public abstract class AbstractResource {
         }
         return result;
     }
-    
+
     /**
      * Throws an illegal argument exception if the condition is not met.
      *
-     * @param   condition  The boolean condition to check.
-     * @param   message    The exception message.
+     * @param condition The boolean condition to check.
+     * @param message The exception message.
      *
-     * @throws  WebApplicationException  If the condition is not met.
+     * @throws WebApplicationException If the condition is not met.
      */
     protected static void requireThat(boolean condition, String message) {
         if (!condition) {
             throw new WebApplicationException(message, Status.BAD_REQUEST);
         }
     }
-    
+
     /**
      * Throws an illegal argument exception if the condition is not met.
      *
-     * @param   condition  The boolean condition to check.
-     * @param   message    The exception message.
-     * @param   status    The status to reflect.
+     * @param condition The boolean condition to check.
+     * @param message The exception message.
+     * @param status The status to reflect.
      *
-     * @throws  WebApplicationException  If the condition is not met.
+     * @throws WebApplicationException If the condition is not met.
      */
     protected static void requireThat(boolean condition, String message, Status status) {
         if (!condition) {
             throw new WebApplicationException(message, status);
         }
     }
-    
 
     /**
      * Returns the help for the endpoint. For the context root, it will return the endpoint help for all major endpoints. For a specific endpoint it
@@ -294,6 +319,7 @@ public abstract class AbstractResource {
             throw new WebApplicationException(e.toString(), Status.BAD_REQUEST);
         }
     }
+
     protected EnumMap<Resource.MetaKey, String> createMetadata(URI userUri, int statusCode, String method, String message, String uiMessage, String devMessage) {
         EnumMap<Resource.MetaKey, String> meta = new EnumMap<>(Resource.MetaKey.class);
         meta.put(Resource.MetaKey.href, userUri.toString());
@@ -304,6 +330,110 @@ public abstract class AbstractResource {
         meta.put(Resource.MetaKey.devMessage, devMessage);
         return meta;
     }
+
+    Policy fromEntity(com.salesforce.dva.argus.entity.Policy policy) {
+        Policy result = Converter.fromEntity(Policy.class, policy);
+        result.setAggregator(policy.getAggregator());
+        result.setTriggerType(policy.getTriggerType());
+        List<BigInteger> suspensionLevelIds = new ArrayList<>();
+        policy.getSuspensionLevels().stream().forEach(l -> suspensionLevelIds.add(l.getId()));
+        result.setSuspensionLevels(suspensionLevelIds);
+        return result;
+    }
+
+    Infraction fromEntity(com.salesforce.dva.argus.entity.Infraction infraction) {
+        Infraction result = Converter.fromEntity(Infraction.class, infraction);
+        result.setUserId(infraction.getUser().getId());
+        result.setUsername(infraction.getUser().getUserName());
+        result.setPolicyId(infraction.getPolicy().getId());
+        return result;
+    }
+
+    SuspensionLevel fromEntity(com.salesforce.dva.argus.entity.SuspensionLevel level) {
+        SuspensionLevel result = Converter.fromEntity(SuspensionLevel.class, level);
+        result.setPolicyId(level.getPolicy().getId());
+        return result;
+    }
+
+    com.salesforce.dva.argus.entity.Infraction toEntity(Infraction infraction) {
+        com.salesforce.dva.argus.entity.Infraction result = Converter.toEntity(com.salesforce.dva.argus.entity.Infraction.class, infraction);
+        PrincipalUser creator = infraction.getCreatedById() == null ? null : userService.findUserByPrimaryKey(infraction.getCreatedById());
+        PrincipalUser modifier = infraction.getModifiedById() == null ? null : userService.findUserByPrimaryKey(infraction.getModifiedById());
+        PrincipalUser user = infraction.getUserId() == null ? null : userService.findUserByPrimaryKey(infraction.getUserId());
+        com.salesforce.dva.argus.entity.Policy policy = infraction.getPolicyId() == null ? null : waaSService.getPolicy(infraction.getId());
+        result.setCreatedBy(creator);
+        result.setModifiedBy(modifier);
+        result.setUser(user);
+        result.setPolicy(policy);
+        return result;
+    }
+
+    com.salesforce.dva.argus.entity.Policy toEntity(Policy policy) {
+        com.salesforce.dva.argus.entity.Policy result = Converter.toEntity(com.salesforce.dva.argus.entity.Policy.class, policy);
+        PrincipalUser creator = policy.getCreatedById() == null ? null : userService.findUserByPrimaryKey(policy.getCreatedById());
+        PrincipalUser modifier = policy.getModifiedById() == null ? null : userService.findUserByPrimaryKey(policy.getModifiedById());
+        result.setModifiedBy(modifier);
+        result.setCreatedBy(creator);
+        List<com.salesforce.dva.argus.entity.SuspensionLevel> levels = new ArrayList<>();
+        policy.getSuspensionLevels().stream().forEach(l -> levels.add(waaSService.getLevel(result, l)));
+        result.setSuspensionLevels(levels);
+        return result;
+    }
+
+    com.salesforce.dva.argus.entity.SuspensionLevel toEntity(SuspensionLevel level) {
+        com.salesforce.dva.argus.entity.SuspensionLevel result = Converter.toEntity(com.salesforce.dva.argus.entity.SuspensionLevel.class, level);
+        PrincipalUser creator = level.getCreatedById() == null ? null : userService.findUserByPrimaryKey(level.getCreatedById());
+        PrincipalUser modifier = level.getModifiedById() == null ? null : userService.findUserByPrimaryKey(level.getModifiedById());
+        com.salesforce.dva.argus.entity.Policy policy = level.getPolicyId() == null ? null : waaSService.getPolicy(level.getId());
+        result.setModifiedBy(modifier);
+        result.setCreatedBy(creator);
+        result.setPolicy(policy);
+        return result;
+    }
+    /**
+     * Converts a user entity to a user transfer object.
+     *
+     * @param   user  The user entity. Cannot be null.
+     *
+     * @return  The user transfer object.
+     */
+     User fromEntity(PrincipalUser user) {
+        User result = Converter.fromEntity(User.class, user);
+
+        result.setEmail(user.getEmail());
+        result.setUsername(user.getUserName());
+        return result;
+    }
+
+    /**
+     * Converts a metric entity to a metric transfer object.
+     *
+     * @param   metric    The metric entity. Cannot be null.
+     * @param   username  The username. Cannot be null.
+     * @param   policyId  The policy ID. Cannot be null.
+     *
+     * @return  The metric transfer object.
+     */
+    Metric fromEntity(com.salesforce.dva.argus.entity.Metric metric, String username, BigInteger policyId) {
+        Metric result = new Metric();
+
+        result.setPolicyId(policyId);
+        result.setUsername(username);
+
+        Map<Long, Double> datapoints = new TreeMap<>();
+
+        for (Map.Entry<Long, String> entry : metric.getDatapoints().entrySet()) {
+            datapoints.put(entry.getKey(), Double.valueOf(entry.getValue()));
+        }
+        result.setDatapoints(datapoints);
+        return result;
+    }
+    
+    Subscription fromEntity(com.salesforce.dva.argus.entity.Subscription subscription) {
+        Subscription result = Converter.fromEntity(Subscription.class, subscription);
+        return result;
+    }
+
 
 
     //~ Enums ****************************************************************************************************************************************

@@ -57,11 +57,12 @@ public interface WaaSService {
 	 * Suspends a user for the service based on policy.
 	 * 
 	 * @param    user The user name of this policy
-	 * @param    The policy used for suspending
+	 * @param    policy The policy used for suspending
+         * @param    value The value that incurred the suspension.
 	 * 
 	 * @return 	 infraction
 	 */
-	Infraction suspendUser(String user, Policy policy);
+	Infraction suspendUser(String user, Policy policy, Double value);
 	
 	/**
 	 * Reinstate a user for the service based on policy.

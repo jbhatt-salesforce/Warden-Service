@@ -124,10 +124,10 @@ public class WaaSServiceTest extends AbstractTest {
 
 	   List<Policy> oldPolicies = _waaSService.updatePolicies(Arrays.asList(testPolicy));
 	   assertNotNull(oldPolicies);
-	   assertEquals(THRESHOLD.get(0), oldPolicies.get(0).getThreshold().get(0));
+	   assertEquals(THRESHOLD.get(0), oldPolicies.get(0).getThresholds().get(0));
 	   
 	   
-	   oldPolicies.get(0).setThreshold(Arrays.asList(THRESHOLD.get(0) * -1));
+	   oldPolicies.get(0).setThresholds(Arrays.asList(THRESHOLD.get(0) * -1));
 	   _waaSService.updatePolicies(oldPolicies);
 	   List<Policy> updatedPolicies = _waaSService.getPolicies();
 	   assertNotNull(updatedPolicies);
@@ -136,7 +136,7 @@ public class WaaSServiceTest extends AbstractTest {
 	   assertNotNull(updatedPolicies);
 	   assertNotNull(updatedPoliciesForUser);
 	   
-	   assertEquals((Double) (THRESHOLD.get(0) * -1), updatedPolicies.get(0).getThreshold().get(0));
+	   assertEquals((Double) (THRESHOLD.get(0) * -1), updatedPolicies.get(0).getThresholds().get(0));
 	   
 	   _waaSService.deletePolicies(updatedPolicies);
 	   List<Policy> deletedPolicies = _waaSService.getPolicies();
@@ -191,7 +191,7 @@ public class WaaSServiceTest extends AbstractTest {
    public void testInfractionReadDelete(){
 	 	testPolicy.setName(testName.getMethodName());
 	 	Policy mergedPolicy = _waaSService.updatePolicy(testPolicy);
-	 	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+	 	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
 	 	List<Infraction> infractionsByPolicy = _waaSService.getInfractions(mergedPolicy);
 	 	assertTrue(infractionsByPolicy.size() ==1);
 	 	
@@ -206,7 +206,7 @@ public class WaaSServiceTest extends AbstractTest {
 	 	assertTrue(deletedInfractionsWithId.size() == 0);
 	 	
 	 	
-	 	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+	 	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
 	 	List<Infraction> infractionsByUser = _waaSService.getInfractionsByUser(user);
 	 	assertTrue(infractionsByUser.size() ==1);
 	 	_waaSService.deleteInfraction(infractionsByUser.get(0));
@@ -218,20 +218,20 @@ public class WaaSServiceTest extends AbstractTest {
 	@Test
 	public void testUpsertPolicyForCreateAndUpdate() {
 		testPolicy.setName(testName.getMethodName());
-		_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+		_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
 		Policy oldPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
 
-		assertEquals(THRESHOLD.get(0), oldPolicy.getThreshold().get(0));
+		assertEquals(THRESHOLD.get(0), oldPolicy.getThresholds().get(0));
 
 		_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, Arrays.asList(THRESHOLD.get(0) * -1));
 		Policy newPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
-		assertTrue(THRESHOLD.get(0) * -1.0 ==  newPolicy.getThreshold().get(0));
+		assertTrue(THRESHOLD.get(0) * -1.0 ==  newPolicy.getThresholds().get(0));
 	}
 	
 	@Test
 	public void testUpsertPolicyForAlertCreation() {
 		testPolicy.setName(testName.getMethodName());
-		_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+		_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
 		
 		PrincipalUser adminUser = _userService.findAdminUser();
 		String expectedAlertName = WAAS_ALERT_NAME_PREFIX + testPolicy.getUsers().get(0) + "-" + testPolicy.getMetricName();
@@ -249,7 +249,7 @@ public class WaaSServiceTest extends AbstractTest {
 		assertEquals(expectedAlert.getCronEntry(), testPolicy.getCronEntry());		
 		assertEquals(expectedAlert.getExpression(), expectedExpression);
 		assertEquals(expectedAlert.getTriggers().get(0).getName(), expectedTriggerName);
-		assertEquals(expectedAlert.getTriggers().get(0).getThreshold(), testPolicy.getThreshold().get(0));
+		assertEquals(expectedAlert.getTriggers().get(0).getThreshold(), testPolicy.getThresholds().get(0));
 		assertEquals(expectedAlert.getTriggers().get(0).getType().value(), testPolicy.getTriggerType().value());
 		assertEquals(expectedAlert.getNotifications().get(0).getName(), expectedNotificationName);
 		assertEquals(expectedAlert.getNotifications().get(0).getNotifierName(), expectedNotifierName);
@@ -286,11 +286,11 @@ public class WaaSServiceTest extends AbstractTest {
     public void testSuspendUserVerifyInfractionTime(){
     	testPolicy.setName(testName.getMethodName());
     	
-    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
     	List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy, testPolicy.getUsers().get(0));
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
-    	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+    	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(oldInfractions.size() + 1 == newInfractions.size());   
@@ -308,7 +308,7 @@ public class WaaSServiceTest extends AbstractTest {
 				testPolicy.getUsers().get(0));
 
 		Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
-		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
 		List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy,
 				testPolicy.getUsers().get(0));
 
@@ -328,7 +328,7 @@ public class WaaSServiceTest extends AbstractTest {
 
 		Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
 		for (int i = 0; i < INFRACTION_COUNT; i++) {
-			_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+			_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
 		}
 
 		List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy,
@@ -350,7 +350,7 @@ public class WaaSServiceTest extends AbstractTest {
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for( int i = 0; i <= INFRACTION_COUNT; i++){
-    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
     	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
@@ -369,7 +369,7 @@ public class WaaSServiceTest extends AbstractTest {
     	List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy, testPolicy.getUsers().get(0));
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
-    	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+    	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(oldInfractions.size() + 1 == newInfractions.size());    	
@@ -392,7 +392,7 @@ public class WaaSServiceTest extends AbstractTest {
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for( int i = 0; i < INFRACTION_COUNT; i++){
-    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
     	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
@@ -416,7 +416,7 @@ public class WaaSServiceTest extends AbstractTest {
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for( int i = 0; i <= INFRACTION_COUNT; i++){
-    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
     	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
@@ -434,7 +434,7 @@ public class WaaSServiceTest extends AbstractTest {
     public void testGetPolicyById(){
     	testPolicy.setName(testName.getMethodName());
     	
-    	Policy insertedPolicy = _waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+    	Policy insertedPolicy = _waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
     	BigInteger expectedPolicyId = insertedPolicy.getId();
     			
     	Policy p = _waaSService.getPolicy(expectedPolicyId);
@@ -447,7 +447,7 @@ public class WaaSServiceTest extends AbstractTest {
     public void testGetPolicy(){
     	testPolicy.setName(testName.getMethodName());
     	
-    	Policy insertedPolicy =_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+    	Policy insertedPolicy =_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
     	BigInteger expectedPolicyId = insertedPolicy.getId();
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
@@ -462,7 +462,7 @@ public class WaaSServiceTest extends AbstractTest {
     	testPolicy.setName(testName.getMethodName());
     	testPolicy.setService(testName.getMethodName());
     	
-    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
     	
     	List<Policy> mergedPolicies = _waaSService.getPoliciesForService(testPolicy.getService());
     	
@@ -474,7 +474,7 @@ public class WaaSServiceTest extends AbstractTest {
     public void testGetPoliciesForName(){
     	testPolicy.setName(testName.getMethodName());
     	
-    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
     	
     	List<Policy> mergedPolicies = _waaSService.getPoliciesForName(testName.getMethodName());
     	
@@ -485,11 +485,11 @@ public class WaaSServiceTest extends AbstractTest {
     @Test
     public void testGetInfractions(){
     	testPolicy.setName(testName.getMethodName());
-    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
 	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for( int i = 0; i < INFRACTION_COUNT; i++){
-    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy);
+    		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
     	List<Infraction> expectedInfractions = _waaSService.getInfractionsByPolicyAndUserName(mergedPolicy,testPolicy.getUsers().get(0));
@@ -499,7 +499,7 @@ public class WaaSServiceTest extends AbstractTest {
     @Test
     public void testGetSuspensionLevels(){
     	testPolicy.setName(testName.getMethodName());
-    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThreshold());
+    	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for(int i = 1 ; i <= LEVEL_NUMBER ; i ++){
     		_waaSService.updateSuspensionLevel(mergedPolicy, i,

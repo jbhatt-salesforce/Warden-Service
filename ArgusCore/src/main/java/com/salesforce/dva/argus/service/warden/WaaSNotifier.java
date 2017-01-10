@@ -124,7 +124,7 @@ public  class WaaSNotifier extends DefaultNotifier {
     	List<String> nameAndService = _parseMetricExpression(context);
     	//Policy policy = _waaSService.getPolicy(nameAndService.get(0),nameAndService.get(1));
     	Policy policy = _waaSService.getPolicy("policyName.descriptor.max","service");
-    	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUserName(), policy);
+    	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUserName(), policy, Double.valueOf(context.getTriggerEventValue()));
     	
     	//wrap warden event data
 /*    	WardenEvent wardenEvent = new WardenEvent();
