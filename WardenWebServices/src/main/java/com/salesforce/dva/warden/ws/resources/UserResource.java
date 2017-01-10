@@ -20,21 +20,17 @@
 package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
-import com.salesforce.dva.argus.service.WaaSService;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Metric;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.Resource;
 import com.salesforce.dva.warden.dto.User;
-import com.salesforce.dva.warden.ws.dto.Converter;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -44,7 +40,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import static javax.ws.rs.core.Response.Status.OK;
 
@@ -56,60 +51,6 @@ import static javax.ws.rs.core.Response.Status.OK;
 @Path("/user")
 @Description("Provides methods for users to query their usage and infractions.")
 public class UserResource extends AbstractResource {
-
-    //~ Instance fields ******************************************************************************************************************************
-
-    private final WaaSService waaSService;
-    @Context
-    private UriInfo uriInfo;
-
-    //~ Constructors *********************************************************************************************************************************
-
-    /** Creates a new UserResource object. */
-    public UserResource() {
-        this.waaSService = system.getServiceFactory().getWaaSService();
-    }
-
-    //~ Methods **************************************************************************************************************************************
-
-    /**
-     * Converts a user entity to a user transfer object.
-     *
-     * @param   user  The user entity. Cannot be null.
-     *
-     * @return  The user transfer object.
-     */
-    static User fromEntity(PrincipalUser user) {
-        User result = Converter.fromEntity(User.class, user);
-
-        result.setEmail(user.getEmail());
-        result.setUsername(user.getUserName());
-        return result;
-    }
-
-    /**
-     * Converts a metric entity to a metric transfer object.
-     *
-     * @param   metric    The metric entity. Cannot be null.
-     * @param   username  The username. Cannot be null.
-     * @param   policyId  The policy ID. Cannot be null.
-     *
-     * @return  The metric transfer object.
-     */
-    static Metric fromEntity(com.salesforce.dva.argus.entity.Metric metric, String username, BigInteger policyId) {
-        Metric result = new Metric();
-
-        result.setPolicyId(policyId);
-        result.setUsername(username);
-
-        Map<Long, Double> datapoints = new TreeMap<>();
-
-        for (Map.Entry<Long, String> entry : metric.getDatapoints().entrySet()) {
-            datapoints.put(entry.getKey(), Double.valueOf(entry.getValue()));
-        }
-        result.setDatapoints(datapoints);
-        return result;
-    }
 
     //~ Methods **************************************************************************************************************************************
 
@@ -181,7 +122,7 @@ public class UserResource extends AbstractResource {
             URI userUri = uriInfo.getAbsolutePathBuilder().path(infraction.getId().toString()).build();
             Resource<Infraction> res = new Resource<>();
 
-            res.setEntity(PolicyResource.fromEntity(infraction));
+            res.setEntity(fromEntity(infraction));
             res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
             result.add(res);
         }
@@ -231,7 +172,7 @@ public class UserResource extends AbstractResource {
             URI userUri = uriInfo.getAbsolutePathBuilder().path(infraction.getId().toString()).build();
             Resource<Infraction> res = new Resource<>();
 
-            res.setEntity(PolicyResource.fromEntity(infraction));
+            res.setEntity(fromEntity(infraction));
             res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
             result.add(res);
         }
@@ -341,7 +282,7 @@ public class UserResource extends AbstractResource {
             URI userUri = uriInfo.getAbsolutePathBuilder().path(policy.getId().toString()).build();
             Resource<Policy> res = new Resource<>();
 
-            res.setEntity(PolicyResource.fromEntity(policy));
+            res.setEntity(fromEntity(policy));
             res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
             result.add(res);
         }
@@ -414,7 +355,7 @@ public class UserResource extends AbstractResource {
             URI userUri = uriInfo.getAbsolutePathBuilder().path(infraction.getId().toString()).build();
             Resource<Infraction> res = new Resource<>();
 
-            res.setEntity(PolicyResource.fromEntity(infraction));
+            res.setEntity(fromEntity(infraction));
             res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
             result.add(res);
         }

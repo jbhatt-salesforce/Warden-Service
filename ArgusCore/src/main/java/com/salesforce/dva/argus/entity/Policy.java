@@ -118,7 +118,8 @@ public class Policy extends JPAEntity {
 
     @Basic(optional = false)
     @Column(nullable = false)
-    private List<Double> threshold;
+    @ElementCollection
+    private List<Double> thresholds;
 
     @Basic(optional = false)
     @Column(name = "time_unit", nullable = false)
@@ -151,7 +152,7 @@ public class Policy extends JPAEntity {
      * @param metricName The metric name for this policy. Cannot be null.
      * @param triggerType The trigger type for this policy. Cannot be null.
      * @param aggregator The aggregator for this policy. Cannot be null.
-     * @param threshold The threshold for this policy. Cannot be null.
+     * @param threshold The thresholds for this policy. Cannot be null.
      * @param timeUnit The time unit for this policy. Cannot be null.
      * @param defaultValue The default value for this policy. Cannot be null.
      * @param cronEntry The cron entry for this policy. Cannot be null.
@@ -166,7 +167,7 @@ public class Policy extends JPAEntity {
         setUsers(users);
         setTriggerType(triggerType);
         setAggregator(aggregator);
-        setThreshold(threshold);
+        setThresholds(threshold);
         setTimeUnit(timeUnit);
         setDefaultValue(defaultValue);
         setCronEntry(cronEntry);
@@ -346,12 +347,12 @@ public class Policy extends JPAEntity {
         this.aggregator = aggregator;
     }
 
-    public List<Double> getThreshold() {
-        return threshold;
+    public List<Double> getThresholds() {
+        return thresholds;
     }
 
-    public void setThreshold(List<Double> threshold) {
-        this.threshold = threshold;
+    public void setThresholds(List<Double> thresholds) {
+        this.thresholds = thresholds;
     }
 
     public String getTimeUnit() {
@@ -422,7 +423,7 @@ public class Policy extends JPAEntity {
 
     @Override
     public String toString() {
-        return "Policy{" + "service=" + service + ", name=" + name + ", owners=" + owners + ", users=" + users + ", subSystem=" + subSystem + ", triggerType=" + triggerType + ", aggregator=" + aggregator + ", threshold=" + threshold + ", timeUnit=" + timeUnit + ", defaultValue=" + defaultValue + ", cronEntry=" + cronEntry + ", suspensionLevels=" + suspensionLevels + ", infractions=" + infractions + '}';
+        return "Policy{" + "service=" + service + ", name=" + name + ", owners=" + owners + ", users=" + users + ", subSystem=" + subSystem + ", triggerType=" + triggerType + ", aggregator=" + aggregator + ", threshold=" + thresholds + ", timeUnit=" + timeUnit + ", defaultValue=" + defaultValue + ", cronEntry=" + cronEntry + ", suspensionLevels=" + suspensionLevels + ", infractions=" + infractions + '}';
     }
 
 }

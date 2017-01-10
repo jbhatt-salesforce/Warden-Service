@@ -31,16 +31,15 @@
 package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
-import com.salesforce.dva.argus.service.WaaSService;
 import com.salesforce.dva.warden.dto.Subscription;
 import com.salesforce.dva.warden.dto.Resource;
-import com.salesforce.dva.warden.ws.dto.Converter;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
 
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -56,8 +55,6 @@ import javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
-import javax.ws.rs.core.UriInfo;
-import jersey.repackaged.com.google.common.base.Objects;
 
 /**
  * Provides methods to manipulate subscriptions.
@@ -67,20 +64,6 @@ import jersey.repackaged.com.google.common.base.Objects;
 @Path("/subscription")
 @Description("Provides methods to manipulate subscriptions.")
 public class SubscriptionResource extends AbstractResource {
-
-    static Subscription fromEntity(com.salesforce.dva.argus.entity.Subscription subscription) {
-        Subscription result = Converter.fromEntity(Subscription.class, subscription);
-        return result;
-    }
-
-    private final WaaSService waaSService;
-
-    @Context
-    UriInfo uriInfo;
-
-    public SubscriptionResource() {
-        this.waaSService = system.getServiceFactory().getWaaSService();
-    }
 
     /**
      * Creates a new subscription.
@@ -110,7 +93,7 @@ public class SubscriptionResource extends AbstractResource {
             message = devMessage = "Subscription was successfully created.";
             status = OK.getStatusCode();
             uri = uriInfo.getAbsolutePathBuilder().path(entity.getId().toString()).build();
-            res.setEntity(SubscriptionResource.fromEntity(entity));
+            res.setEntity(fromEntity(entity));
         } catch (Exception ex) {
             message = "Failed to create subscription.";
             devMessage = ex.getMessage();
@@ -146,13 +129,13 @@ public class SubscriptionResource extends AbstractResource {
         if (entity == null) {
             status = NOT_FOUND.getStatusCode();
             message = "Subscription does not exist.";
-        } else if (!Objects.equal(entity.getCreatedBy(), getRemoteUser(req))) {
+        } else if (!Objects.equals(entity.getCreatedBy(), getRemoteUser(req))) {
             status = Status.UNAUTHORIZED.getStatusCode();
             message = "You are not authorized to view the resource.";
         } else {
             status = Status.OK.getStatusCode();
             message = "Subscription retrieved successfully.";
-            res.setEntity(SubscriptionResource.fromEntity(entity));
+            res.setEntity(fromEntity(entity));
         }
         res.setMeta(createMetadata(uri, status, req.getMethod(), message, message, message));
         result.add(res);
@@ -183,7 +166,7 @@ public class SubscriptionResource extends AbstractResource {
         if (entity == null) {
             status = NOT_FOUND.getStatusCode();
             message = devMessage = "Subscription does not exist.";
-        } else if (!Objects.equal(entity.getCreatedBy(), getRemoteUser(req))) {
+        } else if (!Objects.equals(entity.getCreatedBy(), getRemoteUser(req))) {
             status = Status.UNAUTHORIZED.getStatusCode();
             message = devMessage = "You are not authorized to delete the resource.";
         } else {
@@ -191,7 +174,7 @@ public class SubscriptionResource extends AbstractResource {
                 waaSService.deleteSubscription(entity);
                 status = Status.OK.getStatusCode();
                 message = devMessage = "Subscription deleted successfully.";
-                res.setEntity(SubscriptionResource.fromEntity(entity));
+                res.setEntity(fromEntity(entity));
             } catch (Exception ex) {
                 status = Status.BAD_REQUEST.getStatusCode();
                 message = "Failed to delete subscription.";

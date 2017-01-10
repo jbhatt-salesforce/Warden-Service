@@ -48,7 +48,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -61,11 +60,6 @@ import javax.ws.rs.core.Response;
 @Path("/auth")
 @Description("Provides methods to authenticate users.")
 public class AuthResource extends AbstractResource {
-
-    //~ Instance fields ******************************************************************************************************************************
-
-    @Context private ResourceContext rc;
-    private final AuthService authService = system.getServiceFactory().getAuthService();
 
     //~ Methods **************************************************************************************************************************************
 
@@ -91,7 +85,7 @@ public class AuthResource extends AbstractResource {
             PrincipalUser user = authService.getUser(creds.getUsername(), creds.getPassword());
 
             if (user != null) {
-                result = UserResource.fromEntity(user);
+                result = fromEntity(user);
             } else {
                 throw new WebApplicationException(Response.Status.UNAUTHORIZED.getReasonPhrase(), Response.Status.UNAUTHORIZED);
             }

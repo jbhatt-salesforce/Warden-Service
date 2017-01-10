@@ -93,7 +93,7 @@ public class WaaSObjectConverter implements Serializable {
     	
     	
     	result.setSuspensionLevels(policy.getSuspensionLevels().stream().map(s -> s.getId()).collect(Collectors.toList()));
-    	result.setThresholds(policy.getThreshold());
+    	result.setThresholds(policy.getThresholds());
     	result.setTimeUnit(policy.getTimeUnit());
     	result.setTriggerType(com.salesforce.dva.warden.dto.Policy.TriggerType.valueOf(policy.getTriggerType().name()));
     	result.setUsers(policy.getUsers());

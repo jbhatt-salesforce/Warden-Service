@@ -31,15 +31,12 @@
 package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
-import com.salesforce.dva.argus.service.WaaSService;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Metric;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
 import com.salesforce.dva.warden.dto.Resource;
-import com.salesforce.dva.warden.ws.dto.Converter;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
-import static com.salesforce.dva.warden.ws.resources.AbstractResource.requireThat;
 
 import java.math.BigInteger;
 import java.net.URI;
@@ -65,12 +62,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.OK;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Warden web service resources.
@@ -80,35 +75,6 @@ import javax.ws.rs.core.UriInfo;
 @Path("/policy")
 @Description("Provides methods to manipulate warden entities.")
 public class PolicyResource extends AbstractResource {
-
-    @Context private ResourceContext rc;
-
-    static Policy fromEntity(com.salesforce.dva.argus.entity.Policy policy) {
-        Policy result = Converter.fromEntity(Policy.class, policy);
-        return result;
-    }
-
-    static Infraction fromEntity(com.salesforce.dva.argus.entity.Infraction infraction) {
-        Infraction result = Converter.fromEntity(Infraction.class, infraction);
-        return result;
-    }
-
-    private static SuspensionLevel fromEntity(com.salesforce.dva.argus.entity.SuspensionLevel level) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private static com.salesforce.dva.argus.entity.Infraction toEntity(Infraction entity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private final WaaSService waaSService;
-
-    @Context
-    UriInfo uriInfo;
-
-    public PolicyResource() {
-        this.waaSService = system.getServiceFactory().getWaaSService();
-    }
 
     /**
      * Returns the list of policies for which the remote user is the creator or an owner. If a username is specified, the results are filtered to
@@ -159,7 +125,7 @@ public class PolicyResource extends AbstractResource {
             URI userUri = uriInfo.getAbsolutePathBuilder().path(policy.getId().toString()).build();
             Resource<Policy> res = new Resource<>();
 
-            res.setEntity(PolicyResource.fromEntity(policy));
+            res.setEntity(fromEntity(policy));
             res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
             result.add(res);
         }
@@ -424,7 +390,7 @@ public class PolicyResource extends AbstractResource {
                 URI userUri = uriInfo.getAbsolutePathBuilder().path(level.getId().toString()).build();
                 Resource<SuspensionLevel> res = new Resource<>();
 
-                res.setEntity(PolicyResource.fromEntity(level));
+                res.setEntity(fromEntity(level));
                 res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
                 result.add(res);
             }
@@ -734,7 +700,7 @@ public class PolicyResource extends AbstractResource {
                 URI userUri = uriInfo.getAbsolutePathBuilder().path(infraction.getId().toString()).build();
                 Resource<Infraction> res = new Resource<>();
 
-                res.setEntity(PolicyResource.fromEntity(infraction));
+                res.setEntity(fromEntity(infraction));
                 res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
                 result.add(res);
             }
@@ -815,7 +781,7 @@ public class PolicyResource extends AbstractResource {
             if(suspensionIds == null || suspensionIds.contains(suspension.getEntity().getId())){
                 res.setEntity(suspension.getEntity());
                 try {
-                    waaSService.deleteInfraction(PolicyResource.toEntity(suspension.getEntity()));
+                    waaSService.deleteInfraction(toEntity(suspension.getEntity()));
                     message = uiMessage = devMessage = "Suspension deleted successfully.";
                     status = OK.getStatusCode();
                 } catch (Exception ex) {
@@ -950,7 +916,7 @@ public class PolicyResource extends AbstractResource {
 
                 Resource<Metric> res = new Resource<>();
 
-                res.setEntity(UserResource.fromEntity(metric, username, policyId));
+                res.setEntity(fromEntity(metric, username, policyId));
                 res.setMeta(createMetadata(userUri, OK.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
                 result.add(res);
             }
@@ -961,14 +927,6 @@ public class PolicyResource extends AbstractResource {
             result.add(res);
         }
         return result;
-    }
-
-    private com.salesforce.dva.argus.entity.Policy toEntity(Policy policy) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private com.salesforce.dva.argus.entity.SuspensionLevel toEntity(SuspensionLevel level) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
 /* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */

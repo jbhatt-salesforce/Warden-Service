@@ -173,7 +173,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		}
 
 		if (values.size() > 0) {
-			p.setThreshold(values);
+			p.setThresholds(values);
 		}
 
 		Policy result = mergeEntity(em, p);
@@ -326,7 +326,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 	@Override
 	@Transactional
-	public Infraction suspendUser(String user, Policy policy) {
+	public Infraction suspendUser(String user, Policy policy, Double value) {
 
 		requireNotDisposed();
 
@@ -340,7 +340,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		EntityManager em = emf.get();
 		Long infractionTime = System.currentTimeMillis();
 		Infraction infraction = new Infraction(_adminUser, policy, _userService.findUserByUsername(user),
-				infractionTime, 0L);
+				infractionTime, 0L, value);
 
 		Long expirationTime = _calculateExpirationTime(user, policy, infractionTime);
 		infraction.setExpirationTimestamp(expirationTime);
@@ -431,9 +431,9 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		} else {
 			Trigger trigger = wardenAlert.getTriggers().get(0);
 
-			trigger.setThreshold(policy.getThreshold().get(0));
-			if (policy.getThreshold().size() == 2 && policy.getThreshold().get(1) != null) {
-				trigger.setSecondaryThreshold(policy.getThreshold().get(1));
+			trigger.setThreshold(policy.getThresholds().get(0));
+			if (policy.getThresholds().size() == 2 && policy.getThresholds().get(1) != null) {
+				trigger.setSecondaryThreshold(policy.getThresholds().get(1));
 			}
 		}
 		wardenAlert.setEnabled(true);
@@ -459,7 +459,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 				policy.getCronEntry());
 		List<Trigger> triggers = new ArrayList<>();
 
-		double threshold = policy.getThreshold().get(0);
+		double threshold = policy.getThresholds().get(0);
 
 		Trigger trigger = new Trigger(alert, Trigger.TriggerType.fromString(policy.getTriggerType().value()),
 				"policy-value-" + policy.getTriggerType().toString() + "-policy-threshold", threshold, 0.0, 0L);

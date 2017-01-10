@@ -31,7 +31,6 @@
 package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
-import com.salesforce.dva.argus.service.ManagementService;
 import com.salesforce.dva.warden.dto.Resource;
 import com.salesforce.dva.warden.dto.User;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
@@ -41,11 +40,9 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Web services for management service.
@@ -55,14 +52,6 @@ import javax.ws.rs.core.UriInfo;
 @Path("/management")
 @Description("Provides methods to manage the services.")
 public class ManagementResource extends AbstractResource {
-
-    //~ Instance fields ******************************************************************************************************************************
-    @Context
-    private UriInfo uriInfo;
-    @Context
-    private ResourceContext rc;
-
-    private final ManagementService managementService = system.getServiceFactory().getManagementService();
 
     //~ Methods **************************************************************************************************************************************
     /**

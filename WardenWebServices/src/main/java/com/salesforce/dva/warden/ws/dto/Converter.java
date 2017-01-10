@@ -8,16 +8,13 @@ import org.apache.commons.beanutils.BeanUtils;
 
 public class Converter {
     /**
-     * Creates BaseDto object and copies properties from entity object.
-     *
-     * @param   <D>     BaseDto object type.
-     * @param   <E>     Entity type.
-     * @param   clazz   BaseDto entity class.
-     * @param   entity  entity object.
-     *
-     * @return  BaseDto object.
-     *
-     * @throws  WebApplicationException  The exception with 500 status will be thrown.
+     * Converts from Entity to DTO.
+     * @param <E> The entity type.
+     * @param <D> The DTO type.
+     * @param clazz The entity class.
+     * @param entity The DTO instance.
+     * 
+     * @return The converted DTO.
      */    
     public static <D extends Entity, E extends JPAEntity> D fromEntity(Class<D> clazz, E entity) {
         D result = null;
@@ -28,6 +25,27 @@ public class Converter {
 
             result.setCreatedById(entity.getCreatedBy() != null ? entity.getCreatedBy().getId() : null);
             result.setModifiedById(entity.getModifiedBy() != null ? entity.getModifiedBy().getId() : null);
+        } catch (Exception ex) {
+            throw new WebApplicationException("DTO transformation failed.", Status.INTERNAL_SERVER_ERROR);
+        }
+        return result;
+    }
+
+    /**
+     * Converts from DTO to Entity.
+     * @param <E> The entity type.
+     * @param <D> The DTO type.
+     * @param clazz The entity class.
+     * @param dto The DTO instance.
+     * 
+     * @return The converted entity.
+     */
+    public static <E extends JPAEntity, D extends Entity> E toEntity(Class<E> clazz, D dto) {
+        E result = null;
+
+        try {
+            result = clazz.newInstance();
+            BeanUtils.copyProperties(result, dto);
         } catch (Exception ex) {
             throw new WebApplicationException("DTO transformation failed.", Status.INTERNAL_SERVER_ERROR);
         }
