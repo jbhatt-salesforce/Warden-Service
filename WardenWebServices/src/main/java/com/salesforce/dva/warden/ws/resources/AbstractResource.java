@@ -185,7 +185,7 @@ public abstract class AbstractResource {
 
         result.setAggregator(policy.getAggregator());
         result.setTriggerType(policy.getTriggerType());
-        result.setSuspensionLevels(policy.getSuspensionLevels().stream().map((l) -> l.getId()).collect(Collectors.toList()));
+        result.setSuspensionLevels(policy.getSuspensionLevels().stream().map((l) -> fromEntity(l)).collect(Collectors.toList()));
 
         return result;
     }
@@ -336,11 +336,7 @@ public abstract class AbstractResource {
 
         result.setModifiedBy(modifier);
         result.setCreatedBy(creator);
-
-        List<com.salesforce.dva.argus.entity.SuspensionLevel> levels = new ArrayList<>();
-
-        policy.getSuspensionLevels().stream().forEach(l -> levels.add(waaSService.getLevel(result, l)));
-        result.setSuspensionLevels(levels);
+        result.setSuspensionLevels(policy.getSuspensionLevels().stream().map(d->toEntity(d)).collect(Collectors.toList()));
 
         return result;
     }

@@ -66,6 +66,7 @@ public class PolicyServiceTest extends AbstractTest {
         result.setCreatedDate(new Date(1472847819167L));
         result.setModifiedById(BigInteger.TEN);
         result.setModifiedDate(new Date(1472847819167L));
+        result.getSuspensionLevels().get(0).setId(BigInteger.ONE);
 
         return result;
     }
@@ -176,6 +177,7 @@ public class PolicyServiceTest extends AbstractTest {
         result.setTimeUnit("5min");
         result.setDefaultValue(0.0);
         result.setCronEntry("0 */4 * * *");
+        result.setSuspensionLevels(Arrays.asList(new SuspensionLevel[]{_constructPersistedSuspensionLevel()}));
 
         return result;
     }
@@ -204,7 +206,6 @@ public class PolicyServiceTest extends AbstractTest {
             List<Policy> policies = Arrays.asList(new Policy[] { _constructUnPersistedPolicy() });
             WardenResponse<Policy> actualResponse = policyService.createPolicies(policies);
             WardenResponse<Policy> expectedResponse = _constructPersistedResponse("POST");
-
             assertEquals(expectedResponse, actualResponse);
         }
     }
@@ -266,7 +267,7 @@ public class PolicyServiceTest extends AbstractTest {
      * Method description
      *
      *
-     * @throws IOException
+     * @throws IOExceptiong
      */
     @Test
     public void testDeleteSuspensionLevel() throws IOException {
@@ -378,7 +379,6 @@ public class PolicyServiceTest extends AbstractTest {
             PolicyService policyService = wardenService.getPolicyService();
             WardenResponse<Policy> expectedResponse = _constructPersistedResponse("GET");
             WardenResponse<Policy> actualResponse = policyService.getPolicies();
-
             assertEquals(expectedResponse, actualResponse);
         }
     }
@@ -483,7 +483,6 @@ public class PolicyServiceTest extends AbstractTest {
             List<Policy> policies = Arrays.asList(new Policy[] { _constructPersistedPolicy() });
             WardenResponse<Policy> actualResponse = policyService.updatePolicies(policies);
             WardenResponse<Policy> expectedResponse = _constructPersistedResponse("PUT");
-
             assertEquals(expectedResponse, actualResponse);
         }
     }
@@ -502,7 +501,6 @@ public class PolicyServiceTest extends AbstractTest {
             Policy policy = policyWardenResponse.getResources().get(0).getEntity();
 
             policy.setAggregator(Policy.Aggregator.ZIMSUM);
-
             WardenResponse<Policy> actualResponse = policyService.updatePolicy(BigInteger.ONE, policy);
             WardenResponse<Policy> expectedResponse = _constructPersistedResponse("PUT");
 
