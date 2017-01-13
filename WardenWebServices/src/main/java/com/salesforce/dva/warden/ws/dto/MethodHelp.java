@@ -38,6 +38,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import com.salesforce.dva.warden.dto.Base;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Represents the help context for an endpoint method.
@@ -235,7 +237,7 @@ public class MethodHelp implements Comparable<MethodHelp> {
      * @return  The list of media types this method consumes.
      */
     public String[] getConsumes() {
-        return _consumes;
+        return _consumes == null ? null : Arrays.copyOf(_consumes, _consumes.length);
     }
 
     /**
@@ -244,7 +246,7 @@ public class MethodHelp implements Comparable<MethodHelp> {
      * @param  consumes  The list of media types this method consumes.
      */
     public void setConsumes(String[] consumes) {
-        _consumes = consumes;
+        _consumes = consumes == null ? null : Arrays.copyOf(consumes, consumes.length);
     }
 
     /**
@@ -326,7 +328,7 @@ public class MethodHelp implements Comparable<MethodHelp> {
      * @return  The list of media types this method produces.
      */
     public String[] getProduces() {
-        return _produces;
+        return _produces == null ? null : Arrays.copyOf(_produces, _produces.length);
     }
 
     /**
@@ -335,7 +337,7 @@ public class MethodHelp implements Comparable<MethodHelp> {
      * @param  produces  The list of media types this method produces.
      */
     public void setProduces(String[] produces) {
-        _produces = produces;
+        _produces = produces == null ? null : Arrays.copyOf(produces, produces.length);
     }
 
     /**
