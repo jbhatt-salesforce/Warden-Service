@@ -1,112 +1,42 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
- * 
+ *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- * 
+ *   
  *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * 
- *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the 
+ *
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
  *      documentation and/or other materials provided with the distribution.
- *      
- *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software 
+ *
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
  *      without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.salesforce.dva.warden.dto.*;
-import com.salesforce.dva.warden.dto.Resource.MetaKey;
-import org.junit.Test;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
-
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.salesforce.dva.warden.dto.*;
+import com.salesforce.dva.warden.dto.Resource.MetaKey;
 
+/**
+ * Class description
+ *
+ *
+ * @version        Enter version here..., 2017
+ * @author         Tom Valine (tvaline@salesforce.com)
+ */
 public class UserServiceTest extends AbstractTest {
-
-    @Test
-    public void testGetInfractionsForUser() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUser("hpotter");
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetInfractionsForUserAndPolicy() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUserAndPolicy("hpotter", BigInteger.ONE);
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetPoliciesByUser() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<Policy> expectedResponse = _constructPersistedResponsePolicy("GET");
-            WardenResponse<Policy> actualResponse = userService.getPoliciesForUser("hpotter");
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetSuspensionsionForUser() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getSuspensionForUser("hpotter", BigInteger.ONE);
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetSuspensionsionsForUser() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
-            WardenResponse<Infraction> actualResponse = userService.getSuspensionsForUser("hpotter");
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetUserById() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<User> expectedResponse = _constructPersistedResponse("GET");
-            WardenResponse<User> actualResponse = userService.getUserByUsername("hpotter");
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
-
-    @Test
-    public void testGetUsers() throws IOException {
-        try(WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
-            UserService userService = wardenService.getUserService();
-            WardenResponse<User> expectedResponse = _constructPersistedResponse("GET");
-            WardenResponse<User> actualResponse = userService.getUsers();
-
-            assertEquals(expectedResponse, actualResponse);
-        }
-    }
 
     private Infraction _constructPersistedInfraction() throws JsonProcessingException {
         Infraction result = new Infraction();
@@ -121,6 +51,7 @@ public class UserServiceTest extends AbstractTest {
         result.setCreatedDate(new Date(1472847819167L));
         result.setModifiedById(BigInteger.TEN);
         result.setModifiedDate(new Date(1472847819167L));
+
         return result;
     }
 
@@ -132,6 +63,7 @@ public class UserServiceTest extends AbstractTest {
         result.setCreatedDate(new Date(1472847819167L));
         result.setModifiedById(BigInteger.TEN);
         result.setModifiedDate(new Date(1472847819167L));
+
         return result;
     }
 
@@ -155,6 +87,7 @@ public class UserServiceTest extends AbstractTest {
         result.setMessage("success");
         result.setStatus(200);
         result.setResources(resources);
+
         return result;
     }
 
@@ -182,6 +115,7 @@ public class UserServiceTest extends AbstractTest {
         result.setMessage("success");
         result.setStatus(200);
         result.setResources(resources);
+
         return result;
     }
 
@@ -205,6 +139,7 @@ public class UserServiceTest extends AbstractTest {
         result.setMessage("success");
         result.setStatus(200);
         result.setResources(resources);
+
         return result;
     }
 
@@ -218,6 +153,7 @@ public class UserServiceTest extends AbstractTest {
         result.setModifiedById(BigInteger.TEN);
         result.setModifiedDate(new Date(1472847819167L));
         result.setId(BigInteger.ONE);
+
         return result;
     }
 
@@ -235,7 +171,132 @@ public class UserServiceTest extends AbstractTest {
         result.setTimeUnit("5min");
         result.setDefaultValue(0.0);
         result.setCronEntry("0 */4 * * *");
+
         return result;
     }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetInfractionsForUser() throws IOException {
+        try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
+            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUser("hpotter");
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetInfractionsForUserAndPolicy() throws IOException {
+        try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
+            WardenResponse<Infraction> actualResponse = userService.getInfractionsForUserAndPolicy("hpotter", BigInteger.ONE);
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetPoliciesByUser() throws IOException {
+        try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<Policy> expectedResponse = _constructPersistedResponsePolicy("GET");
+            WardenResponse<Policy> actualResponse = userService.getPoliciesForUser("hpotter");
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetSuspensionsionForUser() throws IOException {
+        try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
+            WardenResponse<Infraction> actualResponse = userService.getSuspensionForUser("hpotter", BigInteger.ONE);
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetSuspensionsionsForUser() throws IOException {
+        try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<Infraction> expectedResponse = _constructPersistedResponseInfraction("GET");
+            WardenResponse<Infraction> actualResponse = userService.getSuspensionsForUser("hpotter");
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetUserById() throws IOException {
+        try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<User> expectedResponse = _constructPersistedResponse("GET");
+            WardenResponse<User> actualResponse = userService.getUserByUsername("hpotter");
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetUsers() throws IOException {
+        try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
+            UserService userService = wardenService.getUserService();
+            WardenResponse<User> expectedResponse = _constructPersistedResponse("GET");
+            WardenResponse<User> actualResponse = userService.getUsers();
+
+            assertEquals(expectedResponse, actualResponse);
+        }
+    }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

@@ -60,7 +60,7 @@ public class PerfFilter implements Filter {
     public void destroy() {}
 
     /**
-     * Updates performance counters using the Argus monitoring service.
+     * Updates performance counters using the Warden monitoring service.
      *
      * @param   request   The HTTP request.
      * @param   response  The HTTP response.

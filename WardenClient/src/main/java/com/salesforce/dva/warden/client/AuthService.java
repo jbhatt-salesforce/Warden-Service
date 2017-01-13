@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,14 +17,14 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
+import java.io.IOException;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Credentials;
-import java.io.IOException;
-
-import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 import com.salesforce.dva.warden.dto.User;
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
  * Provides methods to authenticate a user.
@@ -34,11 +34,7 @@ import com.salesforce.dva.warden.dto.User;
  */
 class AuthService extends EndpointService {
 
-    //~ Static fields/initializers *******************************************************************************************************************
-
     private static final String REQUESTURL = "/auth";
-
-    //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new AuthService object.
@@ -48,8 +44,6 @@ class AuthService extends EndpointService {
     AuthService(WardenHttpClient client) {
         super(client);
     }
-
-    //~ Methods **************************************************************************************************************************************
 
     /**
      * Logs into the web services.
@@ -62,14 +56,15 @@ class AuthService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<User> login(String username, String password) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
-        requireThat(password != null && !password.isEmpty(), "Password cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((password != null) &&!password.isEmpty(), "Password cannot be null or empty.");
 
         String requestUrl = REQUESTURL + "/login";
         Credentials creds = new Credentials();
 
         creds.setPassword(password);
         creds.setUsername(username);
+
         return getClient().executeHttpRequest(WardenHttpClient.RequestType.POST, requestUrl, creds);
     }
 
@@ -85,5 +80,10 @@ class AuthService extends EndpointService {
 
         return getClient().executeHttpRequest(WardenHttpClient.RequestType.GET, requestUrl, null);
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

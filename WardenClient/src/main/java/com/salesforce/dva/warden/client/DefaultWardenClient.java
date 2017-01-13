@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,21 +17,22 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.WardenClient;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.Resource;
 import com.salesforce.dva.warden.dto.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.io.IOException;
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.util.*;
 
 /**
  * Default implementation of the WardenClient interface.
@@ -41,12 +42,7 @@ import java.util.*;
  */
 class DefaultWardenClient implements WardenClient {
 
-    //~ Static fields/initializers *******************************************************************************************************************
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultWardenClient.class);
-
-    //~ Instance fields ******************************************************************************************************************************
-
     final InfractionCache infractions;
     final ValueCache values;
     final WardenService service;
@@ -56,8 +52,6 @@ class DefaultWardenClient implements WardenClient {
     private EventServer _listener;
     private String _hostname;
     private Subscription _subscription;
-
-    //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new DefaultWardenClient.
@@ -81,8 +75,9 @@ class DefaultWardenClient implements WardenClient {
      */
     DefaultWardenClient(WardenService service, String username, String password) {
         requireThat(service != null, "The warden service cannot be null.");
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
-        requireThat(password != null && !password.isEmpty(), "Password cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((password != null) &&!password.isEmpty(), "Password cannot be null or empty.");
+
         this.infractions = new InfractionCache();
         this.values = new ValueCache();
         this.service = service;
@@ -91,67 +86,11 @@ class DefaultWardenClient implements WardenClient {
         _hostname = _getHostname();
     }
 
-    //~ Methods **************************************************************************************************************************************
-
-    /**
-     * Throws an illegal argument exception if the condition is not met.
-     *
-     * @param   condition  The boolean condition to check.
-     * @param   message    The exception message.
-     *
-     * @throws  IllegalArgumentException  If the condition is not met.
-     */
-    static void requireThat(boolean condition, String message) {
-        if (!condition) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    //~ Methods **************************************************************************************************************************************
-
-    @Override
-    public void modifyMetric(Policy policy, String username, double delta) throws SuspendedException {
-        requireThat(policy != null, "Policy cannot be null.");
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
-        _checkIsSuspended(policy, username);
-        _updateLocalValue(policy, username, delta, false);
-    }
-
-    @Override
-    public void register(List<Policy> policies, int port) throws Exception {
-        requireThat(policies != null, "Policy list cannot be null.");
-        requireThat(port > 0 && port <= 65535, "Invalid port number.");
-
-        AuthService authService = service.getAuthService();
-
-        authService.login(username, password);
-        _initializeUpdaterThread(service);
-        _reconcilePolicies(policies);
-        _listener = new EventServer(port, infractions);
-        _listener.start();
-        _subscribeToEvents(port);
-    }
-
-    @Override
-    public void unregister() throws Exception {
-        _unsubscribeFromEvents();
-        _listener.close();
-        _terminateUpdaterThread();
-        service.getAuthService().logout();
-    }
-
-    @Override
-    public void updateMetric(Policy policy, String username, double value) throws SuspendedException {
-        requireThat(policy != null, "Policy cannot be null.");
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
-        _checkIsSuspended(policy, username);
-        _updateLocalValue(policy, username, value, true);
-    }
-
     private void _checkIsSuspended(Policy policy, String user) throws SuspendedException {
         Infraction infraction = infractions.get(policy.getId(), user);
 
-        if (infraction != null && (infraction.getExpirationTimestamp() >= System.currentTimeMillis() || infraction.getExpirationTimestamp() < 0)) {
+        if ((infraction != null)
+                && ((infraction.getExpirationTimestamp() >= System.currentTimeMillis()) || (infraction.getExpirationTimestamp() < 0))) {
             throw new SuspendedException(policy, user, infraction.getExpirationTimestamp(), infraction.getValue());
         }
     }
@@ -166,6 +105,7 @@ class DefaultWardenClient implements WardenClient {
                 return hostname;
             }
         }
+
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (Exception ex) {
@@ -175,15 +115,17 @@ class DefaultWardenClient implements WardenClient {
 
     private void _initializeUpdaterThread(WardenService service) {
         _updater = new MetricUpdater(values, service);
+
         _updater.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    LOGGER.warn("Uncaught exception in metric updater thread.  Restarting updater thread.", e);
-                    _terminateUpdaterThread();
-                    _initializeUpdaterThread(service);
-                }
-            });
+                                                 @Override
+                                                 public void uncaughtException(Thread t, Throwable e) {
+                                                     LOGGER.warn("Uncaught exception in metric updater thread.  Restarting updater thread.", e);
+                                                     _terminateUpdaterThread();
+                                                     _initializeUpdaterThread(service);
+                                                 }
+
+                                             });
         _updater.setDaemon(true);
         _updater.start();
     }
@@ -202,11 +144,14 @@ class DefaultWardenClient implements WardenClient {
                 serverPolicy = policyService.createPolicies(toCreate).getResources().get(0).getEntity();
             } else {
                 serverPolicy = response.getResources().get(0).getEntity();
+
                 if (!clientPolicy.equals(serverPolicy)) {
                     clientPolicy.setId(serverPolicy.getId());
+
                     serverPolicy = policyService.updatePolicy(serverPolicy.getId(), clientPolicy).getResources().get(0).getEntity();
                 }
             }
+
             result.add(serverPolicy);
 
             List<Resource<Infraction>> suspensionResponses = policyService.getSuspensions(serverPolicy.getId()).getResources();
@@ -217,6 +162,7 @@ class DefaultWardenClient implements WardenClient {
                 infractions.put(suspension);
             }
         }
+
         return result;
     }
 
@@ -225,11 +171,13 @@ class DefaultWardenClient implements WardenClient {
 
         subscription.setHostname(_hostname);
         subscription.setPort(port);
+
         _subscription = service.getSubscriptionService().subscribe(subscription).getResources().get(0).getEntity();
     }
 
     private void _terminateUpdaterThread() {
         _updater.interrupt();
+
         try {
             _updater.join(10000);
         } catch (InterruptedException ex) {
@@ -249,10 +197,63 @@ class DefaultWardenClient implements WardenClient {
         } else {
             cachedValue = replace ? value : cachedValue + value;
         }
+
         values.put(policy.getId(), user, cachedValue);
     }
 
-    //~ Inner Classes ********************************************************************************************************************************
+    @Override
+    public void modifyMetric(Policy policy, String username, double delta) throws SuspendedException {
+        requireThat(policy != null, "Policy cannot be null.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
+        _checkIsSuspended(policy, username);
+        _updateLocalValue(policy, username, delta, false);
+    }
+
+    @Override
+    public void register(List<Policy> policies, int port) throws Exception {
+        requireThat(policies != null, "Policy list cannot be null.");
+        requireThat((port > 0) && (port <= 65535), "Invalid port number.");
+
+        AuthService authService = service.getAuthService();
+
+        authService.login(username, password);
+        _initializeUpdaterThread(service);
+        _reconcilePolicies(policies);
+
+        _listener = new EventServer(port, infractions);
+
+        _listener.start();
+        _subscribeToEvents(port);
+    }
+
+    /**
+     * Throws an illegal argument exception if the condition is not met.
+     *
+     * @param   condition  The boolean condition to check.
+     * @param   message    The exception message.
+     *
+     */
+    static void requireThat(boolean condition, String message) {
+        if (!condition) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    @Override
+    public void unregister() throws Exception {
+        _unsubscribeFromEvents();
+        _listener.close();
+        _terminateUpdaterThread();
+        service.getAuthService().logout();
+    }
+
+    @Override
+    public void updateMetric(Policy policy, String username, double value) throws SuspendedException {
+        requireThat(policy != null, "Policy cannot be null.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
+        _checkIsSuspended(policy, username);
+        _updateLocalValue(policy, username, value, true);
+    }
 
     /**
      * Local cache to store currently suspended users.
@@ -268,36 +269,19 @@ class DefaultWardenClient implements WardenClient {
         public InfractionCache() {
             this._infractions = Collections.synchronizedMap(new LinkedHashMap<String, Infraction>() {
 
-                    @Override
-                    protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
-                        Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
+                                                                @Override
+                                                                protected boolean removeEldestEntry(Map.Entry<String, Infraction> eldest) {
+                                                                    Long expirationTimestamp = eldest.getValue().getExpirationTimestamp();
 
-                        return expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis();
-                    }
-                });
+                                                                    return (expirationTimestamp > 0)
+                                                                           && (expirationTimestamp < System.currentTimeMillis());
+                                                                }
+
+                                                            });
         }
 
-        /**
-         * Returns the infraction record for a suspended user.
-         *
-         * @param   policyId  The ID of the policy to check for. Cannot be null.
-         * @param   username  The username to retrieve the infraction record for. Cannot be null or empty.
-         *
-         * @return  The infraction record or null if the user is not currently suspended.
-         */
-        public Infraction get(BigInteger policyId, String username) {
-            requireThat(policyId != null, "The policy ID cannot be null.");
-            requireThat(username != null && !username.isEmpty(), "The username cannot be null or empty.");
-            return _infractions.get(createKey(policyId, username));
-        }
-
-        /**
-         * Indicates whether the infraction cache is empty.
-         *
-         * @return  True if the cache contains no suspended users.
-         */
-        public boolean isEmpty() {
-            return _infractions.isEmpty();
+        private String createKey(BigInteger policyId, String user) {
+            return policyId.toString() + ":" + user;
         }
 
         /**
@@ -319,10 +303,32 @@ class DefaultWardenClient implements WardenClient {
             return _infractions.size();
         }
 
-        private String createKey(BigInteger policyId, String user) {
-            return policyId.toString() + ":" + user;
+        /**
+         * Indicates whether the infraction cache is empty.
+         *
+         * @return  True if the cache contains no suspended users.
+         */
+        public boolean isEmpty() {
+            return _infractions.isEmpty();
         }
+
+        /**
+         * Returns the infraction record for a suspended user.
+         *
+         * @param   policyId  The ID of the policy to check for. Cannot be null.
+         * @param   username  The username to retrieve the infraction record for. Cannot be null or empty.
+         *
+         * @return  The infraction record or null if the user is not currently suspended.
+         */
+        public Infraction get(BigInteger policyId, String username) {
+            requireThat(policyId != null, "The policy ID cannot be null.");
+            requireThat((username != null) &&!username.isEmpty(), "The username cannot be null or empty.");
+
+            return _infractions.get(createKey(policyId, username));
+        }
+
     }
+
 
     /**
      * The local cache used to store usage metrics for users until that time the are written to the server.
@@ -332,6 +338,25 @@ class DefaultWardenClient implements WardenClient {
     public static class ValueCache extends HashMap<String, Double> {
 
         private static final long serialVersionUID = 1L;
+
+        private String createKey(BigInteger policyId, String username) {
+            requireThat(policyId != null, "Policy ID cannot be null.");
+            requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
+
+            return policyId.toString() + ":" + username;
+        }
+
+        /**
+         * Updates the policy value for a specific user.
+         *
+         * @param  policyId  The policy ID. Cannot be null.
+         * @param  user      The username. Cannot be null or empty.
+         * @param  value     The new value. Cannot be null.
+         */
+        public void put(BigInteger policyId, String user, Double value) {
+            requireThat((value != null) &&!value.equals(Double.NaN), "The value cannot be null and must be a real number.");
+            put(createKey(policyId, user), value);
+        }
 
         /**
          * Returns the value for a policy and user combination.
@@ -360,26 +385,15 @@ class DefaultWardenClient implements WardenClient {
 
             result.add(new BigInteger(components[0]));
             result.add(components[1]);
+
             return result;
         }
 
-        /**
-         * Updates the policy value for a specific user.
-         *
-         * @param  policyId  The policy ID. Cannot be null.
-         * @param  user      The username. Cannot be null or empty.
-         * @param  value     The new value. Cannot be null.
-         */
-        public void put(BigInteger policyId, String user, Double value) {
-            requireThat(value != null && !value.equals(Double.NaN), "The value cannot be null and must be a real number.");
-            put(createKey(policyId, user), value);
-        }
-
-        private String createKey(BigInteger policyId, String username) {
-            requireThat(policyId != null, "Policy ID cannot be null.");
-            requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
-            return policyId.toString() + ":" + username;
-        }
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

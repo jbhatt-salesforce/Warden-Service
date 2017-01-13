@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,13 +17,14 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
-import com.salesforce.dva.warden.client.DefaultWardenClient.ValueCache;
-import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
+import org.slf4j.LoggerFactory;
+import com.salesforce.dva.warden.client.DefaultWardenClient.ValueCache;
 
 /**
  * Periodically pushes cached policy values for users to the server..
@@ -33,12 +34,8 @@ import java.util.*;
  */
 class MetricUpdater extends Thread {
 
-    //~ Instance fields ******************************************************************************************************************************
-
     private ValueCache _values;
     private WardenService _wardenService;
-
-    //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new MetricUpdater object.
@@ -51,8 +48,6 @@ class MetricUpdater extends Thread {
         _wardenService = wardenService;
     }
 
-    //~ Methods **************************************************************************************************************************************
-
     @Override
     public void run() {
         long delta = 0;
@@ -62,6 +57,7 @@ class MetricUpdater extends Thread {
                 Thread.sleep(60000 - delta);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+
                 continue;
             }
 
@@ -70,21 +66,30 @@ class MetricUpdater extends Thread {
             Map<String, Double> copyOfValues = new HashMap<>(_values);
             PolicyService policyService = _wardenService.getPolicyService();
 
-            copyOfValues.forEach((String k, Double v) -> {
-                List<Object> items = _values.getKeyComponents(k);
-                Map<Long, Double> metric = new HashMap<>();
+            copyOfValues.forEach(
+                (String k, Double v) -> {
+                    List<Object> items = _values.getKeyComponents(k);
+                    Map<Long, Double> metric = new HashMap<>();
 
-                metric.put(time, v);
-                try {
-                    policyService.updateMetricsForUserAndPolicy(BigInteger.class.cast(items.get(0)), items.get(1).toString(), metric);
-                } catch (IOException ex) {
-                    LoggerFactory.getLogger(getClass()).warn("Failed to update metric.", ex);
-                }
-            });
+                    metric.put(time, v);
+
+                    try {
+                        policyService.updateMetricsForUserAndPolicy(BigInteger.class.cast(items.get(0)), items.get(1).toString(), metric);
+                    } catch (IOException ex) {
+                        LoggerFactory.getLogger(getClass()).warn("Failed to update metric.", ex);
+                    }
+                } );
+
             delta = System.currentTimeMillis() - start;
         }
+
         _values = null;
         _wardenService = null;
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

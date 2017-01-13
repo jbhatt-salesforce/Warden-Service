@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,11 +17,11 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -39,9 +39,9 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.BasicHttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
-import java.net.URL;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
@@ -51,8 +51,6 @@ import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
  */
 class WardenHttpClient {
 
-    //~ Static fields/initializers *******************************************************************************************************************
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(WardenHttpClient.class.getName());
 
@@ -61,18 +59,21 @@ class WardenHttpClient {
         MAPPER.setVisibility(PropertyAccessor.SETTER, Visibility.ANY);
     }
 
-    //~ Instance fields ******************************************************************************************************************************
-
     String _endpoint;
     private final CloseableHttpClient _httpClient;
     private final PoolingHttpClientConnectionManager _connMgr;
     private final BasicCookieStore _cookieStore;
     private final BasicHttpContext _httpContext;
 
-    //~ Constructors *********************************************************************************************************************************
+    /**
+     * The request type to use.
+     *
+     * @author  Jigna Bhatt (jbhatt@salesforce.com)
+     */
+    static enum RequestType { POST, GET, DELETE, PUT; }
 
     /**
-     * Creates a new Argus HTTP client.
+     * Creates a new Warden HTTP client.
      *
      * @param   endpoint    The URL of the read _endpoint including the port number. Must not be null.
      * @param   maxConn     The maximum number of concurrent connections. Must be greater than 0.
@@ -82,7 +83,7 @@ class WardenHttpClient {
      * @throws  IOException  If a connection cannot be established.
      */
     WardenHttpClient(String endpoint, int maxConn, int timeout, int reqTimeout) throws IOException {
-        requireThat(endpoint != null && !endpoint.isEmpty(), "Invalid endpoint.");
+        requireThat((endpoint != null) &&!endpoint.isEmpty(), "Invalid endpoint.");
         requireThat(maxConn > 0, "Maximum connections must be a positive non-zero number.");
         requireThat(timeout > 0, "Connection timeout must be a positive non-zero number of milliseconds.");
         requireThat(reqTimeout > 0, "Request timeout must be a positive non-zero number of milliseconds.");
@@ -91,6 +92,7 @@ class WardenHttpClient {
         int port = url.getPort();
 
         _connMgr = new PoolingHttpClientConnectionManager();
+
         _connMgr.setMaxTotal(maxConn);
         _connMgr.setDefaultMaxPerRoute(maxConn);
 
@@ -99,29 +101,15 @@ class WardenHttpClient {
         RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectionRequestTimeout(reqTimeout).setConnectTimeout(timeout).build();
 
         _connMgr.setMaxPerRoute(new HttpRoute(host), maxConn / 2);
+
         _httpClient = HttpClients.custom().setConnectionManager(_connMgr).setDefaultRequestConfig(defaultRequestConfig).build();
         _cookieStore = new BasicCookieStore();
         _httpContext = new BasicHttpContext();
+
         _httpContext.setAttribute(HttpClientContext.COOKIE_STORE, _cookieStore);
-        LOGGER.debug("Argus HTTP Client initialized using " + endpoint);
+        LOGGER.debug("Warden HTTP Client initialized using " + endpoint);
+
         _endpoint = endpoint;
-    }
-
-    //~ Methods **************************************************************************************************************************************
-
-    /**
-     * Helper method to convert an object to a JSON string.
-     *
-     * @param   <T>     The object type parameter.
-     * @param   object  The object to convert. Cannot be null.
-     *
-     * @return  The JSON representation of the object.
-     *
-     * @throws  IOException  If a JSON processing error occurs.
-     */
-    protected <T> String toJson(T object) throws IOException {
-        requireThat(object != null, "The object to convert cannot be null.");
-        return MAPPER.writeValueAsString(object);
     }
 
     /**
@@ -146,42 +134,45 @@ class WardenHttpClient {
      * @return  The corresponding response. Will never be null.
      *
      * @throws  IOException               If an I/O exception occurs.
-     * @throws  IllegalArgumentException  If an unsupported request type is specified.
      */
     HttpResponse doHttpRequest(RequestType requestType, String url, String json) throws IOException {
         requireThat(requestType != null, "The request type cannot be null.");
-        requireThat(url != null && !url.isEmpty(), "The URL cannot be null or empty.");
+        requireThat((url != null) &&!url.isEmpty(), "The URL cannot be null or empty.");
 
         StringEntity entity = null;
 
         if (json != null) {
             entity = new StringEntity(json);
+
             entity.setContentType("application/json");
         }
-        switch (requestType) {
-            case POST:
 
+        switch (requestType) {
+            case POST :
                 HttpPost post = new HttpPost(url);
 
                 post.setEntity(entity);
-                return _httpClient.execute(post, _httpContext);
-            case GET:
 
+                return _httpClient.execute(post, _httpContext);
+
+            case GET :
                 HttpGet httpGet = new HttpGet(url);
 
                 return _httpClient.execute(httpGet, _httpContext);
-            case DELETE:
 
+            case DELETE :
                 HttpDelete httpDelete = new HttpDelete(url);
 
                 return _httpClient.execute(httpDelete, _httpContext);
-            case PUT:
 
+            case PUT :
                 HttpPut httpput = new HttpPut(url);
 
                 httpput.setEntity(entity);
+
                 return _httpClient.execute(httpput, _httpContext);
-            default:
+
+            default :
                 throw new IllegalArgumentException(" Request Type " + requestType + " not a valid request type. ");
         }
     }
@@ -201,26 +192,32 @@ class WardenHttpClient {
     <T> WardenResponse<T> executeHttpRequest(RequestType requestType, String url, Object payload) throws IOException {
         url = _endpoint + url;
 
-        String json = payload == null ? null : toJson(payload);
+        String json = (payload == null) ? null : toJson(payload);
         HttpResponse response = doHttpRequest(requestType, url, json);
         WardenResponse<T> wardenResponse = WardenResponse.generateResponse(response);
 
         return wardenResponse;
     }
 
-    //~ Enums ****************************************************************************************************************************************
-
     /**
-     * The request type to use.
+     * Helper method to convert an object to a JSON string.
      *
-     * @author  Jigna Bhatt (jbhatt@salesforce.com)
+     * @param   <T>     The object type parameter.
+     * @param   object  The object to convert. Cannot be null.
+     *
+     * @return  The JSON representation of the object.
+     *
+     * @throws  IOException  If a JSON processing error occurs.
      */
-    static enum RequestType {
+    protected <T> String toJson(T object) throws IOException {
+        requireThat(object != null, "The object to convert cannot be null.");
 
-        POST,
-        GET,
-        DELETE,
-        PUT;
+        return MAPPER.writeValueAsString(object);
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

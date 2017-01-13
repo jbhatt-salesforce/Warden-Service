@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,44 +17,71 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salesforce.dva.warden.dto.Resource;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesforce.dva.warden.dto.Resource;
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
  * The Warden request response object which encapsulates information about a completed request.
  *
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
+ *
+ * @param <T>
  */
 public class WardenResponse<T> {
-
-    //~ Instance fields ******************************************************************************************************************************
 
     @JsonInclude(Include.NON_NULL)
     private List<Resource<T>> _resources;
     private int _status;
     private String _message;
 
-    //~ Constructors *********************************************************************************************************************************
-
     /** Creates a new WardenResponse object. */
-    WardenResponse() { }
+    WardenResponse() {}
 
-    //~ Methods **************************************************************************************************************************************
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final WardenResponse<?> other = (WardenResponse<?>) obj;
+
+        if (this._status != other._status) {
+            return false;
+        }
+
+        if (!Objects.equals(this._message, other._message)) {
+            return false;
+        }
+
+        if (!Objects.equals(this._resources, other._resources)) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Helper method to create a response from the raw HTTP response.
@@ -76,12 +103,13 @@ public class WardenResponse<T> {
         List<Resource<T>> resources = new ArrayList<>();
 
         if (entity != null) {
-            try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 entity.writeTo(baos);
 
                 String payload = baos.toString("UTF-8");
 
-                resources.addAll(new ObjectMapper().readValue(payload, new TypeReference<List<Resource<T>>>() { }));
+                resources.addAll(new ObjectMapper().readValue(payload, new TypeReference<List<Resource<T>>>() {}
+                ));
             }
         }
 
@@ -90,35 +118,19 @@ public class WardenResponse<T> {
         result.setMessage(message);
         result.setStatus(status);
         result.setResources(resources);
+
         return result;
     }
 
-    //~ Methods **************************************************************************************************************************************
-
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+    public int hashCode() {
+        int hash = 3;
 
-        final WardenResponse<?> other = (WardenResponse<?>) obj;
+        hash = 73 * hash + Objects.hashCode(this._resources);
+        hash = 73 * hash + this._status;
+        hash = 73 * hash + Objects.hashCode(this._message);
 
-        if (this._status != other._status) {
-            return false;
-        }
-        if (!Objects.equals(this._message, other._message)) {
-            return false;
-        }
-        if (!Objects.equals(this._resources, other._resources)) {
-            return false;
-        }
-        return true;
+        return hash;
     }
 
     /**
@@ -131,12 +143,32 @@ public class WardenResponse<T> {
     }
 
     /**
+     * Sets the response message.
+     *
+     * @param  message  The response message. May be null.
+     */
+    void setMessage(String message) {
+        this._message = message;
+    }
+
+    /**
      * Returns the list of resources returned in the response.
      *
      * @return  The list of resources. Will never be null, but may be empty.
      */
     public List<Resource<T>> getResources() {
         return _resources;
+    }
+
+    /**
+     * Sets the response resources.
+     *
+     * @param  resources  The response resources. Cannot be null.
+     */
+    void setResources(List<Resource<T>> resources) {
+        requireThat(resources != null, "Resources cannot be null.");
+
+        this._resources = resources;
     }
 
     /**
@@ -148,35 +180,6 @@ public class WardenResponse<T> {
         return _status;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-
-        hash = 73 * hash + Objects.hashCode(this._resources);
-        hash = 73 * hash + this._status;
-        hash = 73 * hash + Objects.hashCode(this._message);
-        return hash;
-    }
-
-    /**
-     * Sets the response message.
-     *
-     * @param  message  The response message. May be null.
-     */
-    void setMessage(String message) {
-        this._message = message;
-    }
-
-    /**
-     * Sets the response resources.
-     *
-     * @param  resources  The response resources. Cannot be null.
-     */
-    void setResources(List<Resource<T>> resources) {
-        requireThat(resources != null, "Resources cannot be null.");
-        this._resources = resources;
-    }
-
     /**
      * Sets the HTTP status code.
      *
@@ -185,5 +188,10 @@ public class WardenResponse<T> {
     void setStatus(int status) {
         this._status = status;
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+
