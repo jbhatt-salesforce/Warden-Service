@@ -54,7 +54,7 @@ public class PrincipalUserDto extends EntityDTO {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private String userName;
+    private String username;
     private String email;
     private Map<Preference, String> preferences = new HashMap<>();
     private List<BigInteger> ownedDashboardIds = new ArrayList<>();
@@ -113,17 +113,17 @@ public class PrincipalUserDto extends EntityDTO {
      *
      * @return  The user name.
      */
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
     /**
      * Sets the user name.
      *
-     * @param  userName  The user name.
+     * @param  username  The user name.
      */
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /**

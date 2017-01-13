@@ -255,7 +255,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 		EntityManager em = emf.get();
 
-		List<Infraction> infractionList = Infraction.findByPolicyAndUserName(em, policy, user);
+		List<Infraction> infractionList = Infraction.findByPolicyAndUsername(em, policy, user);
 
 		// no infraction happens for this policy-user combination
 		if (infractionList == null || infractionList.isEmpty()) {
@@ -279,7 +279,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 		EntityManager em = emf.get();
 
-		List<Infraction> infractionList = Infraction.findByPolicyAndUserName(em, policy, user);
+		List<Infraction> infractionList = Infraction.findByPolicyAndUsername(em, policy, user);
 
 		// if reinstate is needed, delete all the infraction history
 		if (_validReinstatable(infractionList)) {
@@ -364,7 +364,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 		// retrieve all infraction records
 		EntityManager em = emf.get();
-		List<Infraction> infractionList = Infraction.findByPolicyAndUserName(em, policy, user);
+		List<Infraction> infractionList = Infraction.findByPolicyAndUsername(em, policy, user);
 
 		return _calculateBasedOnCountAndLevel(suspensionLevels, infractionList, infractionTimestamp, timeunitInMillis);
 	}
@@ -504,7 +504,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
     }
 
     @Override
-    public void updateMetric(BigInteger policyId, String userName, Map<Long, Double> datapoints) {
+    public void updateMetric(BigInteger policyId, String username, Map<Long, Double> datapoints) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -619,13 +619,13 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
 	@Override
 	@Transactional
-	public List<Policy> getPoliciesForUser(String userName) {
+	public List<Policy> getPoliciesForUser(String username) {
 		requireNotDisposed();
-		requireArgument(userName != null && !userName.isEmpty(), "Name cannot be null or empty.");
+		requireArgument(username != null && !username.isEmpty(), "Name cannot be null or empty.");
 		List<Policy> result = getPolicies();
 
 		if (result != null && !result.isEmpty()) {
-			result = result.stream().filter(p -> p.getUsers().contains(userName)).collect(Collectors.toList());
+			result = result.stream().filter(p -> p.getUsers().contains(username)).collect(Collectors.toList());
 		}
 		return result;
 	}
@@ -885,11 +885,11 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 	 */
 	@Override
 	@Transactional
-	public List<Infraction> getInfractionsByPolicyAndUserName(Policy policy, String username) {
+	public List<Infraction> getInfractionsByPolicyAndUsername(Policy policy, String username) {
 		requireNotDisposed();
 		EntityManager em = emf.get();
 		em.getEntityManagerFactory().getCache().evictAll();
-		List<Infraction> result = Infraction.findByPolicyAndUserName(em, policy, username);
+		List<Infraction> result = Infraction.findByPolicyAndUsername(em, policy, username);
 
 		return result;
 	}

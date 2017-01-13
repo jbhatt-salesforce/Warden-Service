@@ -47,11 +47,11 @@ public interface UserService extends Service {
     /**
      * Retrieves a principal user based on the user name.
      *
-     * @param   userName  The user name of the user to retrieve. Cannot be null or empty.
+     * @param   username  The user name of the user to retrieve. Cannot be null or empty.
      *
      * @return  The principal user or null if no user exists for the given user name.
      */
-    PrincipalUser findUserByUsername(String userName);
+    PrincipalUser findUserByUsername(String username);
 
     /**
      * Retrieves a principal user based on the primary key ID.

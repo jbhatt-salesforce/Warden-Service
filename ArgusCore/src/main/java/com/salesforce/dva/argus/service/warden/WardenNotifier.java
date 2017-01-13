@@ -223,7 +223,7 @@ public abstract class WardenNotifier extends DefaultNotifier {
         int beginIndex = wardenAlertName.indexOf("-") + 1;
         int endIndex = wardenAlertName.lastIndexOf("-");
 
-        return PrincipalUser.findByUserName(emf.get(), wardenAlertName.substring(beginIndex, endIndex));
+        return PrincipalUser.findByUsername(emf.get(), wardenAlertName.substring(beginIndex, endIndex));
     }
 
     /** 

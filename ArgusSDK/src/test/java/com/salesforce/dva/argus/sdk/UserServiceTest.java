@@ -72,7 +72,7 @@ public class UserServiceTest extends AbstractTest {
         result.setModifiedById(BigInteger.ONE);
         result.setModifiedDate(new Date(1472282830936L));
         result.setPrivileged(true);
-        result.setUserName("admin");
+        result.setUsername("admin");
         return result;
     }
 }

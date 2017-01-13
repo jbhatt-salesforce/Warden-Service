@@ -47,7 +47,7 @@ public class ManagementResource extends AbstractResource {
      * Updates the administrator privileges for the user.
      *
      * @param req The HTTP request. Cannot be null.
-     * @param userName Name of the user whom the administrator privileges will be updated. Cannot be null or empty.
+     * @param username Name of the user whom the administrator privileges will be updated. Cannot be null or empty.
      * @param privileged True if the user has administrator privileges.
      *
      * @return The resulting list of resources.  Will never be null, but may be empty.
@@ -56,18 +56,18 @@ public class ManagementResource extends AbstractResource {
     @Path("/privilege")
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Grants administrative privileges.")
-    public List<Resource<User>> setAdministratorPrivilege(@Context HttpServletRequest req, @FormParam("username") String userName,
+    public List<Resource<User>> setAdministratorPrivilege(@Context HttpServletRequest req, @FormParam("username") String username,
                                                           @FormParam("privileged") Boolean privileged) {
-        requireThat((userName != null) &&!userName.isEmpty(), "User name cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "User name cannot be null or empty.");
         requireThat(privileged != null, "A value for the privileged flag must be supplied.");
         requireThat(getRemoteUser(req).isPrivileged(), "You are not authorized to perform this operation", Status.FORBIDDEN);
 
-        PrincipalUser user = userService.findUserByUsername(userName);
+        PrincipalUser user = userService.findUserByUsername(username);
 
         requireThat(user != null, "Requested user doesn't exist.", Status.NOT_FOUND);
         managementService.setAdministratorPrivilege(user, privileged);
 
-        return rc.getResource(UserResource.class).getUserByUsername(req, userName);
+        return rc.getResource(UserResource.class).getUserByUsername(req, username);
     }
 
 }

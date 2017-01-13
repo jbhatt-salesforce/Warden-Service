@@ -135,12 +135,12 @@ public class DefaultAnnotationService extends DefaultService implements Annotati
             requireArgument(annotation != null, "The annotation cannot be null.");
 
             Map<String, String> fields = new HashMap<>(annotation.getFields());
-            String userName;
+            String username;
 
-            if (user == null || (userName = user.getUsername()) == null || userName.isEmpty()) {
+            if (user == null || (username = user.getUsername()) == null || username.isEmpty()) {
                 fields.remove(USER_FIELD_NAME);
             } else {
-                fields.put(USER_FIELD_NAME, userName);
+                fields.put(USER_FIELD_NAME, username);
             }
             annotation.setFields(fields);
         }

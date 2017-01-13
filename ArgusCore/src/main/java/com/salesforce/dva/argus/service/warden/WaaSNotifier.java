@@ -209,7 +209,7 @@ public  class WaaSNotifier extends DefaultNotifier {
         int beginIndex = waaSAlertName.indexOf("-") + 1;
         int endIndex = waaSAlertName.lastIndexOf("-");
 
-        return PrincipalUser.findByUserName(emf.get(), waaSAlertName.substring(beginIndex, endIndex));
+        return PrincipalUser.findByUsername(emf.get(), waaSAlertName.substring(beginIndex, endIndex));
     }
 
     /** 

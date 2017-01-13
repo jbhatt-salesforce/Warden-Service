@@ -155,7 +155,7 @@ public class UserResource extends AbstractResource {
 
         requireThat(policy != null, "Policy not found.", Status.NOT_FOUND);
 
-        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getInfractionsByPolicyAndUserName(policy, username)) {
+        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getInfractionsByPolicyAndUsername(policy, username)) {
             if (remoteUser.isPrivileged() || username.equals(remoteUsername)) {
                 infractions.add(infraction);
             }

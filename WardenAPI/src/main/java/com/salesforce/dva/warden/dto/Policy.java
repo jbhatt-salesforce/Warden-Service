@@ -56,7 +56,7 @@ public class Policy extends Entity {
     private String timeUnit;
     private Double defaultValue;
     private String cronEntry;
-    private List<BigInteger> suspensionLevelIds = new ArrayList<>();
+    private List<SuspensionLevel> suspensionLevels = new ArrayList<>();
 
     //~ Methods **************************************************************************************************************************************
     @Override
@@ -132,7 +132,7 @@ public class Policy extends Entity {
         if (!Objects.equals(this.defaultValue, other.defaultValue)) {
             return false;
         }
-        if (!Objects.equals(this.suspensionLevelIds, other.suspensionLevelIds)) {
+        if (!Objects.equals(this.suspensionLevels, other.suspensionLevels)) {
             return false;
         }
         return true;
@@ -202,12 +202,12 @@ public class Policy extends Entity {
     }
 
     /**
-     * Returns the suspension levels IDs associated with the policy.
+     * Returns the suspension levels associated with the policy.
      *
-     * @return The suspension levels IDs.
+     * @return The suspension levels.
      */
-    public List<BigInteger> getSuspensionLevels() {
-        return suspensionLevelIds;
+    public List<SuspensionLevel> getSuspensionLevels() {
+        return suspensionLevels;
     }
 
     /**
@@ -262,7 +262,7 @@ public class Policy extends Entity {
         hash = 13 * hash + Objects.hashCode(this.timeUnit);
         hash = 13 * hash + Objects.hashCode(this.defaultValue);
         hash = 13 * hash + Objects.hashCode(this.cronEntry);
-        hash = 13 * hash + Objects.hashCode(this.suspensionLevelIds);
+        hash = 13 * hash + Objects.hashCode(this.suspensionLevels);
         return hash;
     }
 
@@ -330,12 +330,12 @@ public class Policy extends Entity {
     }
 
     /**
-     * Sets the suspension level IDs for the policy.
+     * Sets the suspension levels for the policy.
      *
-     * @param suspensionLevelIds The suspension level IDs.
+     * @param suspensionLevels The suspension levels.
      */
-    public void setSuspensionLevels(List<BigInteger> suspensionLevelIds) {
-        this.suspensionLevelIds = suspensionLevelIds;
+    public void setSuspensionLevels(List<SuspensionLevel> suspensionLevels) {
+        this.suspensionLevels = suspensionLevels;
     }
 
     /**
@@ -500,8 +500,8 @@ public class Policy extends Entity {
         return "Policy{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
                 + ", modifiedDate=" + modifiedDate + "service=" + service + ", name=" + name + ", owners=" + owners + ", users=" + users
                 + ", subSystem=" + subSystem + ", triggerType=" + triggerType + ", aggregator=" + aggregator + ", threshold=" + threshold
-                + ", timeUnit=" + timeUnit + ", defaultValue=" + defaultValue + ", cronEntry=" + cronEntry + ", suspensionLevelIds="
-                + suspensionLevelIds + '}';
+                + ", timeUnit=" + timeUnit + ", defaultValue=" + defaultValue + ", cronEntry=" + cronEntry + ", suspensionLevels="
+                + suspensionLevels + '}';
     }
 
 }

@@ -82,7 +82,7 @@ import javax.persistence.TypedQuery;
 @Entity
 @NamedQueries(
     {
-        @NamedQuery(name = "PrincipalUser.findByUserName", query = "SELECT p FROM PrincipalUser p WHERE p.userName = :userName"),
+        @NamedQuery(name = "PrincipalUser.findByUsername", query = "SELECT p FROM PrincipalUser p WHERE p.username = :username"),
         @NamedQuery(
             name = "PrincipalUser.findUniqueUserCount", query = "SELECT count(p.id) FROM PrincipalUser p"
         ),
@@ -114,23 +114,23 @@ public class PrincipalUser extends JPAEntity implements Serializable {
     /**
      * Creates a new PrincipalUser object.
      *
-     * @param  userName  The user name for the
+     * @param  username  The user name for the
      * @param  email     The email address for the user.
      */
-    public PrincipalUser(String userName, String email) {
-        this(null, userName, email);
+    public PrincipalUser(String username, String email) {
+        this(null, username, email);
     }
 
     /**
      * Creates a new PrincipalUser object.
      *
      * @param  creator   The user that created this principal.
-     * @param  userName  The unique user name.
+     * @param  username  The unique user name.
      * @param  email     An email address for the user.
      */
-    public PrincipalUser(PrincipalUser creator, String userName, String email) {
+    public PrincipalUser(PrincipalUser creator, String username, String email) {
         super(creator);
-        setUsername(userName);
+        setUsername(username);
         setEmail(email);
     }
 
@@ -158,16 +158,16 @@ public class PrincipalUser extends JPAEntity implements Serializable {
      * Finds the application database user account for the provided user name.
      *
      * @param   em        The entity manager to use.
-     * @param   userName  The user name for which to retrieve the account information for.
+     * @param   username  The user name for which to retrieve the account information for.
      *
      * @return  The user account or null if no account exists.
      */
-    public static PrincipalUser findByUserName(EntityManager em, String userName) {
+    public static PrincipalUser findByUsername(EntityManager em, String username) {
         Class<PrincipalUser> type = PrincipalUser.class;
-        TypedQuery<PrincipalUser> query = em.createNamedQuery("PrincipalUser.findByUserName", type);
+        TypedQuery<PrincipalUser> query = em.createNamedQuery("PrincipalUser.findByUsername", type);
 
         try {
-            return query.setParameter("userName", userName).getSingleResult();
+            return query.setParameter("username", username).getSingleResult();
         } catch (NoResultException ex) {
             return null;
         }
@@ -332,7 +332,7 @@ public class PrincipalUser extends JPAEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "PrincipalUser{" + "userName=" + username + ", email=" + email + ", preferences=" + preferences + ", privileged=" + privileged + '}';
+        return "PrincipalUser{" + "username=" + username + ", email=" + email + ", preferences=" + preferences + ", privileged=" + privileged + '}';
     }
 
     //~ Enums ****************************************************************************************************************************************

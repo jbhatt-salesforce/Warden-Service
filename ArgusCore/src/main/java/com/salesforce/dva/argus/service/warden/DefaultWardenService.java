@@ -159,13 +159,13 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         assert (relativeStart != null) : "Relative start cannot be null.";
 
         String metricName = counter.getMetricName();
-        String userName = user.getUsername();
+        String username = user.getUsername();
 
         if ("sum".equals(counter.getAggregator())) {
             return MessageFormat.format("INTEGRAL(ZEROIFMISSINGSUM({0}:argus.custom:{1}'{'user={2},host=*'}':{3}))", relativeStart, metricName,
-                userName, counter.getAggregator());
+                username, counter.getAggregator());
         } else {
-            return MessageFormat.format("{0}:argus.custom:{1}'{'user={2},host=*'}':{3}", relativeStart, metricName, userName,
+            return MessageFormat.format("{0}:argus.custom:{1}'{'user={2},host=*'}':{3}", relativeStart, metricName, username,
                 counter.getAggregator());
         }
     }
@@ -386,8 +386,8 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         requireNotDisposed();
         requireArgument(user != null, "User cannot be null.");
 
-        String userName = user.getUsername();
-        String dashboardName = "Warden Dashboard - " + userName;
+        String username = user.getUsername();
+        String dashboardName = "Warden Dashboard - " + username;
         Dashboard wardenDashboard = _dashboardService.findDashboardByNameAndOwner(dashboardName, _adminUser);
 
         if (wardenDashboard == null) {

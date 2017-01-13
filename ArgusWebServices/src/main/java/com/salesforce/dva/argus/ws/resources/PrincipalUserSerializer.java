@@ -55,7 +55,7 @@ public class PrincipalUserSerializer extends JsonSerializer<PrincipalUser> {
         jgen.writeNumberField("createdDate", value.getCreatedDate() == null ? null : value.getCreatedDate().getTime());
         jgen.writeStringField("modifiedBy", value.getModifiedBy() == null ? null : value.getModifiedBy().getUsername());
         jgen.writeNumberField("modifiedDate", value.getModifiedDate() == null ? null : value.getModifiedDate().getTime());
-        jgen.writeStringField("userName", value.getUsername());
+        jgen.writeStringField("username", value.getUsername());
         jgen.writeStringField("email", value.getEmail());
         jgen.writeBooleanField("privileged", value.isPrivileged());
         jgen.writeEndObject();
