@@ -260,18 +260,8 @@ public abstract class AbstractResource {
     @Path("/help")
     public Map<String, List<? extends Object>> help() {
         Map<String, List<?>> result = new LinkedHashMap<>();
-        List<EndpointHelp> endpoints = describeEndpoints(getEndpoints());
-
-        if ((endpoints != null) &&!endpoints.isEmpty()) {
-            result.put("endpoints", endpoints);
-        }
-
-        List<MethodHelp> methods = describeMethods();
-
-        if ((methods != null) &&!methods.isEmpty()) {
-            result.put("methods", methods);
-        }
-
+        result.put("endpoints", describeEndpoints(getEndpoints()));
+        result.put("methods", describeMethods());
         return result;
     }
 

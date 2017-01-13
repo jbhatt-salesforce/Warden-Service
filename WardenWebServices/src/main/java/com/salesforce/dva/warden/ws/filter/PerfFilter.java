@@ -45,16 +45,16 @@ public class PerfFilter implements Filter {
 
     protected final SystemMain system = WebServletListener.getSystem();
     private final MonitorService monitorService = system.getServiceFactory().getMonitorService();
-    private final String DATA_READ_PER_MIN = "perf.ws.read.count";
-    private final String DATA_READ_QUERY_LATENCY = "perf.ws.read.latency";
-    private final String DATA_WRITE_PER_MIN = "perf.ws.write.count";
-    private final String DATA_WRITE_LATENCY = "perf.ws.write.latency";
-    private final String DATA_READ_REQ_BYTES = "perf.ws.read.rxbytes";
-    private final String DATA_READ_RESP_BYTES = "perf.ws.read.txbytes";
-    private final String DATA_WRITE_REQ_BYTES = "perf.ws.write.rxbytes";
-    private final String DATA_WRITE_RESP_BYTES = "perf.ws.write.txbytes";
-    private final String TAGS_METHOD_KEY = "method";
-    private final String TAGS_ENDPOINT_KEY = "endpoint";
+    static private final String DATA_READ_PER_MIN = "perf.ws.read.count";
+    static private final String DATA_READ_QUERY_LATENCY = "perf.ws.read.latency";
+    static private final String DATA_WRITE_PER_MIN = "perf.ws.write.count";
+    static private final String DATA_WRITE_LATENCY = "perf.ws.write.latency";
+    static private final String DATA_READ_REQ_BYTES = "perf.ws.read.rxbytes";
+    static private final String DATA_READ_RESP_BYTES = "perf.ws.read.txbytes";
+    static private final String DATA_WRITE_REQ_BYTES = "perf.ws.write.rxbytes";
+    static private final String DATA_WRITE_RESP_BYTES = "perf.ws.write.txbytes";
+    static private final String TAGS_METHOD_KEY = "method";
+    static private final String TAGS_ENDPOINT_KEY = "endpoint";
 
     @Override
     public void destroy() {}
@@ -97,10 +97,7 @@ public class PerfFilter implements Filter {
             Map<String, String> tags = new HashMap<>();
 
             tags.put(TAGS_METHOD_KEY, method);
-
-            if (endPoint != null) {
-                tags.put(TAGS_ENDPOINT_KEY, endPoint);
-            }
+            tags.put(TAGS_ENDPOINT_KEY, endPoint);
 
             String contentLength = resp.getHeader("Content-Length");
             int respBytes = (((contentLength != null) && contentLength.matches("[0-9]+")) ? Integer.parseInt(contentLength) : 0);

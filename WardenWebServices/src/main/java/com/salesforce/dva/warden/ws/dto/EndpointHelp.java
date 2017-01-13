@@ -20,6 +20,7 @@
 
 package com.salesforce.dva.warden.ws.dto;
 
+import java.util.Objects;
 import javax.ws.rs.Path;
 import com.salesforce.dva.warden.ws.resources.AbstractResource;
 import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
@@ -37,6 +38,33 @@ public class EndpointHelp implements Comparable<EndpointHelp> {
     @Override
     public int compareTo(EndpointHelp o) {
         return String.CASE_INSENSITIVE_ORDER.compare(_endpoint, o.getEndpoint());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final EndpointHelp other = (EndpointHelp) obj;
+
+        if (!Objects.equals(this._endpoint, other._endpoint)) {
+            return false;
+        }
+
+        if (!Objects.equals(this._description, other._description)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -60,6 +88,16 @@ public class EndpointHelp implements Comparable<EndpointHelp> {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+
+        hash = 47 * hash + Objects.hashCode(this._endpoint);
+        hash = 47 * hash + Objects.hashCode(this._description);
+
+        return hash;
     }
 
     /**

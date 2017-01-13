@@ -31,6 +31,7 @@ import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
+import static java.lang.System.currentTimeMillis;
 import jersey.repackaged.com.google.common.base.Objects;
 
 /**
@@ -343,9 +344,9 @@ final class PolicyService extends EndpointService {
     WardenResponse<Map<Long, Double>> getMetricForUserAndPolicy(BigInteger policyId, String username, Long start, Long end) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
         requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
-        requireThat(((start != null) && (end == null)) ? start < System.currentTimeMillis() : true,
-                    "Start time cannot be null or occur in the future.");
-        requireThat(((start != null) && (end == null)) ? true : start <= end, "The start time must occur on or before the end time.");
+        requireThat(((start != null) && (end != null)) ? start <= end : true, "The start time must occur on or before the end time.");
+        requireThat(((start != null) && (end == null)) ? start < currentTimeMillis() : true, "Start time cannot be null or occur in the future.");
+        requireThat(((start == null) && (end != null)) ? end < currentTimeMillis() : true, "End time cannot be null or occur in the future.");
 
         String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/metric?start=" + start + "&end=" + end;
 
