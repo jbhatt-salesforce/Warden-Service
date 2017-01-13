@@ -970,7 +970,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 		requireArgument(policy != null, "Policy cannot be null or empty");
 		requireArgument(user != null, "User cannot be null or empty");
 		List<com.salesforce.dva.argus.entity.Metric> metrics = new ArrayList<com.salesforce.dva.argus.entity.Metric>();
-		String expression = _constructMetricExpression(user.getUserName(), policy);
+		String expression = _constructMetricExpression(user.getUsername(), policy);
 
 		metrics = _metricService.getMetrics(Arrays.asList(expression));
 		return metrics;

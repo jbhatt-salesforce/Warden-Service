@@ -185,7 +185,7 @@ public class DefaultNamespaceService extends DefaultJPAService implements Namesp
             if (namespace.getUsers().contains(user)) {
                 return true;
             } else {
-                _logger.warn(MessageFormat.format("User {0} is not permitted to use namespace {1}", user.getUserName(), qualifier));
+                _logger.warn(MessageFormat.format("User {0} is not permitted to use namespace {1}", user.getUsername(), qualifier));
             }
         }
         return false;

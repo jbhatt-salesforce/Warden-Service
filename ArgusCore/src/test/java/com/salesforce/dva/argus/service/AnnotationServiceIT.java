@@ -93,7 +93,7 @@ public class AnnotationServiceIT extends AbstractTest {
         for (int i = 0; i < 3; i++) {
             PrincipalUser user = uService.findUserByUsername("User" + i);
             List<Annotation> annotations = aService.getAnnotations(System.currentTimeMillis() - 30000 + ":" + scope + ":" + metric + ":test:" +
-                user.getUserName());
+                user.getUsername());
 
             assertEquals(1, annotations.size());
             assertTrue(map.keySet().containsAll(annotations));

@@ -81,7 +81,7 @@ public class AlertDto extends EntityDTO {
 
         AlertDto result = createDtoObject(AlertDto.class, alert);
 
-        result.setOwnerName(alert.getOwner().getUserName());
+        result.setOwnerName(alert.getOwner().getUsername());
         for (Trigger trigger : alert.getTriggers()) {
             result.addTriggersIds(trigger);
         }
@@ -128,7 +128,7 @@ public class AlertDto extends EntityDTO {
         }
 
         AlertDto result = createDtoObject(AlertDto.class, alert);
-        result.setOwnerName(alert.getOwner().getUserName());
+        result.setOwnerName(alert.getOwner().getUsername());
         // set expression to be empty; notification and triggers are empty by default
         result.setExpression("");
         return result;

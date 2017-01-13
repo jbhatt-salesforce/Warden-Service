@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,12 +17,12 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
+import java.io.IOException;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Subscription;
-import java.io.IOException;
-
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
@@ -32,11 +32,7 @@ import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
  */
 final class SubscriptionService extends EndpointService {
 
-    //~ Static fields/initializers *******************************************************************************************************************
-
     private static final String REQUESTURL = "/subscription";
-
-    //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new SubscriptionService object.
@@ -46,8 +42,6 @@ final class SubscriptionService extends EndpointService {
     SubscriptionService(WardenHttpClient client) {
         super(client);
     }
-
-    //~ Methods **************************************************************************************************************************************
 
     /**
      * Subscribes to events from the server.
@@ -82,5 +76,10 @@ final class SubscriptionService extends EndpointService {
 
         return getClient().executeHttpRequest(WardenHttpClient.RequestType.DELETE, requestUrl, null);
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

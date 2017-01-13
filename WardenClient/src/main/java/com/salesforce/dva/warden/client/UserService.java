@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,17 +17,17 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
+import java.io.IOException;
+import java.math.BigInteger;
 import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Metric;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.User;
-import java.io.IOException;
-import java.math.BigInteger;
-
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
@@ -37,11 +37,7 @@ import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
  */
 class UserService extends EndpointService {
 
-    //~ Static fields/initializers *******************************************************************************************************************
-
     private static final String REQUESTURL = "/user";
-
-    //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new UserService object.
@@ -51,8 +47,6 @@ class UserService extends EndpointService {
     UserService(WardenHttpClient client) {
         super(client);
     }
-
-    //~ Methods **************************************************************************************************************************************
 
     /**
      * Retrieves infractions for a specific user across all policies.
@@ -64,7 +58,7 @@ class UserService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> getInfractionsForUser(String username) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
 
         String requestUrl = REQUESTURL + "/" + username + "/infraction";
 
@@ -82,7 +76,7 @@ class UserService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> getInfractionsForUserAndPolicy(String username, BigInteger policyId) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
         requireThat(policyId != null, "Policy ID cannot be null.");
 
         String requestUrl = REQUESTURL + "/" + username + "/policy/" + policyId.toString() + "/infraction";
@@ -103,11 +97,13 @@ class UserService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Metric> getMetricForUserAndPolicy(String username, BigInteger policyId, String start, String end) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
         requireThat(policyId != null, "Policy ID cannot be null.");
+
         if (start == null) {
             start = "-30d";
         }
+
         if (end == null) {
             end = "-0d";
         }
@@ -127,7 +123,7 @@ class UserService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Policy> getPoliciesForUser(String username) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
 
         String requestUrl = REQUESTURL + "/" + username + "/policy";
 
@@ -145,7 +141,7 @@ class UserService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> getSuspensionForUser(String username, BigInteger suspensionId) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
         requireThat(suspensionId != null, "Suspension ID cannot be null.");
 
         String requestUrl = REQUESTURL + "/" + username + "/suspension/" + suspensionId.toString();
@@ -163,7 +159,7 @@ class UserService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<Infraction> getSuspensionsForUser(String username) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
 
         String requestUrl = REQUESTURL + "/" + username + "/suspension";
 
@@ -180,7 +176,7 @@ class UserService extends EndpointService {
      * @throws  IOException  If an I/O exception occurs.
      */
     WardenResponse<User> getUserByUsername(String username) throws IOException {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
 
         String requestUrl = REQUESTURL + "/" + username;
 
@@ -199,5 +195,10 @@ class UserService extends EndpointService {
 
         return getClient().executeHttpRequest(RequestType.GET, requestUrl, null);
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

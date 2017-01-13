@@ -77,7 +77,7 @@ public class WaaSServiceTest extends AbstractTest {
         }
         
         /* create policy and suspensionLevel for testing */
-        String userName = user.getUserName();		
+        String userName = user.getUsername();		
 		testPolicy = new Policy(user, this.SERVICE, this.POLICY, Arrays.asList(userName),
 				Arrays.asList(userName), this.TRIGGER_TYPE, this.AGGREGATOR, this.THRESHOLD, this.TIME_UNIT,
 				this.DEFAULT_VALUE, this.CRON_ENTRY);
@@ -195,7 +195,7 @@ public class WaaSServiceTest extends AbstractTest {
 	 	List<Infraction> infractionsByPolicy = _waaSService.getInfractions(mergedPolicy);
 	 	assertTrue(infractionsByPolicy.size() ==1);
 	 	
-	 	List<Infraction> infractionsByPolicyAndUserName = _waaSService.getInfractionsByPolicyAndUserName(mergedPolicy,user.getUserName());
+	 	List<Infraction> infractionsByPolicyAndUserName = _waaSService.getInfractionsByPolicyAndUserName(mergedPolicy,user.getUsername());
 	 	assertEquals(user, infractionsByPolicyAndUserName.get(0).getUser());
 	 	
 	 	Infraction infraction = _waaSService.getInfraction(mergedPolicy, infractionsByPolicy.get(0).getId());

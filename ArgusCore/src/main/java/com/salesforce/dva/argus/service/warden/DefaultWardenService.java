@@ -159,7 +159,7 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         assert (relativeStart != null) : "Relative start cannot be null.";
 
         String metricName = counter.getMetricName();
-        String userName = user.getUserName();
+        String userName = user.getUsername();
 
         if ("sum".equals(counter.getAggregator())) {
             return MessageFormat.format("INTEGRAL(ZEROIFMISSINGSUM({0}:argus.custom:{1}'{'user={2},host=*'}':{3}))", relativeStart, metricName,
@@ -173,7 +173,7 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
     private static String _constructWardenAlertName(PrincipalUser user, PolicyCounter counter) {
         assert (user != null) : "User cannot be null.";
         assert (counter != null) : "Counter cannot be null.";
-        return WARDEN_ALERT_NAME_PREFIX + user.getUserName() + "-" + counter.name();
+        return WARDEN_ALERT_NAME_PREFIX + user.getUsername() + "-" + counter.name();
     }
 
     //~ Methods **************************************************************************************************************************************
@@ -195,11 +195,11 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         requireNotDisposed();
         requireArgument(user != null, "Cannot update a policy counter with null user.");
         requireArgument(counter != null, "Cannot update a null policy counter.");
-        _logger.debug("Updating {} policy for {} to {}.", counter.name(), user.getUserName(), value);
+        _logger.debug("Updating {} policy for {} to {}.", counter.name(), user.getUsername(), value);
 
         Map<String, String> metaProps = new HashMap<>();
 
-        metaProps.put(USERNAME_KEY, user.getUserName());
+        metaProps.put(USERNAME_KEY, user.getUsername());
         _monitorService.updateCustomCounter(counter.getMetricName(), value, metaProps);
         _updateWardenAlertsForUser(user, counter);
     }
@@ -210,11 +210,11 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         requireNotDisposed();
         requireArgument(user != null, "Cannot modify a policy counter with null user.");
         requireArgument(counter != null, "Cannot modify a null policy counter.");
-        _logger.debug("Modifying {} policy for {} using delta of {}.", counter.name(), user.getUserName(), delta);
+        _logger.debug("Modifying {} policy for {} using delta of {}.", counter.name(), user.getUsername(), delta);
 
         Map<String, String> tags = new HashMap<>();
 
-        tags.put(USERNAME_KEY, user.getUserName());
+        tags.put(USERNAME_KEY, user.getUsername());
 
         double value = _monitorService.modifyCustomCounter(counter.getMetricName(), delta, tags);
 
@@ -228,7 +228,7 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         requireNotDisposed();
         requireArgument(user != null, "User cannot be null while checking for subsystem use.");
         requireArgument(subSystem != null, "Subsystem cannot be null while checking for its use.");
-        _logger.info(MessageFormat.format("Checking if {0} can access {1} sub-system.", user.getUserName(), subSystem.toString()));
+        _logger.info(MessageFormat.format("Checking if {0} can access {1} sub-system.", user.getUsername(), subSystem.toString()));
         if (user.isPrivileged()) {
             return;
         }
@@ -239,12 +239,12 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
             return;
         }
         if (record.isSuspendedIndefinitely()) {
-            _logger.warn(MessageFormat.format("{0} is suspended indefinitely from using the system.", user.getUserName()));
-            throw new SystemException(MessageFormat.format("{0} is suspended indefinitely from using the system.", user.getUserName()));
+            _logger.warn(MessageFormat.format("{0} is suspended indefinitely from using the system.", user.getUsername()));
+            throw new SystemException(MessageFormat.format("{0} is suspended indefinitely from using the system.", user.getUsername()));
         }
         if (record.isSuspended()) {
-            _logger.warn(MessageFormat.format("{0} is suspended from using the {1} sub-system.", user.getUserName(), subSystem));
-            throw new SystemException(MessageFormat.format("{0} is suspended from using the {1} sub-system.", user.getUserName(), subSystem));
+            _logger.warn(MessageFormat.format("{0} is suspended from using the {1} sub-system.", user.getUsername(), subSystem));
+            throw new SystemException(MessageFormat.format("{0} is suspended from using the {1} sub-system.", user.getUsername(), subSystem));
         }
     }
 
@@ -306,7 +306,7 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
 
         // Create an annotation for reinstated user, if he is indefinitely suspended
         if (record != null && record.isSuspendedIndefinitely()) {
-            Annotation annotation = new Annotation(ANNOTATION_SOURCE, user.getUserName(), ANNOTATION_TYPE, Counter.WARDEN_TRIGGERS.getScope(),
+            Annotation annotation = new Annotation(ANNOTATION_SOURCE, user.getUsername(), ANNOTATION_TYPE, Counter.WARDEN_TRIGGERS.getScope(),
                 Counter.WARDEN_TRIGGERS.getMetric(), System.currentTimeMillis());
             Map<String, String> fields = new TreeMap<>();
 
@@ -386,7 +386,7 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         requireNotDisposed();
         requireArgument(user != null, "User cannot be null.");
 
-        String userName = user.getUserName();
+        String userName = user.getUsername();
         String dashboardName = "Warden Dashboard - " + userName;
         Dashboard wardenDashboard = _dashboardService.findDashboardByNameAndOwner(dashboardName, _adminUser);
 
@@ -454,7 +454,7 @@ public class DefaultWardenService extends DefaultJPAService implements WardenSer
         List<String> metricAnnotationList = new ArrayList<String>();
 
         String wardenMetricAnnotation = MessageFormat.format("{0}:{1}'{'user={2}'}':sum", Counter.WARDEN_TRIGGERS.getScope(),
-            Counter.WARDEN_TRIGGERS.getMetric(), user.getUserName());
+            Counter.WARDEN_TRIGGERS.getMetric(), user.getUsername());
 
         metricAnnotationList.add(wardenMetricAnnotation);
         notification.setMetricsToAnnotate(metricAnnotationList);

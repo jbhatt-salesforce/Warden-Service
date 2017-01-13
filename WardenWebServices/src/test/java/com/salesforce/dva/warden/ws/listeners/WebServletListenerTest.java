@@ -18,32 +18,14 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-package com.salesforce.dva.warden.ws.resources;
+package com.salesforce.dva.warden.ws.listeners;
 
-import java.util.LinkedList;
-import java.util.List;
-import javax.ws.rs.Path;
+import org.junit.Test;
 
-/**
- * The context root resource.
- *
- * @author  Tom Valine (tvaline@salesforce.com)
- */
-@Path("/")
-public class RootResource extends AbstractResource {
+public class WebServletListenerTest {
 
-    @Override
-    public List<Class<? extends AbstractResource>> getEndpoints() {
-        List<Class<? extends AbstractResource>> result = new LinkedList<>();
-
-        result.add(AuthResource.class);
-        result.add(ManagementResource.class);
-        result.add(PolicyResource.class);
-        result.add(SubscriptionResource.class);
-        result.add(UserResource.class);
-
-        return result;
-    }
+    @Test
+    public void placeholderTest() {}
 
 }
 

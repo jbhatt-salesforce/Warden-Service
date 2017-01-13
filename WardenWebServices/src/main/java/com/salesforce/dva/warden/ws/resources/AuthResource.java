@@ -1,43 +1,25 @@
-/*
- * Copyright (c) 2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of Salesforce.com nor the names of its contributors may
- * be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-	 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.ws.resources;
 
-import com.salesforce.dva.argus.entity.PrincipalUser;
-import com.salesforce.dva.argus.service.AuthService;
-import com.salesforce.dva.warden.ws.filter.AuthFilter;
-import com.salesforce.dva.warden.dto.Credentials;
-import com.salesforce.dva.warden.dto.Resource;
-import com.salesforce.dva.warden.dto.User;
-import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -47,10 +29,15 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import com.salesforce.dva.argus.entity.PrincipalUser;
+import com.salesforce.dva.warden.dto.Credentials;
+import com.salesforce.dva.warden.dto.Resource;
+import com.salesforce.dva.warden.dto.User;
+import com.salesforce.dva.warden.ws.filter.AuthFilter;
+import com.salesforce.dva.warden.ws.resources.AbstractResource.Description;
 
 /**
  * Provides methods to authenticate users.
@@ -61,17 +48,14 @@ import javax.ws.rs.core.Response;
 @Description("Provides methods to authenticate users.")
 public class AuthResource extends AbstractResource {
 
-    //~ Methods **************************************************************************************************************************************
-
     /**
      * Authenticates a user session.
      *
-     * @param   req    The HTTP request.
-     * @param   creds  The credentials with which to authenticate.
+     * @param   req    The HTTP request.  Cannot be null.
+     * @param   creds  The credentials with which to authenticate.  Cannot be null.
      *
-     * @return  The authenticated user or null if authentication fails.
+     * @return The resulting list of resources.  Will never be null, but may be empty.
      *
-     * @throws  WebApplicationException  If the user is not authenticated.
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -80,46 +64,51 @@ public class AuthResource extends AbstractResource {
     @Path("/login")
     public List<Resource<User>> login(@Context HttpServletRequest req, final Credentials creds) {
         requireThat(creds != null, "You must supply login credentials.");
+
         try {
-            User result = null;
             PrincipalUser user = authService.getUser(creds.getUsername(), creds.getPassword());
 
-            if (user != null) {
-                result = fromEntity(user);
-            } else {
-                throw new WebApplicationException(Response.Status.UNAUTHORIZED.getReasonPhrase(), Response.Status.UNAUTHORIZED);
-            }
+            requireThat(user != null, "Authorization failed.", Status.UNAUTHORIZED);
+
+            User result = fromEntity(user);
+
             req.getSession(true).setAttribute(AuthFilter.USER_ATTRIBUTE_NAME, result);
         } catch (Exception ex) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED.getReasonPhrase(), Response.Status.UNAUTHORIZED);
+            requireThat(false, "Authorization failed.", Status.UNAUTHORIZED);
         }
+
         return rc.getResource(UserResource.class).getUserByUsername(req, creds.getUsername());
     }
 
     /**
-     * Terminates a user session
+     * Terminates a user session.
      *
-     * @param   req  The HTTP request.
+     * @param   req  The HTTP request.  Cannot be null.
      *
-     * @return  A message stating that the logout was successful.
+     * @return The resulting list of resources.  Will never be null, but may be empty.
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Terminates a user session.")
     @Path("/logout")
     public List<Resource<User>> logout(@Context HttpServletRequest req) {
-        
         HttpSession session = req.getSession(true);
         String remoteUser = User.class.cast(session.getAttribute(AuthFilter.USER_ATTRIBUTE_NAME)).getUsername();
-        List<Resource<User>> result;
-        if(remoteUser != null) {
-            result = rc.getResource(UserResource.class).getUserByUsername(req, remoteUser);
-        } else {
-            result = new ArrayList<>(0);
+        List<Resource<User>> result = new ArrayList<>();
+
+        if (remoteUser != null) {
+            result.addAll(rc.getResource(UserResource.class).getUserByUsername(req, remoteUser));
         }
+
         session.removeAttribute(AuthFilter.USER_ATTRIBUTE_NAME);
         session.invalidate();
+
         return result;
     }
+
 }
-/* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

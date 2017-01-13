@@ -193,7 +193,7 @@ public class WaaSObjectConverter implements Serializable {
             throw new WebApplicationException("Null entity object cannot be converted to Dto object.", Status.INTERNAL_SERVER_ERROR);
         }
     	com.salesforce.dva.warden.dto.User result = new com.salesforce.dva.warden.dto.User();
-    	result.setUsername(principalUser.getUserName());
+    	result.setUsername(principalUser.getUsername());
     	result.setEmail(principalUser.getEmail());
     	
     	result.setCreatedById(principalUser.getCreatedBy() != null ? principalUser.getCreatedBy().getId() : null);

@@ -1,33 +1,23 @@
-/*
- * Copyright (c) 2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of Salesforce.com nor the names of its contributors may
- * be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.ws.resources;
 
 import com.salesforce.dva.argus.entity.PrincipalUser;
@@ -100,12 +90,12 @@ public class PolicyResource extends AbstractResource {
         requireThat(policyId == null || policyId.signum() >= 0, "If specified the policy ID must be a positive integer.");
 
         PrincipalUser remoteUser = getRemoteUser(req);
-        String remoteUsername = remoteUser.getUserName();
+        String remoteUsername = remoteUser.getUsername();
         List<Resource<Policy>> result = new ArrayList<>();
         List<com.salesforce.dva.argus.entity.Policy> policies = new ArrayList<>();
 
         for (com.salesforce.dva.argus.entity.Policy policy : waaSService.getPolicies()) {
-            if ((remoteUser.isPrivileged() || policy.getCreatedBy().getUserName().equals(remoteUsername)
+            if ((remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername)
                     || policy.getOwners().contains(remoteUsername))) {
                 if ((username == null || policy.getUsers().contains(username)) && (policyId == null || policy.getId().equals(policyId)) && (service
                         == null || policy.getService().equals(service)) && (name == null || policy.getName().equals(name))) {
@@ -217,10 +207,10 @@ public class PolicyResource extends AbstractResource {
                 message = uiMessage = devMessage = "The specified policy doesn't exist.";
                 status = Status.NOT_FOUND.getStatusCode();
                 uri = uriInfo.getAbsolutePathBuilder().path(id.toString()).build();
-            } else if ((!policy.getCreatedBy().equals(remoteUser) && !policy.getOwners().contains(remoteUser.getUserName()))
+            } else if ((!policy.getCreatedBy().equals(remoteUser) && !policy.getOwners().contains(remoteUser.getUsername()))
                     && !remoteUser.isPrivileged()) {
                 message = uiMessage = devMessage = "You are not authorized to delete this policy.";
-                status = Status.UNAUTHORIZED.getStatusCode();
+                status = Status.FORBIDDEN.getStatusCode();
             } else {
                 try {
                     message = uiMessage = devMessage = "Successfully deleted policy.";
@@ -272,9 +262,9 @@ public class PolicyResource extends AbstractResource {
             } else {
                 com.salesforce.dva.argus.entity.Policy existing = waaSService.getPolicy(policy.getId());
                 if (existing != null && !remoteUser.isPrivileged() && !existing.getCreatedBy().equals(remoteUser)
-                        && !existing.getOwners().contains(remoteUser.getUserName())) {
+                        && !existing.getOwners().contains(remoteUser.getUsername())) {
                     message = uiMessage = devMessage = "You are not authorized to update this policy.";
-                    status = Status.UNAUTHORIZED.getStatusCode();
+                    status = Status.FORBIDDEN.getStatusCode();
                     uri = uriInfo.getAbsolutePathBuilder().path(existing.getId().toString()).build();
                 } else {
                     try {
@@ -373,14 +363,14 @@ public class PolicyResource extends AbstractResource {
             @PathParam("pid") BigInteger policyId,
             @QueryParam("lid") BigInteger levelId) {
         PrincipalUser remoteUser = getRemoteUser(req);
-        String remoteUsername = remoteUser.getUserName();
+        String remoteUsername = remoteUser.getUsername();
         List<Resource<SuspensionLevel>> result = new ArrayList<>();
         requireThat(policyId != null && policyId.signum() >= 0, "The policy ID must be a positive integer.");
         requireThat(levelId == null || levelId.signum() >= 0, "The level ID if specified must be a positive integer.");
         com.salesforce.dva.argus.entity.Policy policy = waaSService.getPolicy(policyId);
         requireThat(policy != null, "The specified policy doesn't exist.", Status.NOT_FOUND);
-        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUserName().equals(remoteUsername)
-                || policy.getOwners().contains(remoteUsername)), "You are not authorized to view the levels for this policy.", Status.UNAUTHORIZED);
+        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername)
+                || policy.getOwners().contains(remoteUsername)), "You are not authorized to view the levels for this policy.", Status.FORBIDDEN);
         List<com.salesforce.dva.argus.entity.SuspensionLevel> suspensionLevels = policy.getSuspensionLevels();
         for (com.salesforce.dva.argus.entity.SuspensionLevel level : suspensionLevels) {
             if (levelId == null || level.getId().equals(levelId)) {
@@ -417,13 +407,13 @@ public class PolicyResource extends AbstractResource {
             List<SuspensionLevel> levels) {
         requireThat(levels != null, "The list of levels to create cannot be null.");
         PrincipalUser remoteUser = getRemoteUser(req);
-        String remoteUsername = remoteUser.getUserName();
+        String remoteUsername = remoteUser.getUsername();
         List<Resource<SuspensionLevel>> result = new ArrayList<>();
         requireThat(policyId != null && policyId.signum() >= 0, "The policy ID must be a positive integer.");
         com.salesforce.dva.argus.entity.Policy policy = waaSService.getPolicy(policyId);
         requireThat(policy != null, "The specified policy doesn't exist.", Status.NOT_FOUND);
-        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUserName().equals(remoteUsername)
-                || policy.getOwners().contains(remoteUsername)), "You are not authorized to create the levels for this policy.", Status.UNAUTHORIZED);
+        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername)
+                || policy.getOwners().contains(remoteUsername)), "You are not authorized to create the levels for this policy.", Status.FORBIDDEN);
         for (SuspensionLevel level : levels) {
             Resource<SuspensionLevel> resource = new Resource<>();
             String message, devMessage, uiMessage;
@@ -485,13 +475,13 @@ public class PolicyResource extends AbstractResource {
             @QueryParam("id") List<BigInteger> levelIds) {
         requireThat(levelIds != null, "The list of levels to delete cannot be null.");
         PrincipalUser remoteUser = getRemoteUser(req);
-        String remoteUsername = remoteUser.getUserName();
+        String remoteUsername = remoteUser.getUsername();
         List<Resource<SuspensionLevel>> result = new ArrayList<>();
         requireThat(policyId != null && policyId.signum() >= 0, "The policy ID must be a positive integer.");
         com.salesforce.dva.argus.entity.Policy policy = waaSService.getPolicy(policyId);
         requireThat(policy != null, "The specified policy doesn't exist.", Status.NOT_FOUND);
-        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUserName().equals(remoteUsername)
-                || policy.getOwners().contains(remoteUsername)), "You are not authorized to delete the levels for this policy.", Status.UNAUTHORIZED);
+        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername)
+                || policy.getOwners().contains(remoteUsername)), "You are not authorized to delete the levels for this policy.", Status.FORBIDDEN);
         for (BigInteger levelId : levelIds) {
             Resource<SuspensionLevel> resource = new Resource<>();
             String message, devMessage, uiMessage;
@@ -503,10 +493,10 @@ public class PolicyResource extends AbstractResource {
                 message = uiMessage = devMessage = "The specified level doesn't exist for the policy.";
                 status = Status.NOT_FOUND.getStatusCode();
                 uri = uriInfo.getRequestUri();
-            } else if ((!policy.getCreatedBy().equals(remoteUser) && !policy.getOwners().contains(remoteUser.getUserName()))
+            } else if ((!policy.getCreatedBy().equals(remoteUser) && !policy.getOwners().contains(remoteUser.getUsername()))
                     && !remoteUser.isPrivileged()) {
                 message = uiMessage = devMessage = "You are not authorized to delete the levels for this policy.";
-                status = Status.UNAUTHORIZED.getStatusCode();
+                status = Status.FORBIDDEN.getStatusCode();
             } else {
                 try {
                     message = uiMessage = devMessage = "Successfully deleted level.";
@@ -547,13 +537,13 @@ public class PolicyResource extends AbstractResource {
             List<SuspensionLevel> levels) {
         requireThat(levels != null, "The list of levels to update cannot be null.");
         PrincipalUser remoteUser = getRemoteUser(req);
-        String remoteUsername = remoteUser.getUserName();
+        String remoteUsername = remoteUser.getUsername();
         List<Resource<SuspensionLevel>> result = new ArrayList<>();
         requireThat(policyId != null && policyId.signum() >= 0, "The policy ID must be a positive integer.");
         com.salesforce.dva.argus.entity.Policy policy = waaSService.getPolicy(policyId);
         requireThat(policy != null, "The specified policy doesn't exist.", Status.NOT_FOUND);
-        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUserName().equals(remoteUsername)
-                || policy.getOwners().contains(remoteUsername)), "You are not authorized to delete the levels for this policy.", Status.UNAUTHORIZED);
+        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername)
+                || policy.getOwners().contains(remoteUsername)), "You are not authorized to delete the levels for this policy.", Status.FORBIDDEN);
         for (SuspensionLevel level : levels) {
             Resource<SuspensionLevel> resource = new Resource<>();
             String message, devMessage, uiMessage;
@@ -677,22 +667,22 @@ public class PolicyResource extends AbstractResource {
             @QueryParam("iid") BigInteger infractionId,
             @QueryParam("username") String username) {
         PrincipalUser remoteUser = getRemoteUser(req);
-        String remoteUsername = remoteUser.getUserName();
+        String remoteUsername = remoteUser.getUsername();
         List<Resource<Infraction>> result = new ArrayList<>();
         requireThat(policyId != null && policyId.signum() >= 0, "The policy ID must be a positive integer.");
         requireThat(infractionId == null || infractionId.signum() >= 0, "The infraction ID if specified must be a positive integer.");
         requireThat(username == null || !username.isEmpty(), "The user name if specified cannot be empty.");
         com.salesforce.dva.argus.entity.Policy policy = waaSService.getPolicy(policyId);
         requireThat(policy != null, "The specified policy doesn't exist.", Status.NOT_FOUND);
-        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUserName().equals(remoteUsername)
-                || policy.getOwners().contains(remoteUsername)), "You are not authorized to view the infractions for this policy.", Status.UNAUTHORIZED);
+        requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername)
+                || policy.getOwners().contains(remoteUsername)), "You are not authorized to view the infractions for this policy.", Status.FORBIDDEN);
         List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractions(policy);
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         for (com.salesforce.dva.argus.entity.Infraction infraction : infractions) {
-            String user = infraction.getUser().getUserName();
+            String user = infraction.getUser().getUsername();
             Long occurred = infraction.getInfractionTimestamp();
-            if (username == null || infraction.getUser().getUserName().equals(username) && (infractionId == null
+            if (username == null || infraction.getUser().getUsername().equals(username) && (infractionId == null
                     || infraction.getId().equals(infractionId))) {
                 String message, uiMessage, devMessage;
                 message = uiMessage = devMessage = MessageFormat.format("Incurred by {0} at {1}.", user, sdf.format(new Date(occurred)));
@@ -892,7 +882,7 @@ public class PolicyResource extends AbstractResource {
         requireThat(username != null && !username.isEmpty(), "User name cannot be null or an empty string.");
 
         PrincipalUser remoteUser = getRemoteUser(req);
-        String remoteUsername = remoteUser.getUserName();
+        String remoteUsername = remoteUser.getUsername();
         PrincipalUser user = userService.findUserByUsername(username);
 
         requireThat(user != null, "User was not found.", Status.NOT_FOUND);
@@ -903,7 +893,7 @@ public class PolicyResource extends AbstractResource {
         List<Resource<Metric>> result = new ArrayList<>();
         URI userUri = uriInfo.getRequestUri();
         String message, uiMessage, devMessage;
-        if (remoteUser.isPrivileged() || policy.getCreatedBy().getUserName().equals(remoteUsername) || policy.getOwners().contains(remoteUsername) || username.equals(remoteUsername)) {
+        if (remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername) || policy.getOwners().contains(remoteUsername) || username.equals(remoteUsername)) {
             List<com.salesforce.dva.argus.entity.Metric> metrics = waaSService.getMetrics(policy, user, start, end);
 
             for (com.salesforce.dva.argus.entity.Metric metric : metrics) {
@@ -923,10 +913,11 @@ public class PolicyResource extends AbstractResource {
         } else {
             message = uiMessage = devMessage = "You are not authorized to view the metric data for this user.";
             Resource<Metric> res = new Resource<>();
-            res.setMeta(createMetadata(userUri, Status.UNAUTHORIZED.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
+            res.setMeta(createMetadata(userUri, Status.FORBIDDEN.getStatusCode(), req.getMethod(), message, uiMessage, devMessage));
             result.add(res);
         }
         return result;
     }
 }
-/* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

@@ -137,7 +137,7 @@ public class DefaultAnnotationService extends DefaultService implements Annotati
             Map<String, String> fields = new HashMap<>(annotation.getFields());
             String userName;
 
-            if (user == null || (userName = user.getUserName()) == null || userName.isEmpty()) {
+            if (user == null || (userName = user.getUsername()) == null || userName.isEmpty()) {
                 fields.remove(USER_FIELD_NAME);
             } else {
                 fields.put(USER_FIELD_NAME, userName);

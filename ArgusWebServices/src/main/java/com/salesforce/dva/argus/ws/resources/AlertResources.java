@@ -515,7 +515,7 @@ public class AlertResources extends AbstractResource {
 			throw new WebApplicationException("Null object cannot be updated.", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser owner = validateAndGetOwner(req, getRemoteUser(req).getUserName());
+		PrincipalUser owner = validateAndGetOwner(req, getRemoteUser(req).getUsername());
 		Alert oldAlert = alertService.findAlertByPrimaryKey(alertId);
 
 		if (oldAlert == null) {
@@ -566,7 +566,7 @@ public class AlertResources extends AbstractResource {
 			throw new WebApplicationException("Null object cannot be updated.", Status.BAD_REQUEST);
 		}
 
-		PrincipalUser owner = validateAndGetOwner(req, getRemoteUser(req).getUserName());
+		PrincipalUser owner = validateAndGetOwner(req, getRemoteUser(req).getUsername());
 		Alert oldAlert = alertService.findAlertByPrimaryKey(alertId);
 
 		if (oldAlert == null) {

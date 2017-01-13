@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,11 +17,11 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
-import com.salesforce.dva.warden.WardenClient;
 import java.io.IOException;
-
+import com.salesforce.dva.warden.WardenClient;
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
@@ -31,18 +31,12 @@ import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
  */
 public class WardenClientBuilder {
 
-    //~ Instance fields ******************************************************************************************************************************
-
     private String _endpoint;
     private String _username;
     private String _password;
 
-    //~ Constructors *********************************************************************************************************************************
-
     /** Creates a new WardenClientBuilder object. */
-    public WardenClientBuilder() { }
-
-    //~ Methods **************************************************************************************************************************************
+    public WardenClientBuilder() {}
 
     /**
      * Creates a new instance of the client using the configuration specified by the builder.
@@ -63,8 +57,10 @@ public class WardenClientBuilder {
      * @return  The updated instance of the builder.
      */
     public WardenClientBuilder forEndpoint(String endpoint) {
-        requireThat(endpoint != null && !endpoint.isEmpty(), "Invalid endpoint.");
+        requireThat((endpoint != null) &&!endpoint.isEmpty(), "Invalid endpoint.");
+
         _endpoint = endpoint;
+
         return this;
     }
 
@@ -76,8 +72,10 @@ public class WardenClientBuilder {
      * @return  The updated instance of the builder.
      */
     public WardenClientBuilder withPassword(String password) {
-        requireThat(password != null && !password.isEmpty(), "Password cannot be null or empty.");
+        requireThat((password != null) &&!password.isEmpty(), "Password cannot be null or empty.");
+
         _password = password;
+
         return this;
     }
 
@@ -89,9 +87,16 @@ public class WardenClientBuilder {
      * @return  The updated instance of the builder.
      */
     public WardenClientBuilder withUsername(String username) {
-        requireThat(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
+
         _username = username;
+
         return this;
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

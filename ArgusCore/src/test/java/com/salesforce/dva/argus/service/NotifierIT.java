@@ -122,7 +122,7 @@ public class NotifierIT extends AbstractTest {
         user.setCreatedBy(user);
         user = userService.updateUser(user);
 
-        Alert alert = new Alert(userService.findAdminUser(), user, "warden-" + user.getUserName() + "-DATAPOINTS_PER_HOUR", expression, "* * * * *");
+        Alert alert = new Alert(userService.findAdminUser(), user, "warden-" + user.getUsername() + "-DATAPOINTS_PER_HOUR", expression, "* * * * *");
         Notification notification = new Notification("notification_name", alert, "notifier_name", new ArrayList<String>(), 23);
         Trigger trigger = new Trigger(alert, TriggerType.GREATER_THAN_OR_EQ, "trigger_name", 2D, 5);
 

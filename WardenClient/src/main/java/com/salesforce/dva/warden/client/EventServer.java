@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,18 +17,18 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.client;
 
+import java.net.InetSocketAddress;
 import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
+import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.oio.OioServerSocketChannel;
 import io.netty.handler.codec.json.JsonObjectDecoder;
-import java.net.InetSocketAddress;
-
-import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
 
 /**
  * Receives suspension infraction records from the server and updates the local infraction cache.
@@ -38,14 +38,10 @@ import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
  */
 public class EventServer {
 
-    //~ Instance fields ******************************************************************************************************************************
-
     private final int _port;
     private final InfractionCache _infractions;
-    private final EventLoopGroup _bossGroup; // (1)
+    private final EventLoopGroup _bossGroup;    // (1)
     private final EventLoopGroup _workerGroup;
-
-    //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new EventServer object.
@@ -54,15 +50,14 @@ public class EventServer {
      * @param  infractions  The infraction cache to update when suspension events are received. Must be thread safe.
      */
     public EventServer(int port, InfractionCache infractions) {
-        requireThat(port > 0 && port <= 65535, "Invalid port number.");
+        requireThat((port > 0) && (port <= 65535), "Invalid port number.");
         requireThat(infractions != null, "The infraction cache cannot be null.");
+
         _port = port;
         _infractions = infractions;
         _bossGroup = new OioEventLoopGroup(100);
         _workerGroup = new OioEventLoopGroup(100);
     }
-
-    //~ Methods **************************************************************************************************************************************
 
     /**
      * Shuts down the server.
@@ -82,16 +77,21 @@ public class EventServer {
     public void start() throws InterruptedException {
         ServerBootstrap b = new ServerBootstrap();
 
-        b.group(_bossGroup, _workerGroup).channel(OioServerSocketChannel.class).localAddress(new InetSocketAddress(_port)).childHandler(
-            new ChannelInitializer<SocketChannel>() {
+        b.group(_bossGroup, _workerGroup).channel(OioServerSocketChannel.class).localAddress(new InetSocketAddress(_port)).childHandler(new ChannelInitializer<SocketChannel>() {
 
-                @Override
-                public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new JsonObjectDecoder());
-                    ch.pipeline().addLast(new EventServerHandler(_infractions));
-                }
-            });
+                           @Override
+                           public void initChannel(SocketChannel ch) throws Exception {
+                               ch.pipeline().addLast(new JsonObjectDecoder());
+                               ch.pipeline().addLast(new EventServerHandler(_infractions));
+                           }
+
+                       });
         b.bind().sync();
     }
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+

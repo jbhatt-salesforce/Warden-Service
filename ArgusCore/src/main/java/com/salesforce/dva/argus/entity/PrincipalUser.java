@@ -97,7 +97,7 @@ public class PrincipalUser extends JPAEntity implements Serializable {
 
     @Basic(optional = false)
     @Column(nullable = false, unique = true)
-    private String userName;
+    private String username;
     @Basic(optional = false)
     @Column(nullable = false, unique = true)
     private String email;
@@ -130,7 +130,7 @@ public class PrincipalUser extends JPAEntity implements Serializable {
      */
     public PrincipalUser(PrincipalUser creator, String userName, String email) {
         super(creator);
-        setUserName(userName);
+        setUsername(userName);
         setEmail(email);
     }
 
@@ -218,8 +218,8 @@ public class PrincipalUser extends JPAEntity implements Serializable {
      *
      * @return  The user name.
      */
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
     /**
@@ -235,11 +235,11 @@ public class PrincipalUser extends JPAEntity implements Serializable {
     /**
      * Updates the user name for the user.
      *
-     * @param  userName  The new user name.
+     * @param  username  The new user name.
      */
-    public void setUserName(String userName) {
-        SystemAssert.requireArgument(userName != null && !userName.isEmpty(), "Username cannot be null or empty.");
-        this.userName = userName;
+    public void setUsername(String username) {
+        SystemAssert.requireArgument(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        this.username = username;
     }
 
     /**
@@ -309,7 +309,7 @@ public class PrincipalUser extends JPAEntity implements Serializable {
     public int hashCode() {
         int hash = 7;
 
-        hash = 97 * hash + (this.userName != null ? this.userName.hashCode() : 0);
+        hash = 97 * hash + (this.username != null ? this.username.hashCode() : 0);
         return hash;
     }
 
@@ -324,7 +324,7 @@ public class PrincipalUser extends JPAEntity implements Serializable {
 
         final PrincipalUser other = (PrincipalUser) obj;
 
-        if ((this.userName == null) ? (other.userName != null) : !this.userName.equals(other.userName)) {
+        if ((this.username == null) ? (other.username != null) : !this.username.equals(other.username)) {
             return false;
         }
         return true;
@@ -332,7 +332,7 @@ public class PrincipalUser extends JPAEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "PrincipalUser{" + "userName=" + userName + ", email=" + email + ", preferences=" + preferences + ", privileged=" + privileged + '}';
+        return "PrincipalUser{" + "userName=" + username + ", email=" + email + ", preferences=" + preferences + ", privileged=" + privileged + '}';
     }
 
     //~ Enums ****************************************************************************************************************************************

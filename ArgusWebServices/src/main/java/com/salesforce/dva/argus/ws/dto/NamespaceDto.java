@@ -75,7 +75,7 @@ public class NamespaceDto extends EntityDTO {
         NamespaceDto result = createDtoObject(NamespaceDto.class, namespace);
 
         for (PrincipalUser user : namespace.getUsers()) {
-            result.addUsername(user.getUserName());
+            result.addUsername(user.getUsername());
         }
         return result;
     }

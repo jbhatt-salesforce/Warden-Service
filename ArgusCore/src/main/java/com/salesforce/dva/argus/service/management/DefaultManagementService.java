@@ -119,7 +119,7 @@ public class DefaultManagementService extends DefaultService implements Manageme
         requireNotDisposed();
         requireArgument(user != null, "User cannot be null.");
         requireArgument(counter != null, "Policy counter cannot be null.");
-        _logger.info("Updating warden policy {} for {} to {} via the management service.", counter, user.getUserName(), value);
+        _logger.info("Updating warden policy {} for {} to {} via the management service.", counter, user.getUsername(), value);
         _wardenService.updatePolicyLimitForUser(user, counter, value);
     }
 
@@ -129,7 +129,7 @@ public class DefaultManagementService extends DefaultService implements Manageme
         requireNotDisposed();
         requireArgument(user != null, "User cannot be null.");
         requireArgument(subSystem != null, "Subsystem cannot be null.");
-        _logger.info("Reinstating {} for {} via the management service.", subSystem, user.getUserName());
+        _logger.info("Reinstating {} for {} via the management service.", subSystem, user.getUsername());
         _wardenService.reinstateUser(user, subSystem);
     }
 
@@ -215,7 +215,7 @@ public class DefaultManagementService extends DefaultService implements Manageme
     public Dashboard getWardenDashboard(PrincipalUser user) {
         requireNotDisposed();
         requireArgument(user != null, "The user cannot be null.");
-        _logger.info("Obtaining warden dashboard for {} via the management service.", user.getUserName());
+        _logger.info("Obtaining warden dashboard for {} via the management service.", user.getUsername());
         return _wardenService.getWardenDashboard(user);
     }
 
