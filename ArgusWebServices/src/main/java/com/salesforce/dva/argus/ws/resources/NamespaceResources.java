@@ -109,7 +109,7 @@ public class NamespaceResources extends AbstractResource {
         }
 
         PrincipalUser remoteUser = validateAndGetOwner(req, null);
-        Set<PrincipalUser> users = _getPrincipalUserByUserName(namespaceDto.getUsernames());
+        Set<PrincipalUser> users = _getPrincipalUserByUsername(namespaceDto.getUsernames());
         Namespace namespace = new Namespace(remoteUser, namespaceDto.getQualifier(), remoteUser, users);
 
         return NamespaceDto.transformToDto(_namespaceService.createNamespace(namespace));
@@ -148,7 +148,7 @@ public class NamespaceResources extends AbstractResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND.getReasonPhrase(), Response.Status.NOT_FOUND);
         }
         validateResourceAuthorization(req, namespace.getCreatedBy(), remoteUser);
-        namespace.setUsers(_getPrincipalUserByUserName(usernames));
+        namespace.setUsers(_getPrincipalUserByUsername(usernames));
         namespace = _namespaceService.updateNamespace(namespace);
         return NamespaceDto.transformToDto(namespace);
     }
@@ -190,7 +190,7 @@ public class NamespaceResources extends AbstractResource {
         }
         validateResourceAuthorization(req, oldNamespace.getCreatedBy(), remoteUser);
 
-        Set<PrincipalUser> users = _getPrincipalUserByUserName(newNamespace.getUsernames());
+        Set<PrincipalUser> users = _getPrincipalUserByUsername(newNamespace.getUsernames());
 
         if (!users.contains(oldNamespace.getOwner())) {
             users.add(oldNamespace.getOwner());
@@ -199,7 +199,7 @@ public class NamespaceResources extends AbstractResource {
         return NamespaceDto.transformToDto(_namespaceService.updateNamespace(oldNamespace));
     }
 
-    private Set<PrincipalUser> _getPrincipalUserByUserName(Set<String> useNames) {
+    private Set<PrincipalUser> _getPrincipalUserByUsername(Set<String> useNames) {
         Set<PrincipalUser> result = new HashSet<>();
 
         // Test when usernames is null

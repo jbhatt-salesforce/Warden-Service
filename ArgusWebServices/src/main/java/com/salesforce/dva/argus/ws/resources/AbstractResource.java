@@ -116,7 +116,7 @@ public abstract class AbstractResource {
         if (principalAttribute != null) {
             PrincipalUserDto user = PrincipalUserDto.class.cast(principalAttribute);
 
-            result = userService.findUserByUsername(user.getUserName());
+            result = userService.findUserByUsername(user.getUsername());
         }
         return result;
     }

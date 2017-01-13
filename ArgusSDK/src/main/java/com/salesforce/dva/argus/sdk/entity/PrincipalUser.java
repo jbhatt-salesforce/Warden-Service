@@ -47,7 +47,7 @@ public class PrincipalUser extends Entity {
 
     //~ Instance fields ******************************************************************************************************************************
 
-    private String userName;
+    private String username;
     private String email;
     private List<BigInteger> ownedDashboardIds = new ArrayList<>();
     private boolean privileged;
@@ -59,17 +59,17 @@ public class PrincipalUser extends Entity {
      *
      * @return  The user name.
      */
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
     /**
      * Sets the user name.
      *
-     * @param  userName  The user name.
+     * @param  username  The user name.
      */
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /**
@@ -131,7 +131,7 @@ public class PrincipalUser extends Entity {
         int hash = 7;
 
         hash = 73 * hash + super.hashCode();
-        hash = 73 * hash + Objects.hashCode(this.userName);
+        hash = 73 * hash + Objects.hashCode(this.username);
         hash = 73 * hash + Objects.hashCode(this.email);
         hash = 73 * hash + Objects.hashCode(this.ownedDashboardIds);
         hash = 73 * hash + (this.privileged ? 1 : 0);
@@ -158,7 +158,7 @@ public class PrincipalUser extends Entity {
         if (this.privileged != other.privileged) {
             return false;
         }
-        if (!Objects.equals(this.userName, other.userName)) {
+        if (!Objects.equals(this.username, other.username)) {
             return false;
         }
         if (!Objects.equals(this.email, other.email)) {

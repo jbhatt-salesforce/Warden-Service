@@ -86,7 +86,7 @@ public class AuthFilter implements Filter {
             	httpresponse.setHeader("Access-Control-Allow-Credentials", "true");
             	httpresponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             } else if (remoteUser != null) {
-                user = PrincipalUserDto.class.cast(session.getAttribute(USER_ATTRIBUTE_NAME)).getUserName();
+                user = PrincipalUserDto.class.cast(session.getAttribute(USER_ATTRIBUTE_NAME)).getUsername();
             }
         }
         try {

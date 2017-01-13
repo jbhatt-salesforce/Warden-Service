@@ -251,7 +251,7 @@ public interface WaaSService {
 	 * 
 	 * @return 	list of infractions
 	 */
-	List<Infraction> getInfractionsByPolicyAndUserName(Policy policy, String username);
+	List<Infraction> getInfractionsByPolicyAndUsername(Policy policy, String username);
 	
 	/**
 	 * Return an infraction of a policy based on infraction Id. called by
@@ -334,7 +334,7 @@ public interface WaaSService {
 
     public List<Infraction> getSuspensionsByUser(PrincipalUser user);
 
-    public void updateMetric(BigInteger policyId, String userName, Map<Long, Double> datapoints);
+    public void updateMetric(BigInteger policyId, String username, Map<Long, Double> datapoints);
 	
 	
 	

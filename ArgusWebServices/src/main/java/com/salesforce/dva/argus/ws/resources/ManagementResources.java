@@ -73,7 +73,7 @@ public class ManagementResources extends AbstractResource {
      * Updates the admin privileges for the user.
      *
      * @param   req         The HTTP request.
-     * @param   userName    Name of the user whom the admin privileges will be updated. Cannot be null or empty.
+     * @param   username    Name of the user whom the admin privileges will be updated. Cannot be null or empty.
      * @param   privileged  boolean variable indicating admin privileges.
      *
      * @return  Response object indicating whether the operation was successful or not.
@@ -86,14 +86,14 @@ public class ManagementResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Grants administrative privileges.")
     public Response setAdministratorPrivilege(@Context HttpServletRequest req,
-        @FormParam("username") String userName,
+        @FormParam("username") String username,
         @FormParam("privileged") boolean privileged) {
-        if (userName == null || userName.isEmpty()) {
+        if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("User name cannot be null or empty.");
         }
         validatePrivilegedUser(req);
 
-        PrincipalUser user = userService.findUserByUsername(userName);
+        PrincipalUser user = userService.findUserByUsername(username);
 
         if (user == null) {
             throw new WebApplicationException("User does not exist.", Status.NOT_FOUND);
@@ -106,7 +106,7 @@ public class ManagementResources extends AbstractResource {
      * Updates the warden policy for the user.
      *
      * @param   req            The HTTP request.
-     * @param   userName       The user name whom the warden policy will be updated. Cannot be null or empty.
+     * @param   username       The user name whom the warden policy will be updated. Cannot be null or empty.
      * @param   policycounter  The policy counter. Cannot be null.
      * @param   value          The value.
      *
@@ -120,10 +120,10 @@ public class ManagementResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Updates a warden policy for a user.")
     public Response updateWardenPolicyForUser(@Context HttpServletRequest req,
-        @FormParam("username") String userName,
+        @FormParam("username") String username,
         @FormParam("policycounter") PolicyCounter policycounter,
         @FormParam("value") double value) {
-        if (userName == null || userName.isEmpty()) {
+        if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("User name cannot be null or empty.");
         }
         if (policycounter == null) {
@@ -131,7 +131,7 @@ public class ManagementResources extends AbstractResource {
         }
         validatePrivilegedUser(req);
 
-        PrincipalUser user = userService.findUserByUsername(userName);
+        PrincipalUser user = userService.findUserByUsername(username);
 
         if (user == null) {
             throw new WebApplicationException("User does not exist.", Status.NOT_FOUND);
@@ -144,7 +144,7 @@ public class ManagementResources extends AbstractResource {
      * Reinstates the specified sub system to the user.
      *
      * @param   req        The HTTP request.
-     * @param   userName   The user whom the sub system to be reinstated. Cannot be null or empty.
+     * @param   username   The user whom the sub system to be reinstated. Cannot be null or empty.
      * @param   subSystem  The subsystem to be reinstated. Cannot be null.
      *
      * @return  Response object indicating whether the operation was successful or not.
@@ -157,9 +157,9 @@ public class ManagementResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Reinstates a suspended user.")
     public Response reinstateUser(@Context HttpServletRequest req,
-        @FormParam("username") String userName,
+        @FormParam("username") String username,
         @FormParam("subsystem") SubSystem subSystem) {
-        if (userName == null || userName.isEmpty()) {
+        if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("User name cannot be null or empty.");
         }
         if (subSystem == null) {
@@ -167,7 +167,7 @@ public class ManagementResources extends AbstractResource {
         }
         validatePrivilegedUser(req);
 
-        PrincipalUser user = userService.findUserByUsername(userName);
+        PrincipalUser user = userService.findUserByUsername(username);
 
         if (user == null) {
             throw new WebApplicationException("User does not exist.", Status.BAD_REQUEST);
@@ -323,7 +323,7 @@ public class ManagementResources extends AbstractResource {
      * Returns the warden dashboard for the user.
      *
      * @param   req       The HTTP request.
-     * @param   userName  The user name. Cannot be null or empty.
+     * @param   username  The user name. Cannot be null or empty.
      *
      * @return  The dashboard object.
      *
@@ -335,13 +335,13 @@ public class ManagementResources extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Description("Returns the warden dashboard for a user.")
     public DashboardDto getWardenDashboard(@Context HttpServletRequest req,
-        @PathParam("username") String userName) {
-        if (userName == null || userName.isEmpty()) {
+        @PathParam("username") String username) {
+        if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("User name cannot be null or empty.");
         }
         validatePrivilegedUser(req);
 
-        PrincipalUser user = userService.findUserByUsername(userName);
+        PrincipalUser user = userService.findUserByUsername(username);
 
         if (user == null) {
             throw new WebApplicationException("User does not exist.", Status.NOT_FOUND);

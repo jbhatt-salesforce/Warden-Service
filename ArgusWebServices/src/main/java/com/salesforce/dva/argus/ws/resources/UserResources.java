@@ -105,7 +105,7 @@ public class UserResources extends AbstractResource {
      * Returns the user having the given username.
      *
      * @param   req       The HTTP request.
-     * @param   userName  The username to retrieve.
+     * @param   username  The username to retrieve.
      *
      * @return  The user DTO.
      *
@@ -117,13 +117,13 @@ public class UserResources extends AbstractResource {
     @Path("/username/{username}")
     @Description("Returns the user having the given username.")
     public PrincipalUserDto getUserByUsername(@Context HttpServletRequest req,
-        @PathParam("username") final String userName) {
-        if (userName == null || userName.isEmpty()) {
+        @PathParam("username") final String username) {
+        if (username == null || username.isEmpty()) {
             throw new WebApplicationException("Username cannot be null or empty.", Status.BAD_REQUEST);
         }
 
         PrincipalUser remoteUser = validateAndGetOwner(req, null);
-        PrincipalUser user = _uService.findUserByUsername(userName);
+        PrincipalUser user = _uService.findUserByUsername(username);
 
         if (user != null) {
             super.validateResourceAuthorization(req, user, remoteUser);
@@ -157,7 +157,7 @@ public class UserResources extends AbstractResource {
             throw new WebApplicationException("Cannot create a null user.", Status.BAD_REQUEST);
         }
 
-        PrincipalUser user = new PrincipalUser(remoteUser, userDto.getUserName(), userDto.getEmail());
+        PrincipalUser user = new PrincipalUser(remoteUser, userDto.getUsername(), userDto.getEmail());
 
         copyProperties(user, userDto);
         user = _uService.updateUser(user);

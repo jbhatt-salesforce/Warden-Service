@@ -94,9 +94,9 @@ public class WaaSNotifierIT extends AbstractTest {
         }
         
         /* create policy and suspensionLevel for testing */
-        String userName = user.getUsername();		
+        String username = user.getUsername();		
 		testPolicy = new Policy(user, this.SERVICE, this.NAME, Arrays.asList(NAME),
-				Arrays.asList(userName), this.TRIGGER_TYPE, this.AGGREGATOR, this.THRESHOLD, this.TIME_UNIT,
+				Arrays.asList(username), this.TRIGGER_TYPE, this.AGGREGATOR, this.THRESHOLD, this.TIME_UNIT,
 				this.DEFAULT_VALUE, this.CRON_ENTRY);
 		testPolicy.setSubSystem("subsystem");
 		

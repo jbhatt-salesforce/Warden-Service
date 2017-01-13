@@ -44,8 +44,8 @@ import com.salesforce.dva.argus.util.WaaSObjectConverter;
 @Table(name = "INFRACTION")
 @NamedQueries({
     @NamedQuery(
-            name = "Infraction.findByPolicyAndUserName",
-            query = "SELECT r FROM Infraction r, PrincipalUser u WHERE r.policy = :policy AND r.user = u AND u.userName = :userName"),
+            name = "Infraction.findByPolicyAndUsername",
+            query = "SELECT r FROM Infraction r, PrincipalUser u WHERE r.policy = :policy AND r.user = u AND u.username = :username"),
     @NamedQuery(
             name = "Infraction.findByPolicyAndInfraction",
             query = "SELECT r FROM Infraction r WHERE r.policy = :policy and r.id = :id"
@@ -120,15 +120,15 @@ public class Infraction extends JPAEntity {
      * Finds the number of user infractions for a policy-user combination that have occurred since the given start time and end time.
      *
      * @param em The entity manager to use. Cannot be null.
-     * @param userName The user name. Cannot be null.
+     * @param username The user name. Cannot be null.
      * @param policy The policy. Cannot be null.
      * @param startTime The start time threshold.
      *
      * @return The number of infractions.
      */
-    public static int findInfractionCount(EntityManager em, Policy policy, String userName, long startTime, long endTime) {
+    public static int findInfractionCount(EntityManager em, Policy policy, String username, long startTime, long endTime) {
 
-        List<Infraction> records = findByPolicyAndUserName(em, policy, userName);
+        List<Infraction> records = findByPolicyAndUsername(em, policy, username);
 
         int count = 0;
 
@@ -219,16 +219,16 @@ public class Infraction extends JPAEntity {
      * Find the infractions for a given user-policy combination.
      *
      * @param em The EntityManager to use.
-     * @param userName The userName for which to retrieve record.
+     * @param username The username for which to retrieve record.
      * @param policy The policy for which to retrieve record.
      *
      * @return The infractions for the given user-policy combination. Null if no such record exists.
      */
-    public static List<Infraction> findByPolicyAndUserName(EntityManager em, Policy policy, String userName) {
-        TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findByPolicyAndUserName", Infraction.class);
+    public static List<Infraction> findByPolicyAndUsername(EntityManager em, Policy policy, String username) {
+        TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findByPolicyAndUsername", Infraction.class);
 
         try {
-            query.setParameter("userName", userName);
+            query.setParameter("username", username);
             query.setParameter("policy", policy);
             query.setHint("javax.persistence.cache.storeMode", "REFRESH");
             return query.getResultList();

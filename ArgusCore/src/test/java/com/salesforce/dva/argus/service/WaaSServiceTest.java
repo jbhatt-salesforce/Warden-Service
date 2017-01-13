@@ -77,9 +77,9 @@ public class WaaSServiceTest extends AbstractTest {
         }
         
         /* create policy and suspensionLevel for testing */
-        String userName = user.getUsername();		
-		testPolicy = new Policy(user, this.SERVICE, this.POLICY, Arrays.asList(userName),
-				Arrays.asList(userName), this.TRIGGER_TYPE, this.AGGREGATOR, this.THRESHOLD, this.TIME_UNIT,
+        String username = user.getUsername();		
+		testPolicy = new Policy(user, this.SERVICE, this.POLICY, Arrays.asList(username),
+				Arrays.asList(username), this.TRIGGER_TYPE, this.AGGREGATOR, this.THRESHOLD, this.TIME_UNIT,
 				this.DEFAULT_VALUE, this.CRON_ENTRY);
     }
     
@@ -195,11 +195,11 @@ public class WaaSServiceTest extends AbstractTest {
 	 	List<Infraction> infractionsByPolicy = _waaSService.getInfractions(mergedPolicy);
 	 	assertTrue(infractionsByPolicy.size() ==1);
 	 	
-	 	List<Infraction> infractionsByPolicyAndUserName = _waaSService.getInfractionsByPolicyAndUserName(mergedPolicy,user.getUsername());
-	 	assertEquals(user, infractionsByPolicyAndUserName.get(0).getUser());
+	 	List<Infraction> infractionsByPolicyAndUsername = _waaSService.getInfractionsByPolicyAndUsername(mergedPolicy,user.getUsername());
+	 	assertEquals(user, infractionsByPolicyAndUsername.get(0).getUser());
 	 	
 	 	Infraction infraction = _waaSService.getInfraction(mergedPolicy, infractionsByPolicy.get(0).getId());
-	 	assertEquals(infraction.getId(),infractionsByPolicyAndUserName.get(0).getId());
+	 	assertEquals(infraction.getId(),infractionsByPolicyAndUsername.get(0).getId());
 	 	
 	 	_waaSService.deleteInfractionByIds(Arrays.asList(infraction.getId()));
 	 	List<Infraction> deletedInfractionsWithId = _waaSService.getInfractions(mergedPolicy);
@@ -287,11 +287,11 @@ public class WaaSServiceTest extends AbstractTest {
     	testPolicy.setName(testName.getMethodName());
     	
     	_waaSService.updatePolicy(testPolicy.getUsers().get(0), testPolicy, testPolicy.getThresholds());
-    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUsername(em, testPolicy, testPolicy.getUsers().get(0));
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
-    	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> newInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(oldInfractions.size() + 1 == newInfractions.size());   
     	assertTrue(1 == newInfractions.size()); 
@@ -304,12 +304,12 @@ public class WaaSServiceTest extends AbstractTest {
 		Policy newPolicy = _waaSService.updatePolicy(testPolicy);
 		_waaSService.updateSuspensionLevel(newPolicy, LEVEL_NUMBER,
 				INFRACTION_COUNT, SUSPENSION_TIME);
-		List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy,
+		List<Infraction> oldInfractions = Infraction.findByPolicyAndUsername(em, testPolicy,
 				testPolicy.getUsers().get(0));
 
 		Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
 		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
-		List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy,
+		List<Infraction> newInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy,
 				testPolicy.getUsers().get(0));
 
 		assertTrue(oldInfractions.size() + 1 == newInfractions.size());
@@ -323,7 +323,7 @@ public class WaaSServiceTest extends AbstractTest {
 		Policy newPolicy = _waaSService.updatePolicy(testPolicy);
 		_waaSService.updateSuspensionLevel(newPolicy, LEVEL_NUMBER,
 				INFRACTION_COUNT, SUSPENSION_TIME);
-		List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy,
+		List<Infraction> oldInfractions = Infraction.findByPolicyAndUsername(em, testPolicy,
 				testPolicy.getUsers().get(0));
 
 		Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
@@ -331,7 +331,7 @@ public class WaaSServiceTest extends AbstractTest {
 			_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
 		}
 
-		List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy,
+		List<Infraction> newInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy,
 				testPolicy.getUsers().get(0));
 
 		assertTrue(oldInfractions.size() + INFRACTION_COUNT == newInfractions.size());
@@ -346,14 +346,14 @@ public class WaaSServiceTest extends AbstractTest {
     	Policy newPolicy = _waaSService.updatePolicy(testPolicy);
     	_waaSService.updateSuspensionLevel(newPolicy, LEVEL_NUMBER,
 				INFRACTION_COUNT, SUSPENSION_TIME);
-    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUsername(em, testPolicy, testPolicy.getUsers().get(0));
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for( int i = 0; i <= INFRACTION_COUNT; i++){
     		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
-    	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> newInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(oldInfractions.size() + INFRACTION_COUNT + 1 == newInfractions.size());  
     	assertTrue(newInfractions.get(INFRACTION_COUNT).getExpirationTimestamp() == -1L);
@@ -366,18 +366,18 @@ public class WaaSServiceTest extends AbstractTest {
     	Policy newPolicy = _waaSService.updatePolicy(testPolicy);
     	_waaSService.updateSuspensionLevel(newPolicy, LEVEL_NUMBER,
 				INFRACTION_COUNT, SUSPENSION_TIME);
-    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUsername(em, testPolicy, testPolicy.getUsers().get(0));
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
-    	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> newInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(oldInfractions.size() + 1 == newInfractions.size());    	
     	assertTrue(newInfractions.get(0).getExpirationTimestamp() == 0L);
     	assertFalse(_waaSService.isSuspended(testPolicy.getUsers().get(0),testPolicy));
     	
     	_waaSService.reinstateUser(testPolicy.getUsers().get(0), mergedPolicy);
-    	List<Infraction> reinstateInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> reinstateInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(reinstateInfractions.size() == newInfractions.size());
     }
@@ -388,20 +388,20 @@ public class WaaSServiceTest extends AbstractTest {
     	Policy newPolicy = _waaSService.updatePolicy(testPolicy);
     	_waaSService.updateSuspensionLevel(newPolicy, LEVEL_NUMBER,
 				INFRACTION_COUNT, SUSPENSION_TIME);
-    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUsername(em, testPolicy, testPolicy.getUsers().get(0));
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for( int i = 0; i < INFRACTION_COUNT; i++){
     		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
-    	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> newInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(oldInfractions.size() + INFRACTION_COUNT == newInfractions.size());  
     	assertTrue(newInfractions.get(INFRACTION_COUNT - 1).getExpirationTimestamp()-newInfractions.get(INFRACTION_COUNT-1).getInfractionTimestamp() == SUSPENSION_TIME);
     	
     	_waaSService.reinstateUser(testPolicy.getUsers().get(0), mergedPolicy);
-    	List<Infraction> reinstateInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> reinstateInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(reinstateInfractions.size() == newInfractions.size());
     }
@@ -412,20 +412,20 @@ public class WaaSServiceTest extends AbstractTest {
     	Policy newPolicy = _waaSService.updatePolicy(testPolicy);
     	_waaSService.updateSuspensionLevel(newPolicy, LEVEL_NUMBER,
 				INFRACTION_COUNT, SUSPENSION_TIME);
-    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUserName(em, testPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> oldInfractions = Infraction.findByPolicyAndUsername(em, testPolicy, testPolicy.getUsers().get(0));
     	
     	Policy mergedPolicy = _waaSService.getPolicy(testPolicy.getName(), testPolicy.getService());
     	for( int i = 0; i <= INFRACTION_COUNT; i++){
     		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
-    	List<Infraction> newInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> newInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(oldInfractions.size() + INFRACTION_COUNT + 1 == newInfractions.size());  
     	assertTrue(newInfractions.get(INFRACTION_COUNT).getExpirationTimestamp() == -1L);
     	
     	_waaSService.reinstateUser(testPolicy.getUsers().get(0), mergedPolicy);
-    	List<Infraction> reinstateInfractions = Infraction.findByPolicyAndUserName(em, mergedPolicy, testPolicy.getUsers().get(0));
+    	List<Infraction> reinstateInfractions = Infraction.findByPolicyAndUsername(em, mergedPolicy, testPolicy.getUsers().get(0));
     	
     	assertTrue(reinstateInfractions.size() == 0);
     }
@@ -492,7 +492,7 @@ public class WaaSServiceTest extends AbstractTest {
     		_waaSService.suspendUser(testPolicy.getUsers().get(0), mergedPolicy, 0.);
     	}
     	
-    	List<Infraction> expectedInfractions = _waaSService.getInfractionsByPolicyAndUserName(mergedPolicy,testPolicy.getUsers().get(0));
+    	List<Infraction> expectedInfractions = _waaSService.getInfractionsByPolicyAndUsername(mergedPolicy,testPolicy.getUsers().get(0));
     	assertTrue(expectedInfractions.size() == INFRACTION_COUNT);
     }
     

@@ -158,9 +158,9 @@ public class AlertServiceTest extends AbstractTest {
 	public void testfindAlertsByOwner() {
 		UserService userService = system.getServiceFactory().getUserService();
 		AlertService alertService = system.getServiceFactory().getAlertService();
-		String userName = createRandomName();
+		String username = createRandomName();
 		int alertsCount = random.nextInt(20) + 1;
-		PrincipalUser user = new PrincipalUser(userName, userName + "@testcompany.com");
+		PrincipalUser user = new PrincipalUser(username, username + "@testcompany.com");
 
 		user = userService.updateUser(user);
 
@@ -186,9 +186,9 @@ public class AlertServiceTest extends AbstractTest {
 	public void findAllAlerts() {
 		UserService userService = system.getServiceFactory().getUserService();
 		AlertService alertService = system.getServiceFactory().getAlertService();
-		String userName = createRandomName();
+		String username = createRandomName();
 		int alertsCount = random.nextInt(100) + 1;
-		PrincipalUser user = new PrincipalUser(userName, userName + "@testcompany.com");
+		PrincipalUser user = new PrincipalUser(username, username + "@testcompany.com");
 
 		user = userService.updateUser(user);
 
