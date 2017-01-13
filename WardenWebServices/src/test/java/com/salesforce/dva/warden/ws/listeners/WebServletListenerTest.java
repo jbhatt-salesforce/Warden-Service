@@ -22,7 +22,7 @@ package com.salesforce.dva.warden.ws.listeners;
 
 import org.junit.Test;
 
-public class ArgusWebServletListenerTest {
+public class WebServletListenerTest {
 
     @Test
     public void placeholderTest() {}
