@@ -124,7 +124,7 @@ public  class WaaSNotifier extends DefaultNotifier {
     	List<String> nameAndService = _parseMetricExpression(context);
     	//Policy policy = _waaSService.getPolicy(nameAndService.get(0),nameAndService.get(1));
     	Policy policy = _waaSService.getPolicy("policyName.descriptor.max","service");
-    	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUserName(), policy, Double.valueOf(context.getTriggerEventValue()));
+    	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUsername(), policy, Double.valueOf(context.getTriggerEventValue()));
     	
     	//wrap warden event data
 /*    	WardenEvent wardenEvent = new WardenEvent();
@@ -176,12 +176,12 @@ public  class WaaSNotifier extends DefaultNotifier {
         metric = new Metric(scope, policy.getName());
         
         
-        metric.setTag("user", waaSUser.getUserName());
+        metric.setTag("user", waaSUser.getUsername());
         datapoints.put(context.getTriggerFiredTime(), "1");
         metric.setDatapoints(datapoints);
         _tsdbService.putMetrics(Arrays.asList(new Metric[] { metric }));
 
-		Annotation annotation = new Annotation(ANNOTATION_SOURCE, waaSUser.getUserName(), ANNOTATION_TYPE, scope, policy.getName(), context.getTriggerFiredTime());
+		Annotation annotation = new Annotation(ANNOTATION_SOURCE, waaSUser.getUsername(), ANNOTATION_TYPE, scope, policy.getName(), context.getTriggerFiredTime());
         
         Map<String, String> fields = new TreeMap<>();
 

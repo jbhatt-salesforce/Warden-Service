@@ -193,7 +193,7 @@ public abstract class AbstractResource {
 
         if (ownerName == null || ownerName.isEmpty()) {
             return remoteUser;
-        } else if (ownerName.equalsIgnoreCase(remoteUser.getUserName())) {
+        } else if (ownerName.equalsIgnoreCase(remoteUser.getUsername())) {
             return remoteUser;
         } else if (remoteUser.isPrivileged()) {
             PrincipalUser owner;

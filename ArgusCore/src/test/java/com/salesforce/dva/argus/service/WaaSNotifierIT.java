@@ -94,7 +94,7 @@ public class WaaSNotifierIT extends AbstractTest {
         }
         
         /* create policy and suspensionLevel for testing */
-        String userName = user.getUserName();		
+        String userName = user.getUsername();		
 		testPolicy = new Policy(user, this.SERVICE, this.NAME, Arrays.asList(NAME),
 				Arrays.asList(userName), this.TRIGGER_TYPE, this.AGGREGATOR, this.THRESHOLD, this.TIME_UNIT,
 				this.DEFAULT_VALUE, this.CRON_ENTRY);
@@ -129,7 +129,7 @@ public class WaaSNotifierIT extends AbstractTest {
         user.setCreatedBy(user);
         user = userService.updateUser(user);
 
-        Alert alert = new Alert(userService.findAdminUser(), user, "waas-" + user.getUserName() + "-service.subsystem:policyName.descriptor.max", waasExpression, "* * * * *");
+        Alert alert = new Alert(userService.findAdminUser(), user, "waas-" + user.getUsername() + "-service.subsystem:policyName.descriptor.max", waasExpression, "* * * * *");
        
         Notification notification = new Notification("notification_name", alert, "notifier_name", new ArrayList<String>(), 23);
         Trigger trigger = new Trigger(alert, TriggerType.GREATER_THAN_OR_EQ, "trigger_name", 2D, 5);

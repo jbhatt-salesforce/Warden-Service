@@ -44,7 +44,7 @@ public class BatchResources extends AbstractResource {
         PrincipalUser owner = validateAndGetOwner(req, null);
         SystemAssert.requireArgument(owner != null, "Owner cannot be null");
 
-        Map<String,String> batches = batchService.findBatchesByOwnerName(owner.getUserName());
+        Map<String,String> batches = batchService.findBatchesByOwnerName(owner.getUsername());
         return Response.ok(batches, MediaType.APPLICATION_JSON).build();
     }
 

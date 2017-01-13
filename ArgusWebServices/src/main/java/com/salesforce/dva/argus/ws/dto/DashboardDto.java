@@ -75,7 +75,7 @@ public class DashboardDto extends EntityDTO {
 
         DashboardDto result = createDtoObject(DashboardDto.class, dashboard);
 
-        result.setOwnerName(dashboard.getOwner().getUserName());
+        result.setOwnerName(dashboard.getOwner().getUsername());
         return result;
     }
 

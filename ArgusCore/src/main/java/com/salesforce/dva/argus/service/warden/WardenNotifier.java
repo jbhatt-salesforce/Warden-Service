@@ -151,12 +151,12 @@ public abstract class WardenNotifier extends DefaultNotifier {
         Map<Long, String> datapoints = new HashMap<>();
 
         metric = new Metric(Counter.WARDEN_TRIGGERS.getScope(), Counter.WARDEN_TRIGGERS.getMetric());
-        metric.setTag("user", wardenUser.getUserName());
+        metric.setTag("user", wardenUser.getUsername());
         datapoints.put(context.getTriggerFiredTime(), "1");
         metric.setDatapoints(datapoints);
         _tsdbService.putMetrics(Arrays.asList(new Metric[] { metric }));
 
-        Annotation annotation = new Annotation(ANNOTATION_SOURCE, wardenUser.getUserName(), ANNOTATION_TYPE, Counter.WARDEN_TRIGGERS.getScope(),
+        Annotation annotation = new Annotation(ANNOTATION_SOURCE, wardenUser.getUsername(), ANNOTATION_TYPE, Counter.WARDEN_TRIGGERS.getScope(),
             Counter.WARDEN_TRIGGERS.getMetric(), context.getTriggerFiredTime());
         Map<String, String> fields = new TreeMap<>();
 
@@ -186,10 +186,10 @@ public abstract class WardenNotifier extends DefaultNotifier {
         StringBuilder message = new StringBuilder();
 
         message.append(MessageFormat.format("<p>{0} has been suspended from the Argus system for violating the following policy</p>",
-                user.getUserName()));
+                user.getUsername()));
         message.append(MessageFormat.format("Subsystem: {0}", subSystem.toString()));
         message.append(MessageFormat.format("<br>Policy: {0}",
-                context.getAlert().getName().replace(WARDEN_ALERT_NAME_PREFIX + user.getUserName() + "-", "")));
+                context.getAlert().getName().replace(WARDEN_ALERT_NAME_PREFIX + user.getUsername() + "-", "")));
         message.append(MessageFormat.format("<br>Threshold: {0}", context.getAlert().getTriggers().get(0).getThreshold()));
         message.append(MessageFormat.format("<br>Triggering Value: {0}", context.getTriggerEventValue()));
         if (record.getSuspendedUntil() == -1) {

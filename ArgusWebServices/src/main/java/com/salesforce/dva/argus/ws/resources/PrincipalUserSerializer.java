@@ -51,11 +51,11 @@ public class PrincipalUserSerializer extends JsonSerializer<PrincipalUser> {
     public void serialize(PrincipalUser value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
         jgen.writeStringField("id", value.getId().toString());
-        jgen.writeStringField("createdBy", value.getCreatedBy() == null ? null : value.getCreatedBy().getUserName());
+        jgen.writeStringField("createdBy", value.getCreatedBy() == null ? null : value.getCreatedBy().getUsername());
         jgen.writeNumberField("createdDate", value.getCreatedDate() == null ? null : value.getCreatedDate().getTime());
-        jgen.writeStringField("modifiedBy", value.getModifiedBy() == null ? null : value.getModifiedBy().getUserName());
+        jgen.writeStringField("modifiedBy", value.getModifiedBy() == null ? null : value.getModifiedBy().getUsername());
         jgen.writeNumberField("modifiedDate", value.getModifiedDate() == null ? null : value.getModifiedDate().getTime());
-        jgen.writeStringField("userName", value.getUserName());
+        jgen.writeStringField("userName", value.getUsername());
         jgen.writeStringField("email", value.getEmail());
         jgen.writeBooleanField("privileged", value.isPrivileged());
         jgen.writeEndObject();

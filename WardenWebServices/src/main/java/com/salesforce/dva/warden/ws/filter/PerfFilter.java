@@ -1,40 +1,25 @@
-/*
- * Copyright (c) 2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of Salesforce.com nor the names of its contributors may
- * be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-	 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.ws.filter;
 
-import com.salesforce.dva.argus.service.MonitorService;
-import com.salesforce.dva.argus.system.SystemMain;
-import com.salesforce.dva.warden.ws.listeners.WebServletListener;
-import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +31,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.LoggerFactory;
+import com.salesforce.dva.argus.service.MonitorService;
+import com.salesforce.dva.argus.system.SystemMain;
+import com.salesforce.dva.warden.ws.listeners.WebServletListener;
 
 /**
  * Servlet filter to push end point performance numbers to monitoring service.
@@ -54,10 +43,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class PerfFilter implements Filter {
 
-    //~ Instance fields ******************************************************************************************************************************
-
     protected final SystemMain system = WebServletListener.getSystem();
-    private MonitorService monitorService = system.getServiceFactory().getMonitorService();
+    private final MonitorService monitorService = system.getServiceFactory().getMonitorService();
     private final String DATA_READ_PER_MIN = "perf.ws.read.count";
     private final String DATA_READ_QUERY_LATENCY = "perf.ws.read.latency";
     private final String DATA_WRITE_PER_MIN = "perf.ws.write.count";
@@ -69,10 +56,8 @@ public class PerfFilter implements Filter {
     private final String TAGS_METHOD_KEY = "method";
     private final String TAGS_ENDPOINT_KEY = "endpoint";
 
-    //~ Methods **************************************************************************************************************************************
-
     @Override
-    public void destroy() { }
+    public void destroy() {}
 
     /**
      * Updates performance counters using the Argus monitoring service.
@@ -83,7 +68,7 @@ public class PerfFilter implements Filter {
      *
      * @throws  IOException       If an I/O error occurs.
      * @throws  ServletException  If an unknown error occurs.
-     * 
+     *
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -101,26 +86,24 @@ public class PerfFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException { }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     private void updateCounters(HttpServletRequest req, HttpServletResponse resp, long delta) {
         String method = req.getMethod();
-        String endPoint = null;
 
         try {
             String pathInfo = req.getPathInfo().replaceFirst("/", "");
-
-            endPoint = pathInfo.replaceAll("[0-9]+", "-");
-
+            String endPoint = pathInfo.replaceAll("[0-9]+", "-");
             Map<String, String> tags = new HashMap<>();
 
             tags.put(TAGS_METHOD_KEY, method);
+
             if (endPoint != null) {
                 tags.put(TAGS_ENDPOINT_KEY, endPoint);
             }
 
             String contentLength = resp.getHeader("Content-Length");
-            int respBytes = ((contentLength != null && contentLength.matches("[0-9]+")) ? Integer.parseInt(contentLength) : 0);
+            int respBytes = (((contentLength != null) && contentLength.matches("[0-9]+")) ? Integer.parseInt(contentLength) : 0);
             int reqBytes = ((req.getContentLength() > 0) ? req.getContentLength() : 0);
 
             if (method.equals("GET")) {
@@ -138,5 +121,10 @@ public class PerfFilter implements Filter {
             LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
         }
     }
+
 }
-/* Copyright (c) 2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
+
+
+
