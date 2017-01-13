@@ -58,7 +58,7 @@ import javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.OK;
 
 /**
- * Warden web service resources.
+ * Provides methods to manage policies.
  *
  * @author Ruofan Zhang (rzhang@salesforce.com)
  */
