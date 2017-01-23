@@ -45,7 +45,6 @@ public class WebServletListener implements ServletContextListener {
             _logger.info("Stopping Warden web services.");
             _system.getServiceFactory().getMonitorService().stopRecordingCounters();
             _system.getServiceFactory().getSchedulingService().stopAlertScheduling();
-            _system.getServiceFactory().getWaaSService().stopPushingMetrics();
             _system.stop();
         } catch (InterruptedException ex) {
             _logger.info("Interrupted while waiting for startup to complete.");
@@ -60,10 +59,10 @@ public class WebServletListener implements ServletContextListener {
             _system = SystemMain.getInstance();
 
             _system.start();
+            _system.getServiceFactory().getWardenService().disableWarden();
             _system.getServiceFactory().getManagementService().cleanupRecords();
             _system.getServiceFactory().getSchedulingService().startAlertScheduling();
             _system.getServiceFactory().getMonitorService().startRecordingCounters();
-            _system.getServiceFactory().getWaaSService().startPushingMetrics();
         } finally {
             _gate.countDown();
         }

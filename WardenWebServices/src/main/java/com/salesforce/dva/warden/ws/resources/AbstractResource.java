@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -302,7 +301,7 @@ public abstract class AbstractResource {
         PrincipalUser creator = (infraction.getCreatedById() == null) ? null : userService.findUserByPrimaryKey(infraction.getCreatedById());
         PrincipalUser modifier = (infraction.getModifiedById() == null) ? null : userService.findUserByPrimaryKey(infraction.getModifiedById());
         PrincipalUser user = (infraction.getUserId() == null) ? null : userService.findUserByPrimaryKey(infraction.getUserId());
-        com.salesforce.dva.argus.entity.Policy policy = (infraction.getPolicyId() == null) ? null : waaSService.getPolicy(infraction.getId());
+        com.salesforce.dva.argus.entity.Policy policy = (infraction.getPolicyId() == null) ? null : waaSService.getPolicy(infraction.getPolicyId());
 
         result.setCreatedBy(creator);
         result.setModifiedBy(modifier);

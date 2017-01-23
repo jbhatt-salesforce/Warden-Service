@@ -45,22 +45,41 @@ import com.salesforce.dva.argus.util.WaaSObjectConverter;
 @NamedQueries({
     @NamedQuery(
             name = "Infraction.findByPolicyAndUsername",
-            query = "SELECT r FROM Infraction r, PrincipalUser u WHERE r.policy = :policy AND r.user = u AND u.username = :username"),
+            query = "SELECT r FROM Infraction r, PrincipalUser u WHERE r.policy.id = :policyId AND r.user = u AND u.username = :username"),
     @NamedQuery(
             name = "Infraction.findByPolicyAndInfraction",
             query = "SELECT r FROM Infraction r WHERE r.policy = :policy and r.id = :id"
     ),
     @NamedQuery(
             name = "Infraction.findByPolicy",
-            query = "SELECT r FROM Infraction r WHERE r.policy = :policy"
+            query = "SELECT r FROM Infraction r WHERE r.policy.id = :policyId"
     ),
     @NamedQuery(
-            name = "Infraction.findByUser",
-            query = "SELECT r FROM Infraction r WHERE r.user = :user"
+            name = "Infraction.findByUsername",
+            query = "SELECT r FROM Infraction r WHERE r.user.username = :username"
+    ),
+    @NamedQuery(
+            name = "Infraction.findSuspensionsByUsername",
+            query = "SELECT r FROM Infraction r WHERE r.user.username = :username AND r.expirationTimestamp IS NOT NULL"
     )
 })
 
 public class Infraction extends JPAEntity {
+
+    /**
+     * Returns all suspensions for the specified user.
+     * 
+     * @param em The entity manager.  Cannot be null.
+     * @param username The username to match.  Cannot be null or empty.
+     * @return The list of matching suspensions.
+     */
+    public static List<Infraction> findSuspensionsByUsername(EntityManager em, String username) {
+        requireArgument(em != null, "Entity manager can not be null.");
+        requireArgument(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findSuspensionsByUsername", Infraction.class);
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        return query.getResultList();
+    }
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "policy_id", nullable = false)
@@ -128,7 +147,7 @@ public class Infraction extends JPAEntity {
      */
     public static int findInfractionCount(EntityManager em, Policy policy, String username, long startTime, long endTime) {
 
-        List<Infraction> records = findByPolicyAndUsername(em, policy, username);
+        List<Infraction> records = findByPolicyAndUsername(em, policy.getId(), username);
 
         int count = 0;
 
@@ -147,18 +166,18 @@ public class Infraction extends JPAEntity {
      * Finds infractions given its policy.
      *
      * @param em The entity manager to use. Cannot be null.
-     * @param policy The policy associated with this infractions. Cannot be null.
+     * @param policyId The policy ID associated with the infractions. Cannot be null.
      *
      * @return The corresponding infractions or null if no infractions having the specified policy exist.
      */
-    public static List<Infraction> findByPolicy(EntityManager em, Policy policy) {
+    public static List<Infraction> findByPolicy(EntityManager em, BigInteger policyId) {
         requireArgument(em != null, "Entity manager can not be null.");
-        requireArgument(policy != null, "Policy cannot be null");
+        requireArgument(policyId != null, "Policy ID cannot be null");
 
         TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findByPolicy", Infraction.class);
 
         try {
-            query.setParameter("policy", policy);
+            query.setParameter("policyId", policyId);
             query.setHint("javax.persistence.cache.storeMode", "REFRESH");
             return query.getResultList();
         } catch (NoResultException ex) {
@@ -170,18 +189,18 @@ public class Infraction extends JPAEntity {
      * Finds infractions given its user.
      *
      * @param em The entity manager to use. Cannot be null.
-     * @param user	The principal users associated with this infractions. Cannot be null.
+     * @param username	The username associated with the infractions. Cannot be null or empty.
      *
      * @return The corresponding infractions or null if no infractions having the specified policy exist.
      */
-    public static List<Infraction> findByUser(EntityManager em, PrincipalUser user) {
+    public static List<Infraction> findByUsername(EntityManager em, String username) {
         requireArgument(em != null, "Entity manager can not be null.");
-        requireArgument(user != null, "User cannot be null");
+        requireArgument(username != null && !username.isEmpty(), "Username cannot be null or empty.");
 
-        TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findByUser", Infraction.class);
+        TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findByUsername", Infraction.class);
 
         try {
-            query.setParameter("user", user);
+            query.setParameter("username", username);
             query.setHint("javax.persistence.cache.storeMode", "REFRESH");
             return query.getResultList();
         } catch (NoResultException ex) {
@@ -220,16 +239,16 @@ public class Infraction extends JPAEntity {
      *
      * @param em The EntityManager to use.
      * @param username The username for which to retrieve record.
-     * @param policy The policy for which to retrieve record.
+     * @param policyId The policy for which to retrieve record.
      *
      * @return The infractions for the given user-policy combination. Null if no such record exists.
      */
-    public static List<Infraction> findByPolicyAndUsername(EntityManager em, Policy policy, String username) {
+    public static List<Infraction> findByPolicyAndUsername(EntityManager em, BigInteger policyId, String username) {
         TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findByPolicyAndUsername", Infraction.class);
 
         try {
             query.setParameter("username", username);
-            query.setParameter("policy", policy);
+            query.setParameter("policyId", policyId);
             query.setHint("javax.persistence.cache.storeMode", "REFRESH");
             return query.getResultList();
         } catch (NoResultException ex) {

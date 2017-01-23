@@ -7,8 +7,8 @@
   "jsonOutput" : "[]"
 },{
   "type": "PUT",
-  "endpoint": "/policy/1/user/hpotter/metric",
-  "jsonInput" :"{\"1477636500000\":1.0}",
+  "endpoint": "/policy/1/user/hpotter/metric/1.0",
+  "jsonInput" :null,
   "status": 200,
   "message": "success",
   "jsonOutput" : "[]"

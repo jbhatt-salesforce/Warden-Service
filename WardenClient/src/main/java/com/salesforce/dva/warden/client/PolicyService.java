@@ -205,14 +205,14 @@ final class PolicyService extends EndpointService {
      *
      * @throws  IOException  If an I/O exception occurs.
      */
-    WardenResponse updateMetricsForUserAndPolicy(BigInteger policyId, String username, Map<Long, Double> values) throws IOException {
+    WardenResponse updateMetricsForUserAndPolicy(BigInteger policyId, String username, Double value) throws IOException {
         requireThat(policyId != null, "The policy ID cannot be null.");
         requireThat((username != null) &&!username.isEmpty(), "Username cannot be null or empty.");
-        requireThat(values != null, "Values cannot be null.");
+        requireThat(value != null, "Value cannot be null.");
 
-        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/metric";
+        String requestUrl = REQUESTURL + "/" + policyId.toString() + "/user/" + username + "/metric/" + value.toString();
 
-        return getClient().executeHttpRequest(RequestType.PUT, requestUrl, values);
+        return getClient().executeHttpRequest(RequestType.PUT, requestUrl, null);
     }
 
     /**

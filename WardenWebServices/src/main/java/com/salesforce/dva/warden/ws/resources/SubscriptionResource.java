@@ -128,7 +128,7 @@ public class SubscriptionResource extends AbstractResource {
             message = devMessage = "You are not authorized to delete the resource.";
         } else {
             try {
-                waaSService.deleteSubscription(entity);
+                waaSService.deleteSubscription(entity.getId());
 
                 status = Status.OK.getStatusCode();
                 message = devMessage = "Subscription deleted successfully.";

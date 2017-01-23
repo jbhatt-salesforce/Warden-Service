@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.LongSummaryStatistics;
-import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -150,7 +148,7 @@ public class PolicyResource extends AbstractResource {
                 devMessage = "The policy being created has a non-null ID.  The ID field is automatically generated and should specified as null.";
                 status = Status.BAD_REQUEST.getStatusCode();
                 uri = uriInfo.getRequestUri();
-            } else if (waaSService.getPolicy(policy.getName(), policy.getService()) != null) {
+            } else if (waaSService.getPolicyByNameAndService(policy.getName(), policy.getService()) != null) {
                 message = "Cannot create a duplicate policy.";
                 uiMessage = "A policy already exists for this name and service combination.";
                 devMessage = "Creating a policy with for this sevice and name combination would result in a duplicate record.";
@@ -215,7 +213,7 @@ public class PolicyResource extends AbstractResource {
                 try {
                     message = uiMessage = devMessage = "Successfully deleted policy.";
                     entity = fromEntity(policy);
-                    waaSService.deletePolicy(policy);
+                    waaSService.deletePolicy(policy.getId());
                     status = Status.OK.getStatusCode();
                 } catch (Exception ex) {
                     message = "Failed to delete policy.";
@@ -439,7 +437,7 @@ public class PolicyResource extends AbstractResource {
                     toCreate.setCreatedBy(remoteUser);
                     toCreate.setModifiedBy(remoteUser);
                     message = uiMessage = devMessage = "Successfully created level.";
-                    entity = fromEntity(waaSService.updateLevel(toCreate));
+                    entity = fromEntity(waaSService.updateSuspensionLevel(toCreate));
                     status = Status.CREATED.getStatusCode();
                     uri = uriInfo.getAbsolutePathBuilder().path(entity.getId().toString()).build();
                 } catch (Exception ex) {
@@ -500,9 +498,9 @@ public class PolicyResource extends AbstractResource {
             } else {
                 try {
                     message = uiMessage = devMessage = "Successfully deleted level.";
-                    com.salesforce.dva.argus.entity.SuspensionLevel level = waaSService.getLevel(policy, levelId);
+                    com.salesforce.dva.argus.entity.SuspensionLevel level = waaSService.getSuspensionLevelForPolicy(policy.getId(), levelId);
                     entity = fromEntity(level);
-                    waaSService.deleteLevel(level);
+                    waaSService.deleteSuspensionLevel(level.getId());
                     status = Status.OK.getStatusCode();
                 } catch (Exception ex) {
                     message = "Failed to delete level.";
@@ -556,13 +554,13 @@ public class PolicyResource extends AbstractResource {
                 status = Status.NOT_FOUND.getStatusCode();
                 uri = uriInfo.getRequestUri();
             } else {
-                com.salesforce.dva.argus.entity.SuspensionLevel existing = waaSService.getLevel(policy, level.getId());
+                com.salesforce.dva.argus.entity.SuspensionLevel existing = waaSService.getSuspensionLevelForPolicy(policy.getId(), level.getId());
                 try {
                     com.salesforce.dva.argus.entity.SuspensionLevel toUpdate = toEntity(level);
                     toUpdate.setCreatedBy(existing == null ? remoteUser : existing.getCreatedBy());
                     toUpdate.setModifiedBy(remoteUser);
                     message = uiMessage = devMessage = existing == null ? "Successfully created level." : "Successfully updated level.";
-                    entity = fromEntity(waaSService.updateLevel(toUpdate));
+                    entity = fromEntity(waaSService.updateSuspensionLevel(toUpdate));
                     status = existing == null ? Status.CREATED.getStatusCode() : Status.OK.getStatusCode();
                     uri = uriInfo.getAbsolutePathBuilder().path(entity.getId().toString()).build();
                 } catch (Exception ex) {
@@ -676,7 +674,7 @@ public class PolicyResource extends AbstractResource {
         requireThat(policy != null, "The specified policy doesn't exist.", Status.NOT_FOUND);
         requireThat((remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername)
                 || policy.getOwners().contains(remoteUsername)), "You are not authorized to view the infractions for this policy.", Status.FORBIDDEN);
-        List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractions(policy);
+        List<com.salesforce.dva.argus.entity.Infraction> infractions = waaSService.getInfractionsForPolicy(policy.getId());
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         for (com.salesforce.dva.argus.entity.Infraction infraction : infractions) {
@@ -771,7 +769,7 @@ public class PolicyResource extends AbstractResource {
             if(suspensionIds == null || suspensionIds.contains(suspension.getEntity().getId())){
                 res.setEntity(suspension.getEntity());
                 try {
-                    waaSService.deleteInfraction(toEntity(suspension.getEntity()));
+                    waaSService.deleteInfraction(suspension.getEntity().getId());
                     message = uiMessage = devMessage = "Suspension deleted successfully.";
                     status = OK.getStatusCode();
                 } catch (Exception ex) {
@@ -832,28 +830,26 @@ public class PolicyResource extends AbstractResource {
      * @param req The HTTP request.
      * @param policyId The policy ID. Cannot be null.
      * @param username The optional user name used for filtering the results.
-     * @param datapoints The data points to submit.
+     * @param value The data point to submit.
      *
      * @return The resulting list of resources.
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{pid}/user/{uname}/metric")
+    @Path("/{pid}/user/{uname}/metric/{value}")
     @Description("Submits externally collected metric data.")
     public List<Resource<Metric>> createMetrics(@Context HttpServletRequest req,
             @PathParam("pid") final BigInteger policyId,
             @PathParam("uname") final String username,
-            Map<Long, Double> datapoints) {
+            @PathParam("value") final Double value) {
         requireThat(policyId != null, "The policy ID cannot be null.");
         requireThat(username != null && !username.isEmpty(), "The user name cannot be null or empty.");
-        requireThat(datapoints != null && !datapoints.isEmpty(), "You must supply at least one datapoint.");
+        requireThat(value != null, "You must supply a datapoint.");
         List<Resource<Policy>> policies = getPolicies(req, username, policyId, null, null);
         requireThat(policies.size()==1, "Either the policy doesn't exist, the user isn't subject to it, or you are not authorized to perform this operation.");
-        LongSummaryStatistics stats = datapoints.keySet().stream().collect(Collectors.summarizingLong(Long::longValue));
-        waaSService.updateMetric(policyId, username, datapoints);
-        List<Resource<Metric>> result = rc.getResource(UserResource.class).getMetricsForUserAndPolicy(req, username, policyId, String.valueOf(stats.getMin()), String.valueOf(stats.getMax()));
-        result.get(0).getEntity().setDatapoints(datapoints);
+        waaSService.updateMetric(policyId, username, value);
+        List<Resource<Metric>> result = rc.getResource(UserResource.class).getMetricsForUserAndPolicy(req, username, policyId, "-5m", null);
         return result;
     }
 
@@ -894,7 +890,7 @@ public class PolicyResource extends AbstractResource {
         URI userUri = uriInfo.getRequestUri();
         String message, uiMessage, devMessage;
         if (remoteUser.isPrivileged() || policy.getCreatedBy().getUsername().equals(remoteUsername) || policy.getOwners().contains(remoteUsername) || username.equals(remoteUsername)) {
-            List<com.salesforce.dva.argus.entity.Metric> metrics = waaSService.getMetrics(policy, user, start, end);
+            List<com.salesforce.dva.argus.entity.Metric> metrics = waaSService.getMetrics(policy.getId(), user.getUsername(), start, end);
 
             for (com.salesforce.dva.argus.entity.Metric metric : metrics) {
 
