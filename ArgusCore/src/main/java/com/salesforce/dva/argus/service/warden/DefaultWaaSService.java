@@ -80,7 +80,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
     private final UserService _userService;
     private final ScheduledExecutorService _executorService;
     private final PrincipalUser _admin;
-    private final LinkedHashMap<String, Long> _alertsToUpdate;
+    private final Map<String, Long> _alertsToUpdate;
 
     /**
      * Creates a new instance of DefaultWaaSService.
@@ -90,7 +90,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
      * @param monitorService The monitor service.  Cannot be null.
      * @param alertService The alert service.  Cannot be null.
      * @param metricService The metric service. Cannot be null.
-     * @param userService
+     * @param userService The user service.  Cannot be null.
      */
     @Inject
     protected DefaultWaaSService(AuditService auditService, SystemConfiguration config, MonitorService monitorService, MetricService metricService,
@@ -104,14 +104,14 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
         _executorService = _startAlertAuditor();
         _admin = _userService.findAdminUser();
-        _alertsToUpdate = new LinkedHashMap<String, Long>() {
+        _alertsToUpdate = Collections.synchronizedMap(new LinkedHashMap<String, Long>() {
 
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
                 return eldest.getValue() <= System.currentTimeMillis() - ALERT_UPDATE_INTERVAL_MS;
             }
 
-        };
+        });
     }
 
     private Notification _createNotification(Alert alert, Policy policy, String username, Trigger trigger) {
