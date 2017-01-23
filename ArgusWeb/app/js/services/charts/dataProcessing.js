@@ -51,11 +51,18 @@ angular.module('argus.services.charts.dataProcessing', [])
     function copyFlagSeries(data) {
         var result;
         if (data) {
-            result = {type: 'flags', shape: 'circlepin', stackDistance: 20, width: 16, lineWidth: 2};
+            result = {type: 'flags'/*, shape: 'circlepin', stackDistance: 20, width: 16, lineWidth: 2*/};
             result.data = [];
+            var tempID = 0;
             for (var i = 0; i < data.length; i++) {
                 var flagData = data[i];
-                result.data.push({x: flagData.timestamp, title: 'A', text: formatFlagText(flagData.fields)});
+                result.data.push({
+                    x: flagData.timestamp,
+                    title: 'A',
+                    text: formatFlagText(flagData.fields),
+                    flagID: '_Flag'+tempID
+                });
+                tempID++;
             }
         } else {
             result = null;
@@ -92,7 +99,7 @@ angular.module('argus.services.charts.dataProcessing', [])
             return options;
         },
 
-        augmentExpressionWithControlsData: function(event, expression, controls) {
+        augmentExpressionWithControlsData: function(expression, controls) {
 			var result = expression;
 
             for (var controlIndex in controls) {
@@ -114,7 +121,7 @@ angular.module('argus.services.charts.dataProcessing', [])
             return result;
         },
 
-        processMetricData: function(data, event, controls) {
+        processMetricData: function(data, controls) {
 			if (!data) return;
 
 			var processedData = [];
@@ -128,7 +135,7 @@ angular.module('argus.services.charts.dataProcessing', [])
                     var metrics = data.metrics[key];
                     var metricExpression = metrics.expression;
                     var metricSpecificOptions = metrics.metricSpecificOptions;
-                    var processedExpression = this.augmentExpressionWithControlsData(event, metricExpression, controls);
+                    var processedExpression = this.augmentExpressionWithControlsData(metricExpression, controls);
 
                     if (processedExpression.length > 0 /* && (/\$/.test(processedExpression)==false) */) {
                         var processedMetric = {};
@@ -145,7 +152,7 @@ angular.module('argus.services.charts.dataProcessing', [])
 
             for (var key in data.annotations) {
                 if (data.annotations.hasOwnProperty(key)) {
-                    var processedExpression = this.augmentExpressionWithControlsData(event, data.annotations[key],controls);
+                    var processedExpression = this.augmentExpressionWithControlsData(data.annotations[key], controls);
                     if (processedExpression.length > 0 /* && (/\$/.test(processedExpression)==false) */) {
                         updatedAnnotationList.push(processedExpression);
                     }
