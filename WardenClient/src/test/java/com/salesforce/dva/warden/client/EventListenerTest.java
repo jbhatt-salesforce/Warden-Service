@@ -81,7 +81,7 @@ public class EventListenerTest {
 
                                                        for (int j = 0; j < eventCount; j++) {
                                                            try {
-                                                               Thread.sleep(25);
+                                                               Thread.sleep(50);
 
                                                                Infraction infraction = new Infraction();
 
