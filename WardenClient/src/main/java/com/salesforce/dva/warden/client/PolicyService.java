@@ -25,13 +25,13 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static java.lang.System.currentTimeMillis;
 import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.client.WardenService.EndpointService;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
 import static com.salesforce.dva.warden.client.DefaultWardenClient.requireThat;
-import static java.lang.System.currentTimeMillis;
 import jersey.repackaged.com.google.common.base.Objects;
 
 /**
@@ -199,7 +199,7 @@ final class PolicyService extends EndpointService {
      *
      * @param   policyId  The policy ID. Cannot be null.
      * @param   username  The username. Cannot be null or empty.
-     * @param   values    The timestamp and values of the usage metrics. Cannot be null, but may be empty.
+     * @param value
      *
      * @return  The response object containing relevant details about the operation.
      *
@@ -477,6 +477,3 @@ final class PolicyService extends EndpointService {
 }
 
 /* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
-
-
-

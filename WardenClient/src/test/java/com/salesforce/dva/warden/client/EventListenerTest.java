@@ -36,21 +36,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)
- */
 public class EventListenerTest {
 
-    /**
-     * Method description
-     *
-     *
-     * @throws Exception
-     */
     @Test
     public void testMultipleEvents() throws Exception {
         InfractionCache infractions = new InfractionCache();
@@ -134,12 +121,6 @@ public class EventListenerTest {
         fail("No available port found.");
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws Exception
-     */
     @Test
     public void testRun() throws Exception {
         InfractionCache infractions = new InfractionCache();
@@ -181,49 +162,23 @@ public class EventListenerTest {
         private EventLoopGroup workerGroup;
         private final int port;
 
-        /**
-         * Constructs ...
-         *
-         *
-         * @param port
-         */
         public EventClient(int port) {
             this.port = port;
             workerGroup = new NioEventLoopGroup(100);
             channel = null;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @throws Exception
-         */
         public void close() throws Exception {
             workerGroup.shutdownGracefully().await();
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @param infraction
-         *
-         * @throws Exception
-         */
         public void sendInfraction(Infraction infraction) throws Exception {
             if (channel != null) {
                 channel.writeAndFlush(new ObjectMapper().writeValueAsString(infraction));
             }
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @throws Exception
-         */
-        public void start() throws Exception {
+       public void start() throws Exception {
             Bootstrap b = new Bootstrap();
 
             b.group(workerGroup)

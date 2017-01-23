@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,11 +17,12 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.dto;
 
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import java.util.Objects;
 
 /**
  * Authentication credentials.
@@ -32,20 +33,17 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Credentials extends Base {
 
-    //~ Static fields/initializers *******************************************************************************************************************
     private static final long serialVersionUID = 1L;
-
-    //~ Instance fields ******************************************************************************************************************************
     private String username;
     private String password;
 
-    //~ Methods **************************************************************************************************************************************
     @Override
     public Credentials createExample() {
         Credentials result = new Credentials();
 
         result.setPassword("aPassword");
         result.setUsername("aUsername");
+
         return result;
     }
 
@@ -54,9 +52,11 @@ public class Credentials extends Base {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
@@ -66,10 +66,27 @@ public class Credentials extends Base {
         if (!Objects.equals(this.username, other.username)) {
             return false;
         }
+
         if (!Objects.equals(this.password, other.password)) {
             return false;
         }
+
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+
+        hash = 13 * hash + Objects.hashCode(this.username);
+        hash = 13 * hash + Objects.hashCode(this.password);
+
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Credentials{" + "username=" + username + ", password=********}";
     }
 
     /**
@@ -82,30 +99,21 @@ public class Credentials extends Base {
     }
 
     /**
-     * Returns the username.
-     *
-     * @return The username.
-     */
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-
-        hash = 13 * hash + Objects.hashCode(this.username);
-        hash = 13 * hash + Objects.hashCode(this.password);
-        return hash;
-    }
-
-    /**
      * Sets the password.
      *
      * @param password The password.
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * Returns the username.
+     *
+     * @return The username.
+     */
+    public String getUsername() {
+        return username;
     }
 
     /**
@@ -117,10 +125,6 @@ public class Credentials extends Base {
         this.username = username;
     }
 
-    @Override
-    public String toString() {
-        return "Credentials{" + "username=" + username + ", password=********}";
-    }
-
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

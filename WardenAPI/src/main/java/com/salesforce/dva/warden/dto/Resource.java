@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,32 +17,69 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.dto;
 
+import java.util.EnumMap;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.util.EnumMap;
-import java.util.Objects;
 
 /**
  * Encapsulates web service resource and associated meta-data.
  *
  * @author Tom Valine (tvaline@salesforce.com)
+ *
+ * @param <T>
  */
 @JsonPropertyOrder(alphabetic = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Resource<T> extends Base {
 
-    //~ Static fields/initializers *******************************************************************************************************************
     private static final long serialVersionUID = 1L;
-
-    //~ Instance fields ******************************************************************************************************************************
     private T entity;
     private EnumMap<MetaKey, String> meta;
 
-    //~ Methods **************************************************************************************************************************************
+    /**
+     * Meta-data keys.
+     *
+     * @author Tom Valine (tvaline@salesforce.com)
+     */
+    public enum MetaKey {
+
+        /**
+         * The HREF link for the resource.
+         */
+        href,
+
+        /**
+         * The status of the associated operation.
+         */
+        status,
+
+        /**
+         * The requested operation.
+         */
+        verb,
+
+        /**
+         * The informational message for consumption by API users.
+         */
+        message,
+
+        /**
+         * The informational message for consumption by UI users.
+         */
+        uiMessage,
+
+        /**
+         * The informational message for consumption by Developers users.
+         */
+        devMessage
+    }
+
     @Override
     public Resource createExample() {
         Resource result = new Resource();
@@ -51,6 +88,7 @@ public class Resource<T> extends Base {
         metamap.put(MetaKey.href, "http://localhost:8080");
         result.setEntity(new User().createExample());
         result.setMeta(metamap);
+
         return result;
     }
 
@@ -59,9 +97,11 @@ public class Resource<T> extends Base {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
@@ -71,38 +111,12 @@ public class Resource<T> extends Base {
         if (!Objects.equals(this.entity, other.entity)) {
             return false;
         }
+
         if (!Objects.equals(this.meta, other.meta)) {
             return false;
         }
+
         return true;
-    }
-
-    /**
-     * Returns the entity associated with the resource.
-     *
-     * @return The associated entity.
-     */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-    @JsonSubTypes(
-            {
-                @JsonSubTypes.Type(Policy.class),
-                @JsonSubTypes.Type(Infraction.class),
-                @JsonSubTypes.Type(SuspensionLevel.class),
-                @JsonSubTypes.Type(User.class),
-                @JsonSubTypes.Type(Subscription.class)
-            }
-    )
-    public T getEntity() {
-        return entity;
-    }
-
-    /**
-     * Returns the meta-data for the resource.
-     *
-     * @return The meta-data.
-     */
-    public EnumMap<MetaKey, String> getMeta() {
-        return meta;
     }
 
     @Override
@@ -111,7 +125,33 @@ public class Resource<T> extends Base {
 
         hash = 89 * hash + Objects.hashCode(this.entity);
         hash = 89 * hash + Objects.hashCode(this.meta);
+
         return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Resource{" + "entity=" + entity + ", meta=" + meta + '}';
+    }
+
+    /**
+     * Returns the entity associated with the resource.
+     *
+     * @return The associated entity.
+     */
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+    )
+    @JsonSubTypes( {
+
+        @JsonSubTypes.Type(Policy.class) , @JsonSubTypes.Type(Infraction.class) , @JsonSubTypes.Type(SuspensionLevel.class) ,
+        @JsonSubTypes.Type(User.class) , @JsonSubTypes.Type(Subscription.class)
+
+    })
+    public T getEntity() {
+        return entity;
     }
 
     /**
@@ -124,6 +164,15 @@ public class Resource<T> extends Base {
     }
 
     /**
+     * Returns the meta-data for the resource.
+     *
+     * @return The meta-data.
+     */
+    public EnumMap<MetaKey, String> getMeta() {
+        return meta;
+    }
+
+    /**
      * Sets the meta-data for the resource.
      *
      * @param meta The meta-data.
@@ -132,44 +181,6 @@ public class Resource<T> extends Base {
         this.meta = meta;
     }
 
-    //~ Enums ****************************************************************************************************************************************
-    /**
-     * Meta-data keys.
-     *
-     * @author Tom Valine (tvaline@salesforce.com)
-     */
-    public enum MetaKey {
-
-        /**
-         * The HREF link for the resource.
-         */
-        href,
-        /**
-         * The status of the associated operation.
-         */
-        status,
-        /**
-         * The requested operation.
-         */
-        verb,
-        /**
-         * The informational message for consumption by API users.
-         */
-        message,
-        /**
-         * The informational message for consumption by UI users.
-         */
-        uiMessage,
-        /**
-         * The informational message for consumption by Developers users.
-         */
-        devMessage
-    }
-
-    @Override
-    public String toString() {
-        return "Resource{" + "entity=" + entity + ", meta=" + meta + '}';
-    }
-
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

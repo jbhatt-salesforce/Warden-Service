@@ -394,6 +394,3 @@ class DefaultWardenClient implements WardenClient {
 }
 
 /* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
-
-
-

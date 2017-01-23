@@ -25,21 +25,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import com.salesforce.dva.warden.WardenClient;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)
- */
 public class WardenClientBuilderTest {
 
-    /**
-     * Method description
-     *
-     *
-     * @throws Exception
-     */
     @Test
     public void testBuilder() throws Exception {
         WardenClient client = new WardenClientBuilder().forEndpoint("https://foo").withPassword("aPassword").withUsername("aUsername").build();

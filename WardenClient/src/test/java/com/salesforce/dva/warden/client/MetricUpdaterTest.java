@@ -34,13 +34,6 @@ import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 import com.salesforce.dva.warden.dto.Policy;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)
- */
 public class MetricUpdaterTest extends AbstractTest {
 
     private final List<HttpRequestResponse> interceptedRequests = Collections.synchronizedList(new ArrayList<>());
@@ -63,10 +56,6 @@ public class MetricUpdaterTest extends AbstractTest {
         return result;
     }
 
-    /**
-     * Method description
-     *
-     */
     @Before
     public void beforeTest() {
         interceptedRequests.clear();
@@ -77,15 +66,6 @@ public class MetricUpdaterTest extends AbstractTest {
         interceptedRequests.add(step);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws Exception
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws SuspendedException
-     */
     @Test
     public void testPeriodicServerPush() throws IOException, InterruptedException, SuspendedException, Exception {
         try (WardenService wardenService = new WardenService(getMockedClient("/MetricUpdaterTest.testPeriodicServerPush.json"))) {

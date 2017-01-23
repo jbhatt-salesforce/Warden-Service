@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,6 +17,7 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.dto;
 
 import java.io.Serializable;
@@ -30,7 +31,6 @@ import java.io.Serializable;
  */
 public abstract class Base<B extends Base<B>> implements Serializable {
 
-    //~ Methods **************************************************************************************************************************************
     /**
      * Implementations of this method are required to generate an instance of the DTO object containing sample data that can be serialized and
      * included in documentation.
@@ -38,5 +38,7 @@ public abstract class Base<B extends Base<B>> implements Serializable {
      * @return An instance of the object populated with sample data.
      */
     public abstract B createExample();
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,10 +17,11 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden;
 
-import com.salesforce.dva.warden.dto.Policy;
 import java.util.List;
+import com.salesforce.dva.warden.dto.Policy;
 
 /**
  * Embedded Warden client.
@@ -28,8 +29,6 @@ import java.util.List;
  * @author  Jigna Bhatt (jbhatt@salesforce.com)
  */
 public interface WardenClient {
-
-    //~ Methods **************************************************************************************************************************************
 
     /**
      * Updates the existing value of a policy metric. This method is intended to be used as a pre-condition check for protected operations.
@@ -72,5 +71,7 @@ public interface WardenClient {
      * @throws  SuspendedException  If the user is suspended for the specified policy.
      */
     void updateMetric(Policy policy, String username, double value) throws SuspendedException;
+
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

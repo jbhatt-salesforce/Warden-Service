@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,14 +17,15 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * Server subscription.
@@ -36,14 +37,10 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Subscription extends Entity {
 
-    //~ Static fields/initializers *******************************************************************************************************************
     private static final long serialVersionUID = 1L;
-
-    //~ Instance fields ******************************************************************************************************************************
     private String hostname;
     private Integer port;
 
-    //~ Methods **************************************************************************************************************************************
     @Override
     public Subscription createExample() {
         Subscription result = new Subscription();
@@ -54,6 +51,7 @@ public class Subscription extends Entity {
         result.setModifiedById(BigInteger.ONE);
         result.setModifiedDate(new Date(1451606400000L));
         result.setPort(8080);
+
         return result;
     }
 
@@ -62,9 +60,11 @@ public class Subscription extends Entity {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
@@ -74,13 +74,33 @@ public class Subscription extends Entity {
         if (!super.equals(other)) {
             return false;
         }
+
         if (!Objects.equals(this.hostname, other.hostname)) {
             return false;
         }
+
         if (!Objects.equals(this.port, other.port)) {
             return false;
         }
+
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+
+        hash = 97 * hash + super.hashCode();
+        hash = 97 * hash + Objects.hashCode(this.hostname);
+        hash = 97 * hash + Objects.hashCode(this.port);
+
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Subscription{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+               + ", modifiedDate=" + modifiedDate + "hostname=" + hostname + ", port=" + port + '}';
     }
 
     /**
@@ -93,31 +113,21 @@ public class Subscription extends Entity {
     }
 
     /**
-     * Returns the port.
-     *
-     * @return The port.
-     */
-    public Integer getPort() {
-        return port;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-
-        hash = 97 * hash + super.hashCode();
-        hash = 97 * hash + Objects.hashCode(this.hostname);
-        hash = 97 * hash + Objects.hashCode(this.port);
-        return hash;
-    }
-
-    /**
      * Sets the host name.
      *
      * @param hostname The host name.
      */
     public void setHostname(String hostname) {
         this.hostname = hostname;
+    }
+
+    /**
+     * Returns the port.
+     *
+     * @return The port.
+     */
+    public Integer getPort() {
+        return port;
     }
 
     /**
@@ -129,11 +139,6 @@ public class Subscription extends Entity {
         this.port = port;
     }
 
-    @Override
-    public String toString() {
-        return "Subscription{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
-                + ", modifiedDate=" + modifiedDate + "hostname=" + hostname + ", port=" + port + '}';
-    }
-
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

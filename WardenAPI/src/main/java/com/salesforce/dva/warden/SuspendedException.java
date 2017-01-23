@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,10 +17,11 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden;
 
-import com.salesforce.dva.warden.dto.Policy;
 import java.util.Objects;
+import com.salesforce.dva.warden.dto.Policy;
 
 /**
  * Indicates an operation was attempted by a suspended user.
@@ -30,18 +31,11 @@ import java.util.Objects;
  */
 public class SuspendedException extends Exception {
 
-    //~ Static fields/initializers *******************************************************************************************************************
-
     private static final long serialVersionUID = 1L;
-
-    //~ Instance fields ******************************************************************************************************************************
-
     private final Policy _policy;
     private final String _user;
     private final Long _expires;
     private final Double _value;
-
-    //~ Constructors *********************************************************************************************************************************
 
     /**
      * Creates a new SuspendedException object.
@@ -58,35 +52,51 @@ public class SuspendedException extends Exception {
         _value = value;
     }
 
-    //~ Methods **************************************************************************************************************************************
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
 
         final SuspendedException other = (SuspendedException) obj;
 
-        if (!Objects.equals(this._user, other._user)) {
+        if (!Objects.equals(_user, other._user)) {
             return false;
         }
-        if (!Objects.equals(this._policy, other._policy)) {
+
+        if (!Objects.equals(_policy, other._policy)) {
             return false;
         }
-        if (!Objects.equals(this._expires, other._expires)) {
+
+        if (!Objects.equals(_expires, other._expires)) {
             return false;
         }
-        if (!Objects.equals(this._value, other._value)) {
+
+        if (!Objects.equals(_value, other._value)) {
             return false;
         }
+
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+
+        hash = 17 * hash + Objects.hashCode(_policy);
+        hash = 17 * hash + Objects.hashCode(_user);
+        hash = 17 * hash + Objects.hashCode(_expires);
+        hash = 17 * hash + Objects.hashCode(_value);
+
+        return hash;
     }
 
     /**
@@ -125,15 +135,6 @@ public class SuspendedException extends Exception {
         return _value;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-
-        hash = 17 * hash + Objects.hashCode(this._policy);
-        hash = 17 * hash + Objects.hashCode(this._user);
-        hash = 17 * hash + Objects.hashCode(this._expires);
-        hash = 17 * hash + Objects.hashCode(this._value);
-        return hash;
-    }
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

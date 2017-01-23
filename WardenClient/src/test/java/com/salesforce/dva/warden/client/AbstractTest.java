@@ -32,13 +32,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesforce.dva.warden.client.WardenHttpClient.RequestType;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)
- */
 public abstract class AbstractTest {
 
     protected static final ObjectMapper MAPPER = new ObjectMapper();
@@ -52,22 +45,8 @@ public abstract class AbstractTest {
         nettyLogger.setLevel(ch.qos.logback.classic.Level.OFF);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param step
-     */
     protected void processRequest(HttpRequestResponse step) {}
 
-    /**
-     * Method description
-     *
-     *
-     * @param jsonFile
-     *
-     * @return
-     */
     WardenHttpClient getMockedClient(String jsonFile) {
         try {
             String endpoint = "https://localhost:8080/wardenws";
@@ -107,14 +86,7 @@ public abstract class AbstractTest {
         }
     }
 
-    /**
-     * Class description
-     *
-     *
-     * @version        Enter version here..., 2017
-     * @author         Tom Valine (tvaline@salesforce.com)
-     */
-    protected static class HttpRequestResponse {
+   protected static class HttpRequestResponse {
 
         private WardenHttpClient.RequestType type;
         private String endpoint;
@@ -125,122 +97,50 @@ public abstract class AbstractTest {
 
         private HttpRequestResponse() {}
 
-        /**
-         * Method description
-         *
-         *
-         * @return
-         */
         public String getEndpoint() {
             return endpoint;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @param endpoint
-         */
         public void setEndpoint(String endpoint) {
             this.endpoint = endpoint;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @return
-         */
         public String getJsonInput() {
             return jsonInput;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @param jsonInput
-         */
         public void setJsonInput(String jsonInput) {
             this.jsonInput = jsonInput;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @return
-         */
         public String getJsonOutput() {
             return jsonOutput;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @param jsonOutput
-         */
         public void setJsonOutput(String jsonOutput) {
             this.jsonOutput = jsonOutput;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @return
-         */
         public String getMessage() {
             return message;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @param message
-         */
         public void setMessage(String message) {
             this.message = message;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @return
-         */
         public int getStatus() {
             return status;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @param status
-         */
         public void setStatus(int status) {
             this.status = status;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @return
-         */
         public WardenHttpClient.RequestType getType() {
             return type;
         }
 
-        /**
-         * Method description
-         *
-         *
-         * @param type
-         */
         public void setType(WardenHttpClient.RequestType type) {
             this.type = type;
         }

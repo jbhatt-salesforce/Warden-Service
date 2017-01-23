@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,14 +17,15 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * Infraction record.
@@ -36,10 +37,7 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Infraction extends Entity {
 
-    //~ Static fields/initializers *******************************************************************************************************************
     private static final long serialVersionUID = 1L;
-
-    //~ Instance fields ******************************************************************************************************************************
     private BigInteger policyId;
     private BigInteger userId;
     private String username;
@@ -47,7 +45,6 @@ public class Infraction extends Entity {
     private Long expirationTimestamp;
     private Double value;
 
-    //~ Methods **************************************************************************************************************************************
     @Override
     public Infraction createExample() {
         Infraction result = new Infraction();
@@ -62,6 +59,7 @@ public class Infraction extends Entity {
         result.setInfractionTimestamp(1L);
         result.setExpirationTimestamp(10L);
         result.setValue(1.00);
+
         return result;
     }
 
@@ -70,9 +68,11 @@ public class Infraction extends Entity {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
@@ -82,79 +82,32 @@ public class Infraction extends Entity {
         if (!super.equals(other)) {
             return false;
         }
+
         if (!Objects.equals(this.username, other.username)) {
             return false;
         }
+
         if (!Objects.equals(this.policyId, other.policyId)) {
             return false;
         }
+
         if (!Objects.equals(this.userId, other.userId)) {
             return false;
         }
+
         if (!Objects.equals(this.infractionTimestamp, other.infractionTimestamp)) {
             return false;
         }
+
         if (!Objects.equals(this.expirationTimestamp, other.expirationTimestamp)) {
             return false;
         }
+
         if (!Objects.equals(this.value, other.value)) {
             return false;
         }
+
         return true;
-    }
-
-    /**
-     * Returns the timestamp for when the suspension expires.
-     *
-     * @return The expiration timestamp.
-     */
-    public Long getExpirationTimestamp() {
-        return expirationTimestamp;
-    }
-
-    /**
-     * Returns the timestamp for when the suspension began.
-     *
-     * @return The infraction timestamp.
-     */
-    public Long getInfractionTimestamp() {
-        return infractionTimestamp;
-    }
-
-    /**
-     * Returns the ID of the policy that was violated.
-     *
-     * @return The policy ID.
-     */
-    public BigInteger getPolicyId() {
-        return policyId;
-    }
-
-    /**
-     * Returns the ID of the user that violated policy.
-     *
-     * @return The user ID.
-     */
-    public BigInteger getUserId() {
-        return userId;
-    }
-
-    /**
-     * Returns the username of the user that violated policy.
-     *
-     * @return The username.
-     */
-    public String getUsername() {
-        return username;
-    }
-
-    /**
-     * Returns the value of the policy metric at the time of suspension.
-     *
-     * @return The value of the policy metric.
-     */
-    public Double getValue() {
-        return value;
     }
 
     @Override
@@ -168,7 +121,24 @@ public class Infraction extends Entity {
         hash = 11 * hash + Objects.hashCode(this.infractionTimestamp);
         hash = 11 * hash + Objects.hashCode(this.expirationTimestamp);
         hash = 11 * hash + Objects.hashCode(this.value);
+
         return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Infraction{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+               + ", modifiedDate=" + modifiedDate + "policyId=" + policyId + ", userId=" + userId + ", username=" + username
+               + ", infractionTimestamp=" + infractionTimestamp + ", expirationTimestamp=" + expirationTimestamp + ", value=" + value + '}';
+    }
+
+    /**
+     * Returns the timestamp for when the suspension expires.
+     *
+     * @return The expiration timestamp.
+     */
+    public Long getExpirationTimestamp() {
+        return expirationTimestamp;
     }
 
     /**
@@ -181,12 +151,30 @@ public class Infraction extends Entity {
     }
 
     /**
+     * Returns the timestamp for when the suspension began.
+     *
+     * @return The infraction timestamp.
+     */
+    public Long getInfractionTimestamp() {
+        return infractionTimestamp;
+    }
+
+    /**
      * Sets the timestamp for when the suspension began.
      *
      * @param infractionTimestamp The infraction timestamp.
      */
     public void setInfractionTimestamp(Long infractionTimestamp) {
         this.infractionTimestamp = infractionTimestamp;
+    }
+
+    /**
+     * Returns the ID of the policy that was violated.
+     *
+     * @return The policy ID.
+     */
+    public BigInteger getPolicyId() {
+        return policyId;
     }
 
     /**
@@ -199,12 +187,30 @@ public class Infraction extends Entity {
     }
 
     /**
+     * Returns the ID of the user that violated policy.
+     *
+     * @return The user ID.
+     */
+    public BigInteger getUserId() {
+        return userId;
+    }
+
+    /**
      * Sets the user ID for the user that violated policy.
      *
      * @param userId The user ID.
      */
     public void setUserId(BigInteger userId) {
         this.userId = userId;
+    }
+
+    /**
+     * Returns the username of the user that violated policy.
+     *
+     * @return The username.
+     */
+    public String getUsername() {
+        return username;
     }
 
     /**
@@ -217,6 +223,15 @@ public class Infraction extends Entity {
     }
 
     /**
+     * Returns the value of the policy metric at the time of suspension.
+     *
+     * @return The value of the policy metric.
+     */
+    public Double getValue() {
+        return value;
+    }
+
+    /**
      * Sets the value of the policy metric at the time the infraction was incurred.
      *
      * @param value The value.
@@ -225,12 +240,6 @@ public class Infraction extends Entity {
         this.value = value;
     }
 
-    @Override
-    public String toString() {
-        return "Infraction{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
-                + ", modifiedDate=" + modifiedDate + "policyId=" + policyId + ", userId=" + userId + ", username=" + username
-                + ", infractionTimestamp=" + infractionTimestamp + ", expirationTimestamp=" + expirationTimestamp + ", value=" + value + '}';
-    }
-
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

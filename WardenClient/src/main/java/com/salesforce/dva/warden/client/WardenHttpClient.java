@@ -218,6 +218,3 @@ class WardenHttpClient {
 }
 
 /* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
-
-
-

@@ -29,13 +29,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.salesforce.dva.warden.dto.*;
 import com.salesforce.dva.warden.dto.Resource.MetaKey;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)
- */
 public class UserServiceTest extends AbstractTest {
 
     private Infraction _constructPersistedInfraction() throws JsonProcessingException {
@@ -175,12 +168,6 @@ public class UserServiceTest extends AbstractTest {
         return result;
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetInfractionsForUser() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
@@ -192,12 +179,6 @@ public class UserServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetInfractionsForUserAndPolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
@@ -209,12 +190,6 @@ public class UserServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetPoliciesByUser() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
@@ -226,12 +201,6 @@ public class UserServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetSuspensionsionForUser() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
@@ -243,12 +212,6 @@ public class UserServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetSuspensionsionsForUser() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
@@ -260,12 +223,6 @@ public class UserServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetUserById() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
@@ -277,12 +234,6 @@ public class UserServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetUsers() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/UserServiceTests.json"))) {
