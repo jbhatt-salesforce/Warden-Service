@@ -66,11 +66,11 @@ public interface WaaSService {
 
     public List<Metric> getMetrics(BigInteger id, String username, String start, String end);
 
-    public Iterable<Policy> getPoliciesForUsername(String username);
+    public List<Policy> getPoliciesForUsername(String username);
 
-    public Iterable<Infraction> getSuspensionsByUsername(String username);
+    public List<Infraction> getSuspensionsByUsername(String username);
 
-    public Object getPolicyByNameAndService(String name, String service);
+    public Policy getPolicyByNameAndService(String name, String service);
 
     public List<Policy> getPolicies();
 
