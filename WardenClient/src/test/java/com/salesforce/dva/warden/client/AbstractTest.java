@@ -84,7 +84,7 @@ public abstract class AbstractTest {
                 when(mockedResponse.getStatusLine()).thenReturn(mockedStatusLine);
                 doReturn(mockedResponse).when(client).doHttpRequest(step.type, endpoint + step.endpoint, step.jsonInput);
 
-                if (step.getEndpoint().matches("/policy/\\d*/user/.*/metric")) {
+                if (step.getEndpoint().matches("/policy/\\d*/user/.*/metric/[\\d,.]*")) {
                     doAnswer(new Answer() {
 
                                  @Override

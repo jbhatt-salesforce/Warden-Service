@@ -98,8 +98,8 @@ public class MetricUpdaterTest extends AbstractTest {
             Thread.currentThread().sleep(90000);
             client.unregister();
             assertTrue(interceptedRequests.size() == 1);
-            assertTrue(interceptedRequests.get(0).getJsonInput().contains("1.0"));
-            assertTrue(interceptedRequests.get(0).getEndpoint().equals("/policy/" + policy.getId() + "/user/hpotter/metric"));
+            assertTrue(interceptedRequests.get(0).getJsonInput()==null);
+            assertTrue(interceptedRequests.get(0).getEndpoint().equals("/policy/" + policy.getId() + "/user/hpotter/metric/1.0"));
             assertTrue(interceptedRequests.get(0).getType().equals(RequestType.PUT));
         }
     }

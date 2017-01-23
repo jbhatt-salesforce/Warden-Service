@@ -1,4 +1,4 @@
-package com.salesforce.dva.argus.service.warden;
+package com.salesforce.dva.argus.service.alert.notifier;
 
 
 import java.util.ArrayList;

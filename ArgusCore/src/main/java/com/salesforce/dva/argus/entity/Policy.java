@@ -82,6 +82,7 @@ import com.salesforce.dva.argus.util.WaaSObjectConverter;
         }
 )
 public class Policy extends JPAEntity {
+
     //~ Instance fields ******************************************************************************************************************************
 
     @Basic(optional = false)
@@ -181,6 +182,21 @@ public class Policy extends JPAEntity {
     }
     //~ Methods **************************************************************************************************************************************
 
+    /**
+     * Returns all policies where the supplied username is matched by an entry in the policy user regular expression list.
+     * 
+     * @param em The entity manager.  Cannot be null.
+     * @param username The username to match.  Cannot be null or empty.
+     * @return The list of matching policies.
+     */
+    public static List<Policy> findByUsername(EntityManager em, String username) {
+        requireArgument(em != null, "Entity manager can not be null.");
+        requireArgument(username != null && !username.isEmpty(), "Username cannot be null or empty.");
+        TypedQuery<Policy> query = em.createNamedQuery("Policy.findAll", Policy.class);
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        List<Policy> unfiltered = query.getResultList();
+        return unfiltered.stream().filter(p->p.users.stream().anyMatch(u->username.matches(u))).collect(Collectors.toList());
+    }
     /**
      * Finds a policy given its name and service.
      *

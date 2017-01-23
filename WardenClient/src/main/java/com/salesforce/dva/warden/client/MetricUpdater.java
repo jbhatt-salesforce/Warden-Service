@@ -74,7 +74,7 @@ class MetricUpdater extends Thread {
                     metric.put(time, v);
 
                     try {
-                        policyService.updateMetricsForUserAndPolicy(BigInteger.class.cast(items.get(0)), items.get(1).toString(), metric);
+                        policyService.updateMetricsForUserAndPolicy(BigInteger.class.cast(items.get(0)), items.get(1).toString(), v);
                     } catch (IOException ex) {
                         LoggerFactory.getLogger(getClass()).warn("Failed to update metric.", ex);
                     }
@@ -90,6 +90,3 @@ class MetricUpdater extends Thread {
 }
 
 /* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
-
-
-

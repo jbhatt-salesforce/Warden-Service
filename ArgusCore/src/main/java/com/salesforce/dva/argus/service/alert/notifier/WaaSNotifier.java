@@ -29,7 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 	 
-package com.salesforce.dva.argus.service.warden;
+package com.salesforce.dva.argus.service.alert.notifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -60,6 +60,7 @@ import javax.persistence.EntityManager;
 
 import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 import io.netty.buffer.ByteBufUtil;
+import java.math.BigInteger;
 
 /**
  * Default implementation of the warden as a service notifier. This WaaS
@@ -123,8 +124,8 @@ public  class WaaSNotifier extends DefaultNotifier {
     protected void sendAdditionalNotification(NotificationContext context){
     	List<String> nameAndService = _parseMetricExpression(context);
     	//Policy policy = _waaSService.getPolicy(nameAndService.get(0),nameAndService.get(1));
-    	Policy policy = _waaSService.getPolicy("policyName.descriptor.max","service");
-    	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUsername(), policy, Double.valueOf(context.getTriggerEventValue()));
+    	Policy policy = _waaSService.getPolicy(BigInteger.ONE);
+//    	Infraction newInfraction = _waaSService.suspendUser(getWaaSUser(context.getAlert().getName()).getUsername(), policy, Double.valueOf(context.getTriggerEventValue()));
     	
     	//wrap warden event data
 /*    	WardenEvent wardenEvent = new WardenEvent();

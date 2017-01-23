@@ -53,7 +53,7 @@ import com.salesforce.dva.argus.util.WaaSObjectConverter;
     {
         @NamedQuery(
                 name = "SuspensionLevel.findByPolicyAndLevel", 
-                query = "SELECT r FROM SuspensionLevel r WHERE r.policy = :policy and r.id = :id"
+                query = "SELECT r FROM SuspensionLevel r WHERE r.policy.id = :policyId and r.id = :levelId"
         ),
         @NamedQuery(
                 name = "SuspensionLevel.findByPolicy", 
@@ -110,22 +110,22 @@ public class SuspensionLevel extends JPAEntity {
      * Finds an suspension given its policy and level number.
      *
      * @param   em        			The entity manager to use. Cannot be null.
-     * @param   policy  			The policy associated with this suspension level. Cannot be null.
-     * @param   levelNumber			The level number associated with this suspension level. Cannot be null.
+     * @param   policyId  			The policy ID associated with this suspension level. Cannot be null.
+     * @param   levelId			The level ID associated with this suspension level. Cannot be null.
      *
      * @return  The corresponding suspension or null if no suspension level having the specified policy and level number exist.
      */
-    public static SuspensionLevel findByPolicyAndLevel(EntityManager em, Policy policy, BigInteger id) {
+    public static SuspensionLevel findByPolicyAndLevel(EntityManager em, BigInteger policyId, BigInteger levelId) {
         requireArgument(em != null, "Entity manager can not be null.");
-        requireArgument(policy != null , "Policy cannot be null");
-        requireArgument(id.signum() == 1, "Level must be greater than zero.");
+        requireArgument(policyId != null && policyId.signum()>=0 , "Invalid policy ID.");
+        requireArgument(levelId != null && levelId.signum() >= 1, "Invalid level ID.");
 
         TypedQuery<SuspensionLevel> query = em.createNamedQuery("SuspensionLevel.findByPolicyAndLevel", SuspensionLevel.class);
 
         
         try {
-            query.setParameter("policy", policy);
-            query.setParameter("id", id);
+            query.setParameter("policyId", policyId);
+            query.setParameter("levelId", levelId);
             query.setHint("javax.persistence.cache.storeMode", "REFRESH");
             return query.getSingleResult();
         } catch (NoResultException ex) {

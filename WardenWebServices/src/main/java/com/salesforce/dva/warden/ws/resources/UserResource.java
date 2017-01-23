@@ -103,7 +103,7 @@ public class UserResource extends AbstractResource {
 
         requireThat(user != null, "User was not found.", Status.NOT_FOUND);
 
-        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getInfractionsByUser(user)) {
+        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getInfractionsByUsername(user.getUsername())) {
             if (remoteUser.isPrivileged() || username.equals(remoteUsername)) {
                 infractions.add(infraction);
             }
@@ -155,7 +155,7 @@ public class UserResource extends AbstractResource {
 
         requireThat(policy != null, "Policy not found.", Status.NOT_FOUND);
 
-        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getInfractionsByPolicyAndUsername(policy, username)) {
+        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getInfractionsByPolicyAndUsername(policy.getId(), username)) {
             if (remoteUser.isPrivileged() || username.equals(remoteUsername)) {
                 infractions.add(infraction);
             }
@@ -218,7 +218,7 @@ public class UserResource extends AbstractResource {
         String message, uiMessage, devMessage;
 
         if (remoteUser.isPrivileged() || username.equals(remoteUsername)) {
-            List<com.salesforce.dva.argus.entity.Metric> metrics = waaSService.getMetrics(policy, user, start, end);
+            List<com.salesforce.dva.argus.entity.Metric> metrics = waaSService.getMetrics(policy.getId(), user.getUsername(), start, end);
 
             for (com.salesforce.dva.argus.entity.Metric metric : metrics) {
                 if (username.equals(remoteUsername)) {
@@ -265,7 +265,7 @@ public class UserResource extends AbstractResource {
         List<Resource<Policy>> result = new ArrayList<>();
         List<com.salesforce.dva.argus.entity.Policy> policies = new ArrayList<>();
 
-        for (com.salesforce.dva.argus.entity.Policy policy : waaSService.getPoliciesForUser(username)) {
+        for (com.salesforce.dva.argus.entity.Policy policy : waaSService.getPoliciesForUsername(username)) {
             if (remoteUser.isPrivileged() || username.equals(remoteUsername)) {
                 if (!remoteUser.isPrivileged()) {
                     policy.setUsers(Arrays.asList(new String[] { username }));
@@ -344,7 +344,7 @@ public class UserResource extends AbstractResource {
 
         requireThat(user != null, "User was not found.", Status.NOT_FOUND);
 
-        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getSuspensionsByUser(user)) {
+        for (com.salesforce.dva.argus.entity.Infraction infraction : waaSService.getSuspensionsByUsername(user.getUsername())) {
             if (remoteUser.isPrivileged() || username.equals(remoteUsername)) {
                 infractions.add(infraction);
             }
