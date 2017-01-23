@@ -36,6 +36,7 @@ import java.util.List;
  */
 public interface WaaSService {
 
+    
     public Infraction getInfraction(BigInteger infractionId);
     
     public Infraction updateInfraction(Infraction infraction);
