@@ -47,6 +47,7 @@ public class WaaSNotifier extends DefaultNotifier {
 
     private final WaaSService _waaSService;
     private final UserService _userService;
+    private static final long MILLIS_PER_MONTH = 30*24*3600*1000;
 
     /**
      * Constructs ...
@@ -80,11 +81,8 @@ public class WaaSNotifier extends DefaultNotifier {
             Policy policy = _waaSService.getPolicy(policyId);
             PrincipalUser admin = _userService.findAdminUser();
             PrincipalUser user = _userService.findUserByUsername(username);
-            String timeUnit = policy.getTimeUnit();
-            TimeUnit unit = TimeUnit.fromString(policy.getTimeUnit().substring(policy.getTimeUnit().length() - 1));
-            long offset = Long.valueOf(timeUnit.substring(0, timeUnit.length())) * unit.getValue();
             List<Infraction> infractions = _waaSService.getInfractionsByPolicyAndUsername(policyId, username);
-            Long count = infractions.stream().filter(i -> i.getInfractionTimestamp() >= context.getTriggerFiredTime() - offset).collect(Collectors.counting())
+            Long count = infractions.stream().filter(i -> i.getInfractionTimestamp() >= context.getTriggerFiredTime() - MILLIS_PER_MONTH).collect(Collectors.counting())
                     + 1;
             List<SuspensionLevel> levels = policy.getSuspensionLevels().stream().filter(l -> l.getInfractionCount() <= count).sorted((SuspensionLevel o1, SuspensionLevel o2)
                     -> Integer.compare(o1.getInfractionCount(), o2.getInfractionCount())).collect(Collectors.toList());
