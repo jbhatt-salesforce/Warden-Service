@@ -60,11 +60,13 @@ import javax.persistence.TypedQuery;
     ),
     @NamedQuery(
             name = "Infraction.deleteExpired",
-            query = "DELETE FROM Infraction r WHERE r.expirationTimestamp IS NOT NULL AND r.expirationTimestamp >= 0 AND r.expirationTimestamp < :time"
+            query = "DELETE FROM Infraction r WHERE r.infractionTimestamp < :time"
     )
 })
 
 public class Infraction extends JPAEntity {
+
+    private static final long MONTH_IN_MILLIS = 30*24*3600*1000;
 
     /**
      * Returns all suspensions for the specified user.
@@ -84,7 +86,7 @@ public class Infraction extends JPAEntity {
     public static void deleteExpired(EntityManager em) {
         requireArgument(em != null, "Entity manager can not be null.");
         Query query = em.createNamedQuery("Infraction.deleteExpired");
-        query.setParameter("time", System.currentTimeMillis());
+        query.setParameter("time", System.currentTimeMillis()-MONTH_IN_MILLIS);
         query.executeUpdate();
     }
 
