@@ -32,13 +32,6 @@ import com.salesforce.dva.warden.dto.Resource;
 import com.salesforce.dva.warden.dto.Resource.MetaKey;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)    
- */
 public class PolicyServiceTest extends AbstractTest {
 
     private Infraction _constructPersistedInfraction() throws JsonProcessingException {
@@ -193,12 +186,6 @@ public class PolicyServiceTest extends AbstractTest {
         return result;
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testCreatePolicies() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -210,12 +197,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testCreateSuspensionLevels() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -228,12 +209,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testDeletePolicies() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -246,12 +221,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testDeletePolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -263,12 +232,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOExceptiong
-     */
     @Test
     public void testDeleteSuspensionLevel() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -280,12 +243,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testDeleteSuspensionLevels() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -297,12 +254,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testDeleteSuspensions() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -314,12 +265,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testDeleteSuspensionsForUserAndPolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -331,12 +276,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetInfraction() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -348,12 +287,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetInfractions() throws IOException {
         _constructPersistedInfraction();
@@ -367,12 +300,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetPolicies() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -383,12 +310,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetPolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -400,12 +321,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetSuspensionLevel() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -417,12 +332,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetSuspensionLevels() throws IOException {
         _constructPersistedResponseSuspensionLevel("GET");
@@ -436,12 +345,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetSuspensions() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -453,12 +356,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testGetSuspensionsForUserAndPolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -470,12 +367,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testUpdatePolicies() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -487,12 +378,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testUpdatePolicy() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -509,12 +394,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testUpdateSuspensionLevel() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {
@@ -531,12 +410,6 @@ public class PolicyServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testUpdateSuspensionLevels() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/PolicyServiceTest.testGetPolicies.json"))) {

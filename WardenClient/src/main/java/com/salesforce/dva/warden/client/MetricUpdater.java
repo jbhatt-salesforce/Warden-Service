@@ -17,7 +17,6 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
-
 package com.salesforce.dva.warden.client;
 
 import java.io.IOException;
@@ -29,19 +28,19 @@ import com.salesforce.dva.warden.client.DefaultWardenClient.ValueCache;
 /**
  * Periodically pushes cached policy values for users to the server..
  *
- * @author  Jigna Bhatt (jbhatt@salesforce.com)
- * @author  Tom Valine (tvaline@salesforce.com)
+ * @author Jigna Bhatt (jbhatt@salesforce.com)
+ * @author Tom Valine (tvaline@salesforce.com)
  */
-class MetricUpdater extends Thread {
+class MetricUpdater implements Runnable {
 
-    private ValueCache _values;
-    private WardenService _wardenService;
+    private final ValueCache _values;
+    private final WardenService _wardenService;
 
     /**
      * Creates a new MetricUpdater object.
      *
-     * @param  values         The value cache containing the metric values to push to the server. Cannot be null. Must be thread safe.
-     * @param  wardenService  The warden service to use. Cannot be null.
+     * @param values The value cache containing the metric values to push to the server. Cannot be null. Must be thread safe.
+     * @param wardenService The warden service to use. Cannot be null.
      */
     MetricUpdater(ValueCache values, WardenService wardenService) {
         _values = values;
@@ -50,23 +49,13 @@ class MetricUpdater extends Thread {
 
     @Override
     public void run() {
-        long delta = 0;
 
-        while (!Thread.interrupted()) {
-            try {
-                Thread.sleep(60000 - delta);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+        Long start = System.currentTimeMillis();
+        Long time = (start / 60000) * 60000;
+        Map<String, Double> copyOfValues = new HashMap<>(_values);
+        PolicyService policyService = _wardenService.getPolicyService();
 
-                continue;
-            }
-
-            Long start = System.currentTimeMillis();
-            Long time = (start / 60000) * 60000;
-            Map<String, Double> copyOfValues = new HashMap<>(_values);
-            PolicyService policyService = _wardenService.getPolicyService();
-
-            copyOfValues.forEach(
+        copyOfValues.forEach(
                 (String k, Double v) -> {
                     List<Object> items = _values.getKeyComponents(k);
                     Map<Long, Double> metric = new HashMap<>();
@@ -78,13 +67,8 @@ class MetricUpdater extends Thread {
                     } catch (IOException ex) {
                         LoggerFactory.getLogger(getClass()).warn("Failed to update metric.", ex);
                     }
-                } );
+                });
 
-            delta = System.currentTimeMillis() - start;
-        }
-
-        _values = null;
-        _wardenService = null;
     }
 
 }

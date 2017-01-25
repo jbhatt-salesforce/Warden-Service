@@ -25,21 +25,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import com.salesforce.dva.warden.dto.User;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)
- */
 public class AuthServiceTest extends AbstractTest {
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testBadLogin() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
@@ -50,12 +37,6 @@ public class AuthServiceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     */
     @Test
     public void testLoginLogout() throws IOException {
         try (WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {

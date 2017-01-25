@@ -5,7 +5,6 @@ import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -16,12 +15,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
-
-import com.salesforce.dva.argus.util.WaaSObjectConverter;
 
 /**
  * The entity encapsulates information about the infraction. There are no uniqueness constraints in this entity.
@@ -61,6 +57,10 @@ import com.salesforce.dva.argus.util.WaaSObjectConverter;
     @NamedQuery(
             name = "Infraction.findSuspensionsByUsername",
             query = "SELECT r FROM Infraction r WHERE r.user.username = :username AND r.expirationTimestamp IS NOT NULL"
+    ),
+    @NamedQuery(
+            name = "Infraction.deleteExpired",
+            query = "DELETE FROM Infraction r WHERE r.expirationTimestamp IS NOT NULL AND r.expirationTimestamp >= 0 AND r.expirationTimestamp < :time"
     )
 })
 
@@ -79,6 +79,13 @@ public class Infraction extends JPAEntity {
         TypedQuery<Infraction> query = em.createNamedQuery("Infraction.findSuspensionsByUsername", Infraction.class);
         query.setHint("javax.persistence.cache.storeMode", "REFRESH");
         return query.getResultList();
+    }
+
+    public static void deleteExpired(EntityManager em) {
+        requireArgument(em != null, "Entity manager can not be null.");
+        Query query = em.createNamedQuery("Infraction.deleteExpired");
+        query.setParameter("time", System.currentTimeMillis());
+        query.executeUpdate();
     }
 
     @ManyToOne(optional = false)
@@ -107,9 +114,10 @@ public class Infraction extends JPAEntity {
      * @param policy The policy associated with this infraction. Cannot be null.
      * @param user The user name associated with this infraction. Cannot be null.
      * @param infractionTimestamp The infraction timestamp of this infraction. Cannot be null.
-     * @param expirationTimestamp The expiration timestamp of this infraction. Cannot be null.
+     * @param expirationTimestamp The expiration timestamp of this infraction.  If -1 then the suspension is indefinite.  If null, the infraction
+     * doesn't correspond to a suspension.
      */
-    public Infraction(PrincipalUser creator, Policy policy, PrincipalUser user, long infractionTimestamp, long expirationTimestamp, Double value) {
+    public Infraction(PrincipalUser creator, Policy policy, PrincipalUser user, Long infractionTimestamp, Long expirationTimestamp, Double value) {
         super(creator);
         setPolicy(policy);
         setUser(user);
@@ -304,30 +312,6 @@ public class Infraction extends JPAEntity {
 
     public void setExpirationTimestamp(Long expirationTimestamp) {
         this.expirationTimestamp = expirationTimestamp;
-    }
-
-    public static List<com.salesforce.dva.warden.dto.Infraction> transformToDto(List<Infraction> infractions) {
-        if (infractions == null) {
-            throw new WebApplicationException("Null entity object cannot be converted to Dto object.",
-                    Status.INTERNAL_SERVER_ERROR);
-        }
-
-        return infractions.stream().map(Infraction::transformToDto).collect(Collectors.toList());
-    }
-
-    public static com.salesforce.dva.warden.dto.Infraction transformToDto(Infraction infraction) {
-        if (infraction == null) {
-            throw new WebApplicationException("Null entity object cannot be converted to Dto object.",
-                    Status.INTERNAL_SERVER_ERROR);
-        }
-
-        com.salesforce.dva.warden.dto.Infraction result = WaaSObjectConverter.createDtoObject(com.salesforce.dva.warden.dto.Infraction.class, infraction);
-        result.setPolicyId(infraction.getId());
-        result.setUserId(infraction.getUser().getId());
-        result.setInfractionTimestamp(infraction.getInfractionTimestamp());
-        result.setExpirationTimestamp(infraction.getExpirationTimestamp());
-
-        return result;
     }
 
     @Override

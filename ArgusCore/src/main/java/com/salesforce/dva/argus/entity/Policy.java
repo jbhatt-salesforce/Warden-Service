@@ -2,7 +2,6 @@ package com.salesforce.dva.argus.entity;
 
 import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 
-import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +23,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
 
 import com.salesforce.dva.warden.dto.Policy.TriggerType;
 import com.salesforce.dva.warden.dto.Policy.Aggregator;
 import com.salesforce.dva.argus.util.Cron;
-import com.salesforce.dva.argus.util.WaaSObjectConverter;
 
 /**
  * The entity encapsulates information about the policy.

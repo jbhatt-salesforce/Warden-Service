@@ -42,7 +42,6 @@ import com.salesforce.dva.argus.entity.Metric;
 import com.salesforce.dva.argus.entity.Notification;
 import com.salesforce.dva.argus.entity.Policy;
 import com.salesforce.dva.argus.entity.PrincipalUser;
-import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
 import com.salesforce.dva.argus.entity.Trigger;
 import com.salesforce.dva.argus.entity.Trigger.TriggerType;
@@ -67,7 +66,7 @@ import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 @Singleton
 public class DefaultWaaSService extends DefaultJPAService implements WaaSService {
 
-    private final static String ALERT_PREFIX = "__waas-";
+    public final static String ALERT_PREFIX = "__waas-";
     private static final long ALERT_UPDATE_INTERVAL_MS = 15 * 60 * 1000;
     private static final long ALERT_AUDIT_INTERVAL_MS = 24 * 60 * 60 * 1000;
     @SLF4JTypeListener.InjectLogger
@@ -175,7 +174,7 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
                               }
                           } );
             } ,
-            ALERT_AUDIT_INTERVAL_MS,
+            0L,
             ALERT_AUDIT_INTERVAL_MS,
             TimeUnit.MILLISECONDS);
         service.scheduleAtFixedRate(
@@ -192,10 +191,13 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
                         }
                     } );
             } ,
-            ALERT_UPDATE_INTERVAL_MS,
+            0L,
             ALERT_UPDATE_INTERVAL_MS,
             TimeUnit.MILLISECONDS);
 
+        service.scheduleAtFixedRate(()->{
+            Infraction.deleteExpired(emf.get());
+        }, 12L, 24L, TimeUnit.HOURS);
         return service;
     }
 
@@ -280,19 +282,6 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
 
     @Override
     @Transactional
-    public void deleteSubscription(BigInteger subscriptionId) {
-        requireNotDisposed();
-        requireArgument((subscriptionId != null) && (subscriptionId.signum() >= 0), "Invalid subscription ID.");
-
-        EntityManager em = emf.get();
-
-        deleteEntity(em, subscriptionId, Subscription.class);
-        _logger.debug("Deleted subscription {}.", subscriptionId);
-        em.flush();
-    }
-
-    @Override
-    @Transactional
     public void deleteSuspensionLevel(BigInteger suspensionLevelId) {
         requireNotDisposed();
         requireArgument((suspensionLevelId != null) && (suspensionLevelId.signum() >= 0), "Invalid suspension level ID.");
@@ -357,21 +346,6 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
         Policy result = mergeEntity(em, policy);
 
         _logger.debug("Updated policy to : {}", result);
-        em.flush();
-
-        return result;
-    }
-
-    @Override
-    @Transactional
-    public Subscription updateSubscription(Subscription subscription) {
-        requireNotDisposed();
-        requireArgument(subscription != null, "Invalid subscription.");
-
-        EntityManager em = emf.get();
-        Subscription result = mergeEntity(em, subscription);
-
-        _logger.debug("Updated subscription to : {}", result);
         em.flush();
 
         return result;
@@ -521,19 +495,6 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
         Policy result = Policy.findByNameAndService(em, name, service);
 
         _logger.debug("Query for policy returned {}.", result);
-
-        return result;
-    }
-
-    @Override
-    @Transactional
-    public Subscription getSubscription(BigInteger subscriptionId) {
-        requireNotDisposed();
-        requireArgument((subscriptionId != null) && (subscriptionId.signum() >= 0), "Invalid subscription ID.");
-
-        Subscription result = findEntity(emf.get(), subscriptionId, Subscription.class);
-
-        _logger.debug("Query for subscription having id {} returned {},", subscriptionId, result);
 
         return result;
     }

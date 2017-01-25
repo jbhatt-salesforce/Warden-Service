@@ -17,27 +17,48 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+package com.salesforce.dva.warden.client;
 
-package com.salesforce.dva.warden.dto;
-
-import java.io.Serializable;
+import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.*;
+import org.slf4j.LoggerFactory;
 
 /**
- * The base DTO object class.
+ * Periodically pushes cached policy values for users to the server..
  *
- * @param <B> The concrete subclass type.
- *
- * @author Jigna Bhatt (jbhatt@salesfoce.com)
+ * @author Jigna Bhatt (jbhatt@salesforce.com)
+ * @author Tom Valine (tvaline@salesforce.com)
  */
-public abstract class Base<B extends Base<B>> implements Serializable {
+class InfractionUpdater implements Runnable {
+
+    private final InfractionCache _infractions;
+    private final WardenService _wardenService;
+    private final Set<BigInteger> _policyIds;
 
     /**
-     * Implementations of this method are required to generate an instance of the DTO object containing sample data that can be serialized and
-     * included in documentation.
+     * Creates a new MetricUpdater object.
      *
-     * @return An instance of the object populated with sample data.
+     * @param infractions The value cache containing the metric values to push to the server. Cannot be null. Must be thread safe.
+     * @param wardenService The warden service to use. Cannot be null.
      */
-    public abstract B createExample();
+    InfractionUpdater(Set<BigInteger> policyIds, InfractionCache infractions, WardenService wardenService) {
+        _infractions = infractions;
+        _wardenService = wardenService;
+        _policyIds = policyIds;
+    }
+
+    @Override
+    public void run() {
+        _policyIds.stream().forEach(id -> {
+            try {
+                _wardenService.getPolicyService().getSuspensions(id).getResources().stream().forEach(i->_infractions.put(i.getEntity()));
+            } catch (IOException ex) {
+                LoggerFactory.getLogger(getClass()).warn("Failed to update suspensions for {}: {}.", id, ex);
+            }
+        });
+    }
 
 }
 

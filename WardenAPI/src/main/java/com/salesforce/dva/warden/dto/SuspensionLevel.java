@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
  * All rights reserved.
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,14 +17,15 @@
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
 package com.salesforce.dva.warden.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * Suspension level for a policy.
@@ -37,16 +38,12 @@ import java.util.Objects;
 @JsonPropertyOrder(alphabetic = true)
 public class SuspensionLevel extends Entity {
 
-    //~ Static fields/initializers *******************************************************************************************************************
     private static final long serialVersionUID = 1L;
-
-    //~ Instance fields ******************************************************************************************************************************
     private BigInteger policyId;
     private Integer levelNumber;
     private Integer infractionCount;
     private BigInteger suspensionTime;
 
-    //~ Methods **************************************************************************************************************************************
     @Override
     public SuspensionLevel createExample() {
         SuspensionLevel result = new SuspensionLevel();
@@ -59,6 +56,7 @@ public class SuspensionLevel extends Entity {
         result.setLevelNumber(1);
         result.setInfractionCount(4);
         result.setSuspensionTime(BigInteger.TEN);
+
         return result;
     }
 
@@ -67,9 +65,11 @@ public class SuspensionLevel extends Entity {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
@@ -79,19 +79,44 @@ public class SuspensionLevel extends Entity {
         if (!super.equals(other)) {
             return false;
         }
+
         if (!Objects.equals(this.policyId, other.policyId)) {
             return false;
         }
+
         if (!Objects.equals(this.levelNumber, other.levelNumber)) {
             return false;
         }
+
         if (!Objects.equals(this.infractionCount, other.infractionCount)) {
             return false;
         }
+
         if (!Objects.equals(this.suspensionTime, other.suspensionTime)) {
             return false;
         }
+
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+
+        hash = 37 * hash + super.hashCode();
+        hash = 37 * hash + Objects.hashCode(this.policyId);
+        hash = 37 * hash + Objects.hashCode(this.levelNumber);
+        hash = 37 * hash + Objects.hashCode(this.infractionCount);
+        hash = 37 * hash + Objects.hashCode(this.suspensionTime);
+
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "SuspensionLevel{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
+               + ", modifiedDate=" + modifiedDate + "policyId=" + policyId + ", levelNumber=" + levelNumber + ", infractionCount=" + infractionCount
+               + ", suspensionTime=" + suspensionTime + '}';
     }
 
     /**
@@ -104,51 +129,21 @@ public class SuspensionLevel extends Entity {
     }
 
     /**
-     * Returns the ordinal of the level used to order the levels for a policy.
-     *
-     * @return The level number.
-     */
-    public Integer getLevelNumber() {
-        return levelNumber;
-    }
-
-    /**
-     * Returns the policy ID with which the level is associated.
-     *
-     * @return The policy ID.
-     */
-    public BigInteger getPolicyId() {
-        return policyId;
-    }
-
-    /**
-     * Returns the duration of a suspension associated with this level.
-     *
-     * @return The suspension duration.
-     */
-    public BigInteger getSuspensionTime() {
-        return suspensionTime;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-
-        hash = 37 * hash + super.hashCode();
-        hash = 37 * hash + Objects.hashCode(this.policyId);
-        hash = 37 * hash + Objects.hashCode(this.levelNumber);
-        hash = 37 * hash + Objects.hashCode(this.infractionCount);
-        hash = 37 * hash + Objects.hashCode(this.suspensionTime);
-        return hash;
-    }
-
-    /**
      * Sets the number of infractions required before a suspension is incurred.
      *
      * @param infractionCount The infraction count.
      */
     public void setInfractionCount(Integer infractionCount) {
         this.infractionCount = infractionCount;
+    }
+
+    /**
+     * Returns the ordinal of the level used to order the levels for a policy.
+     *
+     * @return The level number.
+     */
+    public Integer getLevelNumber() {
+        return levelNumber;
     }
 
     /**
@@ -161,12 +156,30 @@ public class SuspensionLevel extends Entity {
     }
 
     /**
+     * Returns the policy ID with which the level is associated.
+     *
+     * @return The policy ID.
+     */
+    public BigInteger getPolicyId() {
+        return policyId;
+    }
+
+    /**
      * Sets the policy ID with which the level is associated.
      *
      * @param policyId The policy ID.
      */
     public void setPolicyId(BigInteger policyId) {
         this.policyId = policyId;
+    }
+
+    /**
+     * Returns the duration of a suspension associated with this level.
+     *
+     * @return The suspension duration.
+     */
+    public BigInteger getSuspensionTime() {
+        return suspensionTime;
     }
 
     /**
@@ -178,12 +191,6 @@ public class SuspensionLevel extends Entity {
         this.suspensionTime = suspensionTime;
     }
 
-    @Override
-    public String toString() {
-        return "SuspensionLevel{" + "id=" + id + ", createdById=" + createdById + ", createdDate=" + createdDate + ", modifiedById=" + modifiedById
-                + ", modifiedDate=" + modifiedDate + "policyId=" + policyId + ", levelNumber=" + levelNumber + ", infractionCount=" + infractionCount
-                + ", suspensionTime=" + suspensionTime + '}';
-    }
-
 }
-/* Copyright (c) 2015-2016, Salesforce.com, Inc.  All rights reserved. */
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */

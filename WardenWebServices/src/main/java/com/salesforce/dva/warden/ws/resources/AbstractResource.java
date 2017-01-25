@@ -54,7 +54,6 @@ import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Metric;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.Resource.MetaKey;
-import com.salesforce.dva.warden.dto.Subscription;
 import com.salesforce.dva.warden.dto.SuspensionLevel;
 import com.salesforce.dva.warden.dto.User;
 import com.salesforce.dva.warden.ws.dto.Converter;
@@ -187,17 +186,6 @@ public abstract class AbstractResource {
         result.setSuspensionLevels(policy.getSuspensionLevels().stream().map((l) -> fromEntity(l)).collect(Collectors.toList()));
 
         return result;
-    }
-
-    /**
-     * Converts an subscription entity to an subscription DTO.
-     *
-     * @param subscription
-     *
-     * @return The subscription DTO.
-     */
-    Subscription fromEntity(com.salesforce.dva.argus.entity.Subscription subscription) {
-        return Converter.fromEntity(Subscription.class, subscription);
     }
 
     /**

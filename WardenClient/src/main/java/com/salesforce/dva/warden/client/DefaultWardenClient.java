@@ -23,7 +23,6 @@ package com.salesforce.dva.warden.client;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,10 @@ import com.salesforce.dva.warden.WardenClient;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 import com.salesforce.dva.warden.dto.Resource;
-import com.salesforce.dva.warden.dto.Subscription;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of the WardenClient interface.
@@ -48,10 +50,9 @@ class DefaultWardenClient implements WardenClient {
     final WardenService service;
     final String username;
     final String password;
-    private Thread _updater;
-    private EventServer _listener;
-    private String _hostname;
-    private Subscription _subscription;
+    private Runnable _updater;
+    private Runnable _infractionUpdater;
+    private ScheduledExecutorService _service;
 
     /**
      * Creates a new DefaultWardenClient.
@@ -83,7 +84,7 @@ class DefaultWardenClient implements WardenClient {
         this.service = service;
         this.username = username;
         this.password = password;
-        _hostname = _getHostname();
+        _service = Executors.newScheduledThreadPool(10);
     }
 
     private void _checkIsSuspended(Policy policy, String user) throws SuspendedException {
@@ -95,40 +96,13 @@ class DefaultWardenClient implements WardenClient {
         }
     }
 
-    private String _getHostname() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            return System.getenv("COMPUTERNAME");
-        } else {
-            String hostname = System.getenv("HOSTNAME");
-
-            if (hostname != null) {
-                return hostname;
-            }
-        }
-
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (Exception ex) {
-            return "unknown-host";
-        }
-    }
-
-    private void _initializeUpdaterThread(WardenService service) {
+    private void _initializeUpdaters(List<Policy> policies, WardenService service) {
         _updater = new MetricUpdater(values, service);
-
-        _updater.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-
-                                                 @Override
-                                                 public void uncaughtException(Thread t, Throwable e) {
-                                                     LOGGER.warn("Uncaught exception in metric updater thread.  Restarting updater thread.", e);
-                                                     _terminateUpdaterThread();
-                                                     _initializeUpdaterThread(service);
-                                                 }
-
-                                             });
-        _updater.setDaemon(true);
-        _updater.start();
+        _infractionUpdater = new InfractionUpdater(policies.stream().map(e->e.getId()).collect(Collectors.toSet()), infractions, service);
+        _service.scheduleAtFixedRate(_updater, 30000L, 60000L, TimeUnit.MILLISECONDS);
+        _service.scheduleAtFixedRate(_infractionUpdater, 30000L, 60000L, TimeUnit.MILLISECONDS);
     }
+
 
     private List<Policy> _reconcilePolicies(List<Policy> policies) throws IOException {
         PolicyService policyService = service.getPolicyService();
@@ -166,27 +140,16 @@ class DefaultWardenClient implements WardenClient {
         return result;
     }
 
-    private void _subscribeToEvents(int port) throws IOException {
-        Subscription subscription = new Subscription();
-
-        subscription.setHostname(_hostname);
-        subscription.setPort(port);
-
-        _subscription = service.getSubscriptionService().subscribe(subscription).getResources().get(0).getEntity();
-    }
-
-    private void _terminateUpdaterThread() {
-        _updater.interrupt();
+    private void _terminateUpdaters() {
+        _service.shutdownNow();
 
         try {
-            _updater.join(10000);
+            if(_service.awaitTermination(10, TimeUnit.SECONDS)) {
+                LOGGER.warn("Timeout occurred shutting down client updater tasks.  Giving up.");
+            }
         } catch (InterruptedException ex) {
-            LOGGER.warn("Updater thread failed to stop.  Giving up.");
+            LOGGER.warn("Interrupted while shuttind down client updater tasks.  Giving up.");
         }
-    }
-
-    private void _unsubscribeFromEvents() throws IOException {
-        service.getSubscriptionService().unsubscribe(_subscription);
     }
 
     private void _updateLocalValue(Policy policy, String user, Double value, Boolean replace) {
@@ -210,20 +173,14 @@ class DefaultWardenClient implements WardenClient {
     }
 
     @Override
-    public void register(List<Policy> policies, int port) throws Exception {
+    public void register(List<Policy> policies) throws Exception {
         requireThat(policies != null, "Policy list cannot be null.");
-        requireThat((port > 0) && (port <= 65535), "Invalid port number.");
 
         AuthService authService = service.getAuthService();
 
         authService.login(username, password);
-        _initializeUpdaterThread(service);
-        _reconcilePolicies(policies);
-
-        _listener = new EventServer(port, infractions);
-
-        _listener.start();
-        _subscribeToEvents(port);
+        policies = _reconcilePolicies(policies);
+        _initializeUpdaters(policies, service);
     }
 
     /**
@@ -241,9 +198,7 @@ class DefaultWardenClient implements WardenClient {
 
     @Override
     public void unregister() throws Exception {
-        _unsubscribeFromEvents();
-        _listener.close();
-        _terminateUpdaterThread();
+        _terminateUpdaters();
         service.getAuthService().logout();
     }
 
@@ -293,7 +248,7 @@ class DefaultWardenClient implements WardenClient {
             requireThat(infraction != null, "The infraction cannot be null.");
             _infractions.put(createKey(infraction.getPolicyId(), infraction.getUsername()), infraction);
         }
-
+        
         /**
          * Returns the number of records in the cache.
          *
@@ -394,6 +349,3 @@ class DefaultWardenClient implements WardenClient {
 }
 
 /* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
-
-
-

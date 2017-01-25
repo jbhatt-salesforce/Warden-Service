@@ -28,22 +28,8 @@ import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.dto.Infraction;
 import com.salesforce.dva.warden.dto.Policy;
 
-/**
- * Class description
- *
- *
- * @version        Enter version here..., 2017
- * @author         Tom Valine (tvaline@salesforce.com)
- */
 public class DefaultWardenClientTest extends AbstractTest {
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     * @throws SuspendedException
-     */
     @Test
     public void testModifyMetric() throws IOException, SuspendedException {
         try (WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
@@ -60,13 +46,6 @@ public class DefaultWardenClientTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     * @throws SuspendedException
-     */
     @Test(expected = SuspendedException.class)
     public void testModifyMetricSuspendedUser() throws IOException, SuspendedException {
         try (WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
@@ -85,13 +64,6 @@ public class DefaultWardenClientTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     * @throws SuspendedException
-     */
     @Test
     public void testUpdateMetric() throws IOException, SuspendedException {
         try (WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
@@ -108,13 +80,6 @@ public class DefaultWardenClientTest extends AbstractTest {
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @throws IOException
-     * @throws SuspendedException
-     */
     @Test(expected = SuspendedException.class)
     public void testUpdateMetricSuspendedUser() throws IOException, SuspendedException {
         try (WardenService wardenService = new WardenService(getMockedClient("/AuthServiceTest.testLoginLogout.json"))) {
