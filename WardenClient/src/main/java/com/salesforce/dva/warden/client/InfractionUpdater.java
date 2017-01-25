@@ -19,11 +19,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.salesforce.dva.warden.client;
 
+import com.salesforce.dva.warden.client.DefaultWardenClient.InfractionCache;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 import org.slf4j.LoggerFactory;
-import com.salesforce.dva.warden.client.DefaultWardenClient.ValueCache;
 
 /**
  * Periodically pushes cached policy values for users to the server..
@@ -31,44 +31,33 @@ import com.salesforce.dva.warden.client.DefaultWardenClient.ValueCache;
  * @author Jigna Bhatt (jbhatt@salesforce.com)
  * @author Tom Valine (tvaline@salesforce.com)
  */
-class MetricUpdater implements Runnable {
+class InfractionUpdater implements Runnable {
 
-    private final ValueCache _values;
+    private final InfractionCache _infractions;
     private final WardenService _wardenService;
+    private final Set<BigInteger> _policyIds;
 
     /**
      * Creates a new MetricUpdater object.
      *
-     * @param values The value cache containing the metric values to push to the server. Cannot be null. Must be thread safe.
+     * @param infractions The value cache containing the metric values to push to the server. Cannot be null. Must be thread safe.
      * @param wardenService The warden service to use. Cannot be null.
      */
-    MetricUpdater(ValueCache values, WardenService wardenService) {
-        _values = values;
+    InfractionUpdater(Set<BigInteger> policyIds, InfractionCache infractions, WardenService wardenService) {
+        _infractions = infractions;
         _wardenService = wardenService;
+        _policyIds = policyIds;
     }
 
     @Override
     public void run() {
-
-        Long start = System.currentTimeMillis();
-        Long time = (start / 60000) * 60000;
-        Map<String, Double> copyOfValues = new HashMap<>(_values);
-        PolicyService policyService = _wardenService.getPolicyService();
-
-        copyOfValues.forEach(
-                (String k, Double v) -> {
-                    List<Object> items = _values.getKeyComponents(k);
-                    Map<Long, Double> metric = new HashMap<>();
-
-                    metric.put(time, v);
-
-                    try {
-                        policyService.updateMetricsForUserAndPolicy(BigInteger.class.cast(items.get(0)), items.get(1).toString(), v);
-                    } catch (IOException ex) {
-                        LoggerFactory.getLogger(getClass()).warn("Failed to update metric.", ex);
-                    }
-                });
-
+        _policyIds.stream().forEach(id -> {
+            try {
+                _wardenService.getPolicyService().getSuspensions(id).getResources().stream().forEach(i->_infractions.put(i.getEntity()));
+            } catch (IOException ex) {
+                LoggerFactory.getLogger(getClass()).warn("Failed to update suspensions for {}: {}.", id, ex);
+            }
+        });
     }
 
 }

@@ -24,7 +24,6 @@ import com.salesforce.dva.argus.entity.Infraction;
 import com.salesforce.dva.argus.entity.Policy;
 import com.salesforce.dva.argus.entity.PrincipalUser;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
-import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.service.alert.notifier.WaaSNotifier;
 import com.salesforce.dva.warden.dto.Policy.Aggregator;
 import com.salesforce.dva.warden.dto.Policy.TriggerType;

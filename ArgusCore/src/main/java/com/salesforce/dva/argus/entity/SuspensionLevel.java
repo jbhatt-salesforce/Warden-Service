@@ -3,7 +3,6 @@ package com.salesforce.dva.argus.entity;
 import static com.salesforce.dva.argus.system.SystemAssert.requireArgument;
 
 import java.math.BigInteger;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,10 +18,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
-
-import com.salesforce.dva.argus.util.WaaSObjectConverter;
 
 /**
  * The entity encapsulates information about the suspension levels for a given policy.

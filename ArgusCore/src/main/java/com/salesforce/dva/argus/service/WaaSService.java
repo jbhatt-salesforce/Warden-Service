@@ -23,7 +23,6 @@ package com.salesforce.dva.argus.service;
 import com.salesforce.dva.argus.entity.Infraction;
 import com.salesforce.dva.argus.entity.Metric;
 import com.salesforce.dva.argus.entity.Policy;
-import com.salesforce.dva.argus.entity.Subscription;
 import com.salesforce.dva.argus.entity.SuspensionLevel;
 import java.math.BigInteger;
 import java.util.List;
@@ -48,12 +47,6 @@ public interface WaaSService {
     public Policy updatePolicy(Policy policy);
     
     public void deletePolicy(BigInteger policyId);
-
-    public Subscription updateSubscription(Subscription entity);
-
-    public Subscription getSubscription(BigInteger subscriptionId);
-
-    public void deleteSubscription(BigInteger id);
 
     public SuspensionLevel updateSuspensionLevel(SuspensionLevel toCreate);
 

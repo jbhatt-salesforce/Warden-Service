@@ -147,7 +147,7 @@ public class Resource<T> extends Base {
     @JsonSubTypes( {
 
         @JsonSubTypes.Type(Policy.class) , @JsonSubTypes.Type(Infraction.class) , @JsonSubTypes.Type(SuspensionLevel.class) ,
-        @JsonSubTypes.Type(User.class) , @JsonSubTypes.Type(Subscription.class)
+        @JsonSubTypes.Type(User.class)
 
     })
     public T getEntity() {

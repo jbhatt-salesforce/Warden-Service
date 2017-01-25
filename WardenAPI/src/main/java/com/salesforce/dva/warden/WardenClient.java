@@ -43,15 +43,13 @@ public interface WardenClient {
 
     /**
      * This method is responsible for establishing communication with the warden server. Implementations of the client must reconcile the state of the
-     * provided policies with the server, subscribe to infraction events from the server and periodically publish usage data for policies to the
-     * server.
+     * provided policies with the server and periodically publish usage data for policies to the server.
      *
      * @param   policies  The policies to reconcile.
-     * @param   port      The port on which to listen for infraction events from the server.
      *
      * @throws  Exception  If an error occurs while registering.
      */
-    void register(List<Policy> policies, int port) throws Exception;
+    void register(List<Policy> policies) throws Exception;
 
     /**
      * Terminates communication with the server. Implementations of the client must unsubscribe from events, terminate the publication of usage data

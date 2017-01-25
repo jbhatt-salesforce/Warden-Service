@@ -72,10 +72,10 @@ public class MetricUpdaterTest extends AbstractTest {
             DefaultWardenClient client = new DefaultWardenClient(wardenService, "hpotter", "aZkaban");
             Policy policy = _constructUnPersistedPolicy();
 
-            client.register(Arrays.asList(new Policy[] { policy }), 8080);
+            client.register(Arrays.asList(new Policy[] { policy }));
             policy.setId(BigInteger.ONE);
             client.updateMetric(policy, "hpotter", 1.0);
-            Thread.currentThread().sleep(90000);
+            Thread.currentThread().sleep(45000);
             client.unregister();
             assertTrue(interceptedRequests.size() == 1);
             assertTrue(interceptedRequests.get(0).getJsonInput()==null);

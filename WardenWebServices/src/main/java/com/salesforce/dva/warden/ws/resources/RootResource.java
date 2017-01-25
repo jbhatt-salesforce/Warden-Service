@@ -39,7 +39,6 @@ public class RootResource extends AbstractResource {
         result.add(AuthResource.class);
         result.add(ManagementResource.class);
         result.add(PolicyResource.class);
-        result.add(SubscriptionResource.class);
         result.add(UserResource.class);
 
         return result;

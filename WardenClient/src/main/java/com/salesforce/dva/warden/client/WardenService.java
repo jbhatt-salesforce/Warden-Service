@@ -103,15 +103,6 @@ class WardenService implements AutoCloseable {
     }
 
     /**
-     * Returns an instance of the subscription service.
-     *
-     * @return  The subscription service.
-     */
-    SubscriptionService getSubscriptionService() {
-        return new SubscriptionService(_httpClient);
-    }
-
-    /**
      * Returns an instance of the user service.
      *
      * @return  The user service.
