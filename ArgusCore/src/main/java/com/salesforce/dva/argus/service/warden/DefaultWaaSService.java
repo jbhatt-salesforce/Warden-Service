@@ -117,7 +117,6 @@ public class DefaultWaaSService extends DefaultJPAService implements WaaSService
         String name = ALERT_PREFIX + constructMetricName(policy.getId(), username);
         Notification notification = new Notification(name, alert, WaaSNotifier.class.getName(), Collections.<String>emptyList(), 0L);
 
-        notification.setActive(true);
         notification.setModifiedBy(_admin);
         notification.setCreatedBy(_admin);
         notification.setTriggers(Arrays.asList(new Trigger[] { trigger }));

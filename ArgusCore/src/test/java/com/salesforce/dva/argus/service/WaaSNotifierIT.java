@@ -139,7 +139,7 @@ public class WaaSNotifierIT extends AbstractTest {
 
         alert = system.getServiceFactory().getAlertService().updateAlert(alert);
 
-        NotificationContext context = new NotificationContext(alert, trigger, notification, System.currentTimeMillis(), "foo","bar");
+        NotificationContext context = new NotificationContext(alert, trigger, notification, System.currentTimeMillis(), "foo",null);
         Notifier notifier = system.getServiceFactory().getAlertService().getNotifier(SupportedNotifier.WAAS);
 
         notifier.sendNotification(context);
