@@ -37,6 +37,7 @@ import com.salesforce.dva.argus.service.alert.notifier.AuditNotifier;
 import com.salesforce.dva.argus.service.alert.notifier.EmailNotifier;
 import com.salesforce.dva.argus.service.alert.notifier.GOCNotifier;
 import com.salesforce.dva.argus.service.alert.notifier.GusNotifier;
+import com.salesforce.dva.argus.service.alert.notifier.WaaSNotifier;
 import com.salesforce.dva.argus.service.warden.WardenApiNotifier;
 import com.salesforce.dva.argus.service.warden.WardenPostingNotifier;
 
@@ -49,7 +50,7 @@ public final class NotifierFactory {
 
     //~ Instance fields ******************************************************************************************************************************
 	
-	@Inject
+    @Inject
     private Provider<EmailNotifier> _emailNotifierProvider;
     @Inject
     private Provider<GOCNotifier> _gocNotifierProvider;
@@ -59,6 +60,8 @@ public final class NotifierFactory {
     private Provider<WardenApiNotifier> _wardenApiNotifierProvider;
     @Inject
     private Provider<WardenPostingNotifier> _wardenPostingNotifierProvider;
+    @Inject
+    private Provider<WaaSNotifier> _waaSNotifierProvider;
     @Inject
     private Provider<GusNotifier> _gusNotifierProvider;
     
@@ -91,7 +94,7 @@ public final class NotifierFactory {
     }
     
     /**
-     * Returns an instance of the Wardern API Notifier.
+     * Returns an instance of the Warden API Notifier.
      *
      * @return  An instance of the Warden API Notifier.
      */
@@ -100,7 +103,7 @@ public final class NotifierFactory {
     }
     
     /**
-     * Returns an instance of the Wardern Posting Notifier.
+     * Returns an instance of the Warden Posting Notifier.
      *
      * @return  An instance of the Warden Posting Notifier.
      */
@@ -108,6 +111,15 @@ public final class NotifierFactory {
         return _wardenPostingNotifierProvider.get();
     }
 
+    /**
+     * Returns an instance of the WaaS Notifier.
+     *
+     * @return  An instance of the WaaS Notifier.
+     */
+    public synchronized WaaSNotifier getWaaSNotifier() {
+        return _waaSNotifierProvider.get();
+    }
+    
     /**
      * Returns an instance of the GUS Notifier.
      *

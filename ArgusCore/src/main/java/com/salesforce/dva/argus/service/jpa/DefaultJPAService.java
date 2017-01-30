@@ -111,6 +111,23 @@ public abstract class DefaultJPAService extends DefaultService {
             em.remove(entity);
         }
     }
+    
+    /**
+     * Removes an entity from the database.
+     *
+     * @param  <E>     The entity type.
+     * @param  em      The entity manager to use. Cannot be null.
+     * @param  id      The ID of the entity to remove.  Cannot be null.
+     * @param  type    The type of the entity to remove. Cannot be null.
+     */
+    protected <E extends Identifiable> void deleteEntity(EntityManager em, BigInteger id, Class<E> type) {
+        requireArgument(em != null, "The entity manager cannot be null.");
+        requireArgument(id != null, "The ID cannot be null.");
+        requireArgument(type != null, "The type cannot be null.");
+        Identifiable attached = findEntity(em, id, type);
+        _deleteGlobalRecords(attached, em);
+        em.remove(attached);
+    }    
 
     private <E extends Identifiable> void _deleteGlobalRecords(E entity, EntityManager em) {
         if (JPAEntity.class.isAssignableFrom(entity.getClass())) {

@@ -4,7 +4,7 @@
 
     <groupId>com.salesforce.argus</groupId>
     <artifactId>argus</artifactId>
-    <version>${project.version}</version>
+    <version>2.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Argus</name>
@@ -118,7 +118,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <dockerImages.base.name>rmelick</dockerImages.base.name>
-        <project.version>2.4.1</project.version>
     </properties>
     <build>
         <filters>
@@ -402,5 +401,9 @@
         <module>ArgusWebServices</module>
         <module>ArgusClient</module>
         <module>ArgusSDK</module>
+        <module>WardenAPI</module>
+        <module>WardenClient</module>
+        <module>WardenFilter</module>
+        <module>WardenWebServices</module>
     </modules>
 </project>

@@ -1,0 +1,156 @@
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.
+ * All rights reserved.
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *   
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *      Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
+package com.salesforce.dva.warden.dto;
+
+import java.math.BigInteger;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+/**
+ * Policy usage metric information.
+ *
+ * @author Tom Valine (tvaline@salesforce.com)
+ */
+@JsonPropertyOrder(alphabetic = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Metric extends Base {
+
+    private static final long serialVersionUID = 1L;
+    private Map<Long, Double> datapoints = new TreeMap<>();
+    private BigInteger policyId;
+    private String userName;
+
+    @Override
+    public Metric createExample() {
+        Metric result = new Metric();
+
+        result.datapoints.put(System.currentTimeMillis(), 1.0);
+
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final Metric other = (Metric) obj;
+
+        if (!Objects.equals(this.userName, other.userName)) {
+            return false;
+        }
+
+        if (!Objects.equals(this.datapoints, other.datapoints)) {
+            return false;
+        }
+
+        if (!Objects.equals(this.policyId, other.policyId)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+
+        hash = 37 * hash + Objects.hashCode(this.datapoints);
+        hash = 37 * hash + Objects.hashCode(this.policyId);
+        hash = 37 * hash + Objects.hashCode(this.userName);
+
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Metric{" + "datapoints=" + datapoints + ", policyId=" + policyId + ", userName=" + userName + '}';
+    }
+
+    /**
+     * Returns the data points for the usage data.
+     *
+     * @return The data points for the usage data.
+     */
+    public Map<Long, Double> getDatapoints() {
+        return datapoints;
+    }
+
+    /**
+     * Sets the metric usage data points.
+     *
+     * @param datapoints The data points.
+     */
+    public void setDatapoints(Map<Long, Double> datapoints) {
+        this.datapoints = datapoints;
+    }
+
+    /**
+     * Returns the policy ID.
+     *
+     * @return The policy ID.
+     */
+    public BigInteger getPolicyId() {
+        return policyId;
+    }
+
+    /**
+     * Sets the policy ID.
+     *
+     * @param policyId The policy ID.
+     */
+    public void setPolicyId(BigInteger policyId) {
+        this.policyId = policyId;
+    }
+
+    /**
+     * Returns the userName.
+     *
+     * @return The userName.
+     */
+    public String getUserName() {
+        return userName;
+    }
+
+    /**
+     * Sets the user name.
+     *
+     * @param userName The user name.
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+}
+
+/* Copyright (c) 2015-2017, Salesforce.com, Inc.  All rights reserved. */
