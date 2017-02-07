@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>argus</artifactId>
-        <groupId>com.salesforce.argus</groupId>
-        <version>1.0</version>
+        <artifactId>warden</artifactId>
+        <groupId>com.salesforce.warden</groupId>
+        <version>1.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
-    <artifactId>argus-sdk</artifactId>
+    <artifactId>warden-service-client</artifactId>
     <packaging>jar</packaging>
-    <name>ArgusSDK</name>
-    <description>Java SDK for the Argus Production Monitoring Tool.</description>
+    <name>WardenServiceClient</name>
+    <description>Java client for Warden as a service.</description>
     <properties>
         <top>${project.basedir}/${project.parent.relativePath}</top>
     </properties>
@@ -29,14 +29,13 @@
                         <phase>none</phase>
                     </execution>
                     <execution>
-                        <id>make-assembly</id>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
                         <configuration>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <destFileName>${project.artifactId}-${project.parent.version}.jar</destFileName>
                         </configuration>
-                        <phase>package</phase> 
+                        <phase>package</phase> <!-- bind to the packaging phase -->
                         <goals>
                             <goal>single</goal>
                         </goals>
@@ -55,7 +54,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-resources</outputDirectory>
-                            <includeArtifactIds>argus</includeArtifactIds>
+                            <includeArtifactIds>warden</includeArtifactIds>
                             <includeGroupIds>${project.groupId}</includeGroupIds>
                             <excludeTransitive>true</excludeTransitive>
                             <type>zip</type>
@@ -70,7 +69,7 @@
                         <phase>generate-test-resources</phase>
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-test-resources</outputDirectory>
-                            <includeArtifactIds>argus</includeArtifactIds>
+                            <includeArtifactIds>warden</includeArtifactIds>
                             <includeGroupIds>${project.groupId}</includeGroupIds>
                             <excludeTransitive>true</excludeTransitive>
                             <type>zip</type>
@@ -82,7 +81,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/resources</directory>
+                <directory>src/test/resources</directory>
             </resource>
             <resource>
                 <directory>${project.build.directory}/generated-resources</directory>
@@ -102,9 +101,7 @@
             </testResource>
             <testResource>
                 <directory>${basedir}/src/test/resources</directory>
-                <excludes>
-                    <exclude>**/*.properties</exclude>
-                </excludes>
+                <excludes><exclude>**/*.properties</exclude></excludes>
             </testResource>
             <testResource>
                 <directory>${project.build.directory}/generated-test-resources</directory>
@@ -115,7 +112,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>argus</artifactId>
+            <artifactId>warden</artifactId>
             <version>${project.version}</version>
             <classifier>resources</classifier>
             <type>zip</type>
@@ -123,7 +120,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>argus</artifactId>
+            <artifactId>warden</artifactId>
             <version>${project.version}</version>
             <classifier>test-resources</classifier>
             <type>zip</type>
@@ -136,24 +133,19 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.4.1</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.6.5</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>warden-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.6.5</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.1.7</version>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.6.Final</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -161,15 +153,14 @@
             <version>1.1.7</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.6.5</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.4.1</version>
         </dependency>
     </dependencies>
 </project>

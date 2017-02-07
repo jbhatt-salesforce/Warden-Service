@@ -41,13 +41,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.salesforce.dva.argus.filter.util.PolicyListDeserializer;
-import com.salesforce.dva.argus.system.SystemException;
 import com.salesforce.dva.warden.SuspendedException;
 import com.salesforce.dva.warden.WardenClient;
 import com.salesforce.dva.warden.client.WardenClientBuilder;
 import com.salesforce.dva.warden.dto.Policy;
-
-import joptsimple.internal.Strings;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -111,7 +108,7 @@ public class WardenFilter implements Filter {
 			throws IOException, ServletException {
 		// examine req, get url,verb
 		assertThat(HttpServletRequest.class.isAssignableFrom(request.getClass()), "This is not valid request.",
-				Strings.EMPTY);
+				"");
 
 		HttpServletRequest req = HttpServletRequest.class.cast(request);
 		verb = req.getMethod();
@@ -121,7 +118,7 @@ public class WardenFilter implements Filter {
 		HttpSession session = req.getSession(true);
 		Object remoteUser = session.getAttribute(USER_ATTRIBUTE_NAME);
 		// if remote user is empty, log it
-		assertThat(remoteUser != null, Strings.EMPTY,
+		assertThat(remoteUser != null, "",
 				"The remote user is null! Please take actions if you want to decline this request.");
 
 		if (remoteUser != null) {
@@ -197,16 +194,16 @@ public class WardenFilter implements Filter {
     	return filterConfig.getServletContext().getInitParameter(str);
     }
     
-    private boolean matchKeyComponents(String key, String url, String verb) {
-        assertThat(key != null, "Key cannot be null.", Strings.EMPTY);
-        assertThat(url != null, "URL cannot be null.", Strings.EMPTY);
-        assertThat(verb != null, "VERB cannot be null.", Strings.EMPTY);
+    private boolean matchKeyComponents(String key, String url, String verb)  {
+        assertThat(key != null, "Key cannot be null.", "");
+        assertThat(url != null, "URL cannot be null.", "");
+        assertThat(verb != null, "VERB cannot be null.", "");
 
         String[] components = key.split(":");        
         return url.matches(components[0]) && verb.matches(components[1]);
     }
     
-    private ListMultimap<String, Policy> createPolicyDef(String json_location){
+    private ListMultimap<String, Policy> createPolicyDef(String json_location) {
     	//retrieve value for policies key
     	String allPolicies;
 		try {
@@ -237,11 +234,11 @@ public class WardenFilter implements Filter {
 	 * key string.
 	 */
 	private <T> T toEntity(String content, TypeReference<T> type) {
-		try {
-			return _mapper.readValue(content, type);
-		} catch (IOException ex) {
-			throw new SystemException(ex);
-		}
+            try {
+                return _mapper.readValue(content, type);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
 	}
 
 	private String getPoliciesJsonStr(String json_location)

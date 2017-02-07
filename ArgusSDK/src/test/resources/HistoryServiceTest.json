@@ -1,8 +1,0 @@
-[{
-    "type": "GET",
-    "endpoint": "/history/job/1?limit=1",
-    "jsonInput" :null,
-    "status": 200,
-    "message": "success",
-    "jsonOutput" : "[{\"creationTime\":1472282830936,\"message\":\"TestMessage\",\"hostName\":\"TestHost\",\"entityId\":1,\"jobStatus\":\"TestStatus\",\"executionTime\":100}]"
-}]
